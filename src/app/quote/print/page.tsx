@@ -169,6 +169,7 @@ export default async function PrintPage({
                         pricing={pricing}
                         title=""
                         config={config}
+                        leadData={leadData}
                         additionalRequests={requests}
                         lang={lang}
                     />
