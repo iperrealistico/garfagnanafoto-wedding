@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Garfagnanafoto Wedding
 
-## Getting Started
+Production-grade Next.js application for wedding service quotes and admin management.
 
-First, run the development server:
+## Tech Stack
+- **Next.js 16 (App Router)**
+- **Tailwind CSS**
+- **Framer Motion** (Wizard animations)
+- **Supabase** (Config persistence)
+- **@react-pdf/renderer** (PDF generation)
+- **Jose** (JWT session management)
+- **Vitest** (Unit tests)
+
+## Features
+- **Landing Page**: Modern, Airbnb-like UI showcasing fixed packages and a custom quote wizard.
+- **Custom Wizard**: Guided step-by-step experience to build a personalized wedding package.
+- **Summary & Export**: Instantly see results with VAT breakdown, and export to PDF or Print.
+- **Admin Dashboard**: Single-user password-protected area to manage:
+  - Package prices and descriptions
+  - Wizard questions and their pricing effects
+  - Global settings (VAT, legal copy)
+
+## Setup & Environment Variables
+
+Copy `.env.example` to `.env.local` and fill in the following:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Admin Auth
+ADMIN_PASSWORD=your-secure-password
+ADMIN_SESSION_SECRET=fh_U2WU2XXV2YT_g1Z-fAm-2bisP5nYij7ciT-8qhqR7Yjc4KfZqorTalYD7XoUS
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Database Schema
+Create a table in Supabase called `app_config`:
+- `key`: text (primary key)
+- `value`: jsonb
+- `updated_at`: timestamptz (default now())
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+On first run, the app will attempt to seed the default config if the table exists but is empty/missing our key.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Development
 
-## Learn More
+```bash
+npm install
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Verification
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Typecheck
+npm run typecheck
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Unit Tests (Pricing Engine)
+npm run test
 
-## Deploy on Vercel
+# Build
+npm run build
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+Deployed on Vercel. Ensure the environment variables are set in the Vercel dashboard.
+Domain: `wedding.garfagnanafoto.it`
