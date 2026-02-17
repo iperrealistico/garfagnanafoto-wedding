@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint src/app/layout.tsx src/lib/config-schema.ts src/lib/lead-payload.ts src/lib/lead-cache.ts src/lib/quote-document-url.ts src/lib/url-params.ts src/components/public/lead-form.tsx src/components/public/lead-gate.tsx src/components/public/lead-modal.tsx src/components/public/package-quote-view.tsx src/components/public/print-pdf-page.tsx src/components/public/quote-summary.tsx src/components/custom-flow/step-summary.tsx src/components/custom-flow/wizard-container.tsx src/components/pdf/quote-document.tsx src/app/quote/pdf/route.tsx src/app/quote/print/page.tsx __tests__/pricing.test.ts __tests__/lead-payload.test.ts __tests__/lead-cache-and-url.test.ts __tests__/quote-document-action-router.test.ts e2e/quote-flow.e2e.test.tsx",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "test": "NODE_OPTIONS=\"--require ./scripts/patch-localhost-dns.cjs\" vitest run --api false",
     "test:smoke": "echo 'Run build then start and check /' && exit 0",
-    "test:e2e": "echo 'E2E not configured yet' && exit 0"
+    "test:e2e": "NODE_OPTIONS=\"--require ./scripts/patch-localhost-dns.cjs\" vitest run --api false e2e/quote-flow.e2e.test.tsx"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

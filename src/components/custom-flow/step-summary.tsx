@@ -1,27 +1,24 @@
-import { AppConfig, Lead } from "@/lib/config-schema";
+import { LeadPayload } from "@/lib/config-schema";
 import { PricingResult, CustomAnswers } from "@/lib/pricing-engine";
 import { QuoteSummary } from "@/components/public/quote-summary";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faPrint, faFilePdf, faCheckCircle, faLock } from "@fortawesome/free-solid-svg-icons";
-import { LeadGate } from "@/components/public/lead-gate";
-import { getLocalized } from "@/lib/i18n-utils";
+import { faArrowLeft, faPrint, faFilePdf, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import { resolveQuoteDocumentActionUrl } from "@/lib/quote-document-url";
+import { toast } from "sonner";
 
 interface StepSummaryProps {
     pricing: PricingResult;
-    config: AppConfig;
     answers: CustomAnswers;
     additionalRequests: string;
     onBack: () => void;
-    handleAction: (callback: (lead: Lead) => void) => void;
-    leadData?: Partial<Lead>;
+    handleAction: (callback: (lead: LeadPayload) => void) => void;
+    leadData?: Partial<LeadPayload>;
     lang?: string;
 }
 
 export function StepSummary({
     pricing,
-    config,
     answers,
     additionalRequests,
     onBack,
@@ -29,35 +26,23 @@ export function StepSummary({
     leadData,
     lang = "it"
 }: StepSummaryProps) {
-    const buildQueryString = (lead: any) => {
-        const searchParams = new URLSearchParams();
-        searchParams.set("custom", "true");
-
-        Object.keys(answers).forEach(key => {
-            const val = answers[key];
-            if (typeof val === "boolean" && val) {
-                searchParams.set(key, "1");
-            } else if (typeof val === "string") {
-                searchParams.set(key, val);
-            }
+    const openQuoteAction = (action: "download" | "print", lead: LeadPayload) => {
+        const href = resolveQuoteDocumentActionUrl(action, {
+            isCustom: true,
+            answers,
+            additionalRequests,
+            lead,
         });
 
-        if (additionalRequests) {
-            searchParams.set("requests", additionalRequests);
+        const opened = window.open(href, "_blank", "noopener,noreferrer");
+        if (!opened) {
+            toast.error(
+                lang === "it"
+                    ? "Il browser ha bloccato l'apertura del documento. Consenti i popup e riprova."
+                    : "Your browser blocked the document popup. Allow popups and try again."
+            );
         }
-
-        if (lead) {
-            if (lead.first_name) searchParams.set("first_name", lead.first_name);
-            if (lead.last_name) searchParams.set("last_name", lead.last_name);
-            if (lead.email) searchParams.set("email", lead.email);
-            if (lead.phone) searchParams.set("phone", lead.phone);
-            if (lead.wedding_location) searchParams.set("location", lead.wedding_location);
-        }
-
-        return searchParams.toString();
     };
-
-    const queryString = buildQueryString(leadData);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
@@ -87,9 +72,7 @@ export function StepSummary({
                 <Button
                     size="lg"
                     className="flex-1 h-14 text-lg shadow-md hover:shadow-lg transition-all w-full md:w-auto rounded-2xl"
-                    onClick={() => handleAction((lead) => {
-                        window.open(`/quote/print?${buildQueryString(lead)}`, "_blank");
-                    })}
+                    onClick={() => handleAction((lead) => openQuoteAction("print", lead))}
                 >
                     <FontAwesomeIcon icon={faPrint} className="mr-2" />
                     {lang === 'it' ? 'Stampa Preventivo' : 'Print Quote'}
@@ -98,9 +81,7 @@ export function StepSummary({
                     variant="outline"
                     size="lg"
                     className="flex-1 h-14 text-lg border-2 w-full md:w-auto rounded-2xl"
-                    onClick={() => handleAction((lead) => {
-                        window.open(`/quote/pdf?${buildQueryString(lead)}`, "_blank");
-                    })}
+                    onClick={() => handleAction((lead) => openQuoteAction("download", lead))}
                 >
                     <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
                     {lang === 'it' ? 'Scarica PDF' : 'Download PDF'}

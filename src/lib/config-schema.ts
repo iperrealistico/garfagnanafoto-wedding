@@ -146,6 +146,16 @@ export type AppConfig = z.infer<typeof AppConfigSchema>;
 
 export type AppConfigInput = z.input<typeof AppConfigSchema>;
 
+export const LeadPayloadSchema = z.object({
+    firstName: z.string().trim().min(1, "Il nome è obbligatorio"),
+    lastName: z.string().trim().min(1, "Il cognome è obbligatorio"),
+    email: z.string().trim().email("Email non valida"),
+    phone: z.string().trim().min(5, "Telefono non valido"),
+    weddingLocation: z.string().trim().optional(),
+});
+
+export type LeadPayload = z.infer<typeof LeadPayloadSchema>;
+
 export const LeadSchema = z.object({
     id: z.string().uuid().optional(),
     created_at: z.string().optional(),
@@ -164,4 +174,3 @@ export const LeadSchema = z.object({
 });
 
 export type Lead = z.infer<typeof LeadSchema>;
-

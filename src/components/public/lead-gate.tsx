@@ -1,17 +1,20 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { Lead } from "@/lib/config-schema";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { Lead, LeadPayload } from "../../lib/config-schema";
 import { LeadModal } from "./lead-modal";
-import { hashQuote } from "@/lib/hash-utils";
+import { hashQuote } from "../../lib/hash-utils";
+import { readLeadFromSession, writeLeadToSession } from "../../lib/lead-cache";
+import { toLeadPayload } from "../../lib/lead-payload";
+import { toast } from "sonner";
 
 interface LeadGateProps {
     children: (props: {
-        handleAction: (callback: (lead: Lead) => void) => void;
+        handleAction: (callback: (lead: LeadPayload) => void) => void;
         hasLead: boolean;
-        leadData?: Partial<Lead>;
+        leadData?: Partial<LeadPayload>;
     }) => React.ReactNode;
-    quoteSnapshot: any;
+    quoteSnapshot: unknown;
     gdprNotice: string;
     lang: string;
     initialLeadData?: Partial<Lead>;
@@ -25,10 +28,25 @@ export function LeadGate({
     initialLeadData
 }: LeadGateProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [pendingCallback, setPendingCallback] = useState<((lead: Lead) => void) | null>(null);
-    const [leadState, setLeadState] = useState<{ hasLead: boolean; data?: Lead }>({ hasLead: false });
+    const [pendingCallback, setPendingCallback] = useState<((lead: LeadPayload) => void) | null>(null);
+    const [leadState, setLeadState] = useState<{ hasLead: boolean; data?: LeadPayload }>({ hasLead: false });
+    const quoteId = useMemo(() => hashQuote(quoteSnapshot), [quoteSnapshot]);
 
-    const handleAction = useCallback((callback: (lead: Lead) => void) => {
+    useEffect(() => {
+        const cachedLead = readLeadFromSession(quoteId);
+
+        if (cachedLead) {
+            setLeadState({
+                hasLead: true,
+                data: cachedLead,
+            });
+            return;
+        }
+
+        setLeadState({ hasLead: false });
+    }, [quoteId]);
+
+    const handleAction = useCallback((callback: (lead: LeadPayload) => void) => {
         if (leadState.hasLead && leadState.data) {
             callback(leadState.data);
             return;
@@ -38,17 +56,24 @@ export function LeadGate({
         setIsModalOpen(true);
     }, [leadState]);
 
-    const handleSuccess = (data: Lead) => {
-        // Just keep in memory for this component's lifecycle
-        const quoteId = hashQuote(quoteSnapshot);
-        const leadWithQuote = { ...data, quote_id: quoteId, quote_snapshot: quoteSnapshot };
+    const handleSuccess = (data: LeadPayload) => {
+        writeLeadToSession(quoteId, data);
 
-        setLeadState({ hasLead: true, data: leadWithQuote });
+        setLeadState({ hasLead: true, data });
         setIsModalOpen(false);
 
         // Immediately execute the requested action
         if (pendingCallback) {
-            pendingCallback(leadWithQuote);
+            try {
+                pendingCallback(data);
+            } catch (error) {
+                console.error("Failed to execute pending quote action", error);
+                toast.error(
+                    lang === "it"
+                        ? "Si è verificato un errore nell'apertura del documento."
+                        : "An error occurred while opening the document."
+                );
+            }
             setPendingCallback(null);
         }
     };
@@ -69,10 +94,12 @@ export function LeadGate({
                 onSuccess={handleSuccess}
                 gdprNotice={gdprNotice}
                 lang={lang}
-                initialData={{
+                leadMeta={{
                     ...initialLeadData,
+                    quote_id: quoteId,
                     quote_snapshot: quoteSnapshot
                 }}
+                initialPayload={toLeadPayload(leadState.data)}
             />
         </>
     );

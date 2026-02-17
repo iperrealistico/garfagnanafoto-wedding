@@ -1,14 +1,14 @@
 import { PricingResult } from "@/lib/pricing-engine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLocalized } from "@/lib/i18n-utils";
-import { Lead, AppConfig } from "@/lib/config-schema";
+import { LeadPayload, AppConfig } from "@/lib/config-schema";
 
 interface QuoteSummaryProps {
     pricing: PricingResult;
     title: string;
     config?: AppConfig;
     additionalRequests?: string;
-    leadData?: Partial<Lead>;
+    leadData?: Partial<LeadPayload>;
     lang?: string;
 }
 
@@ -37,22 +37,22 @@ export function QuoteSummary({
                 <CardTitle className="text-xl font-bold text-gray-800">{title}</CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-6">
-                {leadData && (leadData.first_name || leadData.wedding_location) && (
+                {leadData && (leadData.firstName || leadData.weddingLocation) && (
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        {leadData.first_name && (
+                        {leadData.firstName && (
                             <div className="md:col-span-2">
                                 <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.client}</span>
-                                <span className="font-semibold text-gray-900">{leadData.first_name} {leadData.last_name}</span>
+                                <span className="font-semibold text-gray-900">{leadData.firstName} {leadData.lastName}</span>
                                 <span className="text-gray-400 mx-2">|</span>
                                 <span className="text-gray-600 font-medium">{leadData.email}</span>
                                 <span className="text-gray-400 mx-2">|</span>
                                 <span className="text-gray-600 font-medium">{leadData.phone}</span>
                             </div>
                         )}
-                        {leadData.wedding_location && (
+                        {leadData.weddingLocation && (
                             <div className="md:col-span-2 pt-2 border-t border-gray-100 mt-2">
                                 <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.location}</span>
-                                <span className="font-semibold text-gray-900">{leadData.wedding_location}</span>
+                                <span className="font-semibold text-gray-900">{leadData.weddingLocation}</span>
                             </div>
                         )}
                     </div>
@@ -111,7 +111,7 @@ export function QuoteSummary({
                             <div>
                                 <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider mb-1">{labels.notes}</span>
                                 <p className="text-sm text-gray-700 bg-amber-50/50 p-3 rounded italic border border-amber-100/50">
-                                    "{additionalRequests}"
+                                    {additionalRequests}
                                 </p>
                             </div>
                         )}

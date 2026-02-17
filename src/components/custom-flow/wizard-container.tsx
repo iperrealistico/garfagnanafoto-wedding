@@ -1,17 +1,16 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { AppConfig, Question, Lead } from "@/lib/config-schema";
+import { AppConfig, Question } from "@/lib/config-schema";
 import { calculateCustomQuote, CustomAnswers } from "@/lib/pricing-engine";
 import { StepQuestion } from "./step-question";
 import { StepSummary } from "./step-summary";
 import { StepAdditionalRequests } from "./step-additional-requests";
-import { LeadForm } from "../public/lead-form";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faUserCheck, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faLock } from "@fortawesome/free-solid-svg-icons";
 import { getLocalized } from "@/lib/i18n-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -75,7 +74,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
                     </Button>
                 </form>
                 <p className="text-xs text-center text-gray-400">
-                    Se non conosci la password, scegli uno dei <a href="/" className="text-[#719436] underline">pacchetti standard</a>.
+                    Se non conosci la password, scegli uno dei <Link href="/" className="text-[#719436] underline">pacchetti standard</Link>.
                 </p>
             </CardContent>
         </Card>
@@ -232,7 +231,6 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                             return (
                                 <StepSummary
                                     pricing={pricing}
-                                    config={config}
                                     answers={answers}
                                     additionalRequests={additionalRequests}
                                     onBack={goBack}

@@ -3,18 +3,33 @@ import { calculateFixedPackageQuote, calculateCustomQuote } from "@/lib/pricing-
 import { NextResponse } from "next/server";
 import { parseCustomParams } from "@/lib/url-params";
 import { getLocalized } from "@/lib/i18n-utils";
+import { readLeadPayloadFromSearchParams } from "@/lib/lead-payload";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const packageId = searchParams.get("packageId");
     const isCustom = searchParams.get("custom") === "true";
-    const firstName = searchParams.get("first_name") || "";
-    const lastName = searchParams.get("last_name") || "";
-    const email = searchParams.get("email") || "";
-    const phone = searchParams.get("phone") || "";
-    const location = searchParams.get("location") || "";
     const requests = searchParams.get("requests") || "";
     const lang = "it";
+    const leadPayload = readLeadPayloadFromSearchParams(searchParams);
+    const firstName = leadPayload.firstName || "";
+    const lastName = leadPayload.lastName || "";
+    const now = new Date();
+    const date = new Intl.DateTimeFormat("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "Europe/Rome",
+    }).format(now);
+    const generatedAt = `${new Intl.DateTimeFormat("it-IT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZone: "Europe/Rome",
+    }).format(now)} (Europe/Rome)`;
 
     try {
         const config = await getAppConfig();
@@ -48,14 +63,9 @@ export async function GET(request: Request) {
                 pricing={pricing}
                 pkgName={pkgName}
                 pkgDescription={pkgDescription}
-                date={new Date().toLocaleDateString("it-IT")}
-                leadData={{
-                    first_name: firstName,
-                    last_name: lastName,
-                    email: email,
-                    phone: phone,
-                    wedding_location: location
-                }}
+                date={date}
+                generatedAt={generatedAt}
+                leadData={leadPayload}
                 additionalRequests={requests}
             />
         );
@@ -68,10 +78,11 @@ export async function GET(request: Request) {
                 "Content-Disposition": `inline; filename="${filename}"`,
             },
         });
-    } catch (e: any) {
+    } catch (e: unknown) {
+        const message = e instanceof Error ? e.message : "Unknown error";
         console.error("PDF generation error:", e);
         return new NextResponse(
-            `PDF generation failed: ${e.message}. Please try the Print option instead.`,
+            `PDF generation failed: ${message}. Please try the Print option instead.`,
             { status: 500 }
         );
     }

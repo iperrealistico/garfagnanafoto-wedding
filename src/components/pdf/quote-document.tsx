@@ -1,5 +1,5 @@
-import { Page, Text, View, Document, StyleSheet, Font } from "@react-pdf/renderer";
-import { AppConfig, Lead } from "@/lib/config-schema";
+import { Page, Text, View, Document, StyleSheet } from "@react-pdf/renderer";
+import { AppConfig, LeadPayload } from "@/lib/config-schema";
 import { PricingResult } from "@/lib/pricing-engine";
 import { getLocalized } from "@/lib/i18n-utils";
 
@@ -154,7 +154,8 @@ interface QuoteDocumentProps {
     pkgName: string;
     pkgDescription?: string;
     date: string;
-    leadData?: Partial<Lead>;
+    generatedAt: string;
+    leadData?: Partial<LeadPayload>;
     additionalRequests?: string;
     lang?: string;
 }
@@ -165,6 +166,7 @@ export const QuoteDocument = ({
     pkgName,
     pkgDescription,
     date,
+    generatedAt,
     leadData,
     additionalRequests,
     lang = "it"
@@ -191,24 +193,15 @@ export const QuoteDocument = ({
                 <View style={styles.infoGrid}>
                     <View style={styles.infoCol}>
                         <Text style={styles.infoLabel}>Cliente</Text>
-                        <Text style={styles.infoValue}>
-                            {leadData?.first_name || leadData?.last_name
-                                ? `${leadData.first_name} ${leadData.last_name}`.trim()
-                                : "---"}
-                        </Text>
-                        <View style={{ marginTop: 4, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
-                            {leadData?.email && (
-                                <Text style={{ fontSize: 8, color: "#666" }}>Email: {leadData.email}</Text>
-                            )}
-                            {leadData?.phone && (
-                                <Text style={{ fontSize: 8, color: "#666" }}>Tel: {leadData.phone}</Text>
-                            )}
-                        </View>
-                        {leadData?.wedding_location && (
-                            <Text style={{ fontSize: 8, color: "#666", marginTop: 4, fontWeight: "bold" }}>
-                                Location: {leadData.wedding_location}
+                        <View style={{ marginTop: 2, gap: 2 }}>
+                            <Text style={{ fontSize: 8, color: "#666" }}>Nome: {leadData?.firstName || "---"}</Text>
+                            <Text style={{ fontSize: 8, color: "#666" }}>Cognome: {leadData?.lastName || "---"}</Text>
+                            <Text style={{ fontSize: 8, color: "#666" }}>Email: {leadData?.email || "---"}</Text>
+                            <Text style={{ fontSize: 8, color: "#666" }}>Telefono: {leadData?.phone || "---"}</Text>
+                            <Text style={{ fontSize: 8, color: "#666", fontWeight: "bold" }}>
+                                Indirizzo location matrimonio: {leadData?.weddingLocation || "---"}
                             </Text>
-                        )}
+                        </View>
                     </View>
                     <View style={{ ...styles.infoCol, textAlign: "right" }}>
                         <Text style={styles.infoLabel}>Documento</Text>
@@ -282,7 +275,7 @@ export const QuoteDocument = ({
                         {additionalRequests && (
                             <View>
                                 <Text style={styles.infoLabel}>Note Aggiuntive</Text>
-                                <Text style={{ fontStyle: "italic", marginTop: 5, lineHeight: 1.4 }}>"{additionalRequests}"</Text>
+                                <Text style={{ fontStyle: "italic", marginTop: 5, lineHeight: 1.4 }}>{additionalRequests}</Text>
                             </View>
                         )}
                     </View>
@@ -292,7 +285,7 @@ export const QuoteDocument = ({
                 <View style={styles.footer}>
                     <Text>{getLocalized(config.legalCopy.deliveryTime, lang)} | {getLocalized(config.legalCopy.paymentTerms, lang)}</Text>
                     <Text style={{ marginTop: 5 }}>{getLocalized(config.legalCopy.disclaimer, lang)}</Text>
-                    <Text style={{ marginTop: 10, color: "#ddd" }}>Documento generato il {date} - 17:00:00 (GMT+1)</Text>
+                    <Text style={{ marginTop: 10, color: "#ddd" }}>Documento generato il {generatedAt}</Text>
                 </View>
             </Page>
         </Document>
