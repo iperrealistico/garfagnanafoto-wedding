@@ -8,13 +8,17 @@ async function handleLogout() {
     redirect("/admin/login");
 }
 
-export default function DashboardLayout({
+import { getAppConfig } from "@/lib/config-server";
+
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const config = await getAppConfig();
+
     return (
-        <AdminLayoutShell logoutAction={handleLogout}>
+        <AdminLayoutShell logoutAction={handleLogout} config={config}>
             {children}
         </AdminLayoutShell>
     );

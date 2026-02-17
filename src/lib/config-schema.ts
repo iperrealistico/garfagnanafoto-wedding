@@ -69,14 +69,20 @@ export const HeaderConfigSchema = z.object({
     }),
 });
 
+export const SeoConfigSchema = z.object({
+    metaTitle: LocalizedStringSchema.optional(),
+    metaDescription: LocalizedStringSchema.optional(),
+    featuredImage: z.string().optional(),
+});
+
 export const GlobalCopySchema = z.object({
     heroTitle: LocalizedStringSchema,
     heroSubtitle: LocalizedStringSchema.optional(),
     reviews: z.object({
-        ratingValue: z.number().default(5.0),
+        ratingValue: z.preprocess((val) => typeof val === 'string' ? parseFloat(val) : val, z.number().default(5.0)),
         ratingLabel: LocalizedStringSchema,
         location: LocalizedStringSchema,
-        reviewsUrl: z.string().default("#"),
+        reviewsUrl: z.string().optional().default("#"),
     }),
     footerText: LocalizedStringSchema.optional(),
 });
@@ -92,16 +98,22 @@ export const AppConfigSchema = z.object({
     }),
     copy: GlobalCopySchema.optional(),
     header: HeaderConfigSchema.optional(),
+    seo: SeoConfigSchema.optional(),
     images: z.object({
         hero: z.string().default("/images/garfagnana-foto-wedding-11.jpg"),
         gallery: z.preprocess((val) => {
-            if (Array.isArray(val) && val.length > 0 && typeof val[0] === "string") {
-                return val.map((src, index) => ({
-                    id: `img_${index}_${Date.now()}`,
-                    src,
-                    altByLocale: { it: "", en: "" },
-                    order: index,
-                }));
+            if (Array.isArray(val)) {
+                return val.map((item, index) => {
+                    if (typeof item === "string") {
+                        return {
+                            id: `img_${index}_${Date.now()}`,
+                            src: item,
+                            altByLocale: { it: "", en: "" },
+                            order: index,
+                        };
+                    }
+                    return item;
+                });
             }
             return val;
         }, z.array(GalleryImageSchema)).default([]),

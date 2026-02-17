@@ -16,12 +16,19 @@ export const revalidate = 0;
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;
   const config = await getAppConfig();
-  const title = getLocalized(config.copy?.heroTitle, lang) || "Garfagnanafoto Wedding";
-  const desc = getLocalized(config.packages[0]?.description, lang) || "Servizi di alta qualità per il tuo giorno speciale.";
+
+  // Use SEO config or fallbacks
+  const title = getLocalized(config.seo?.metaTitle, lang) || getLocalized(config.header?.title, lang) || "Garfagnanafoto Wedding";
+  const desc = getLocalized(config.seo?.metaDescription, lang) || getLocalized(config.packages[0]?.description, lang) || "Servizi di alta qualità per il tuo giorno speciale.";
 
   return {
-    title: `${title} | Garfagnanafoto`,
+    title,
     description: desc,
+    openGraph: {
+      title,
+      description: desc,
+      images: config.seo?.featuredImage ? [config.seo.featuredImage] : undefined
+    }
   };
 }
 
@@ -37,6 +44,10 @@ export default async function Home({
   const heroImage = images?.hero || "/images/garfagnana-foto-wedding-11.jpg";
   const gallery = images?.gallery || [];
 
+  // Branding Logic: Check for Dots
+  const titleString = getLocalized(config.header?.title, lang) || "Garfagnanafoto.it";
+  const titleParts = titleString.split(".");
+
   return (
     <main className="min-h-screen bg-white">
       {/* Navigation Space */}
@@ -51,14 +62,19 @@ export default async function Home({
                 className="object-contain"
               />
             </div>
-            <span className="text-xl font-bold tracking-tight text-primary">
-              {getLocalized(config.header?.title, lang) || "Garfagnanafoto"}
+            <span className="text-xl font-bold tracking-tight text-[#4c4c4c]">
+              {titleParts.map((part, i) => (
+                <span key={i}>
+                  {part}
+                  {i < titleParts.length - 1 && <span className="text-[#719436]">.</span>}
+                </span>
+              ))}
             </span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link href="#gallery" className="hover:text-primary transition-colors">Galleria</Link>
             <Link href="#packages" className="hover:text-primary transition-colors">Pacchetti</Link>
-            <Link href="/custom" className="px-4 py-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors">Preventivo Custom</Link>
+            <Link href="/custom" className="px-4 py-2 bg-[#719436] text-white rounded-full hover:bg-[#719436]/90 transition-colors">Preventivo Custom</Link>
           </div>
         </div>
       </nav>
@@ -71,10 +87,20 @@ export default async function Home({
             <h1 className="text-3xl font-semibold text-gray-900 tracking-tight">{getLocalized(config.copy?.heroTitle, lang) || "Reportage di Matrimonio in Toscana"}</h1>
             <div className="flex items-center gap-4 mt-2 text-sm text-gray-600">
               <span className="flex items-center gap-1 font-medium"><FontAwesomeIcon icon={faStar} className="text-xs" /> {config.copy?.reviews?.ratingValue ?? 5.0}</span>
-              <a href={config.copy?.reviews?.reviewsUrl ?? "#"} target="_blank" rel="noopener noreferrer" className="underline font-medium cursor-pointer hover:text-black">
-                {getLocalized(config.copy?.reviews?.ratingLabel, lang) ?? "124 recensioni"}
-              </a>
-              <span className="underline font-medium cursor-pointer">{getLocalized(config.copy?.reviews?.location, lang) ?? "Castiglione di Garfagnana, Italia"}</span>
+
+              {config.copy?.reviews?.reviewsUrl && config.copy.reviews.reviewsUrl !== "#" ? (
+                <a href={config.copy?.reviews?.reviewsUrl} target="_blank" rel="noopener noreferrer" className="underline font-medium cursor-pointer hover:text-black">
+                  {getLocalized(config.copy?.reviews?.ratingLabel, lang) ?? "124 recensioni"}
+                </a>
+              ) : (
+                <span className="font-medium">
+                  {getLocalized(config.copy?.reviews?.ratingLabel, lang) ?? "124 recensioni"}
+                </span>
+              )}
+
+              <span className="font-medium text-gray-400">•</span>
+
+              <span className="font-medium">{getLocalized(config.copy?.reviews?.location, lang) ?? "Castiglione di Garfagnana, Italia"}</span>
             </div>
           </div>
           <div className="flex gap-4">
@@ -112,6 +138,7 @@ export default async function Home({
               vatRate={vatRate}
               href={`/quote?packageId=${pkg.id}`}
               isPopular={pkg.id === "pkg_photo_video"}
+              lang={lang}
             />
           ))}
           <div className="bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-300 flex flex-col justify-center items-center text-center">

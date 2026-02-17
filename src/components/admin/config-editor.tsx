@@ -24,6 +24,7 @@ import { PackagesSection } from "./sections/PackagesSection";
 import { QuestionsSection } from "./sections/QuestionsSection";
 import { LegalSection } from "./sections/LegalSection";
 import { IntegrationsSection } from "./sections/IntegrationsSection";
+import { SeoSection } from "./sections/SeoSection";
 
 interface ConfigEditorProps {
     initialConfig: AppConfig;
@@ -82,6 +83,8 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                 return <QuestionsSection config={config} updateConfig={handleUpdateConfig} />;
             case "legal":
                 return <LegalSection config={config} updateConfig={handleUpdateConfig} />;
+            case "seo":
+                return <SeoSection config={config} updateConfig={handleUpdateConfig} />;
             case "integrations":
                 return <IntegrationsSection config={config} updateConfig={handleUpdateConfig} />;
             default:

@@ -13,10 +13,10 @@ interface PackageCardProps {
     vatRate: number;
     href: string;
     isPopular?: boolean;
+    lang?: string;
 }
 
-export function PackageCard({ pkg, vatRate, href, isPopular }: PackageCardProps) {
-    const lang = "it"; // TODO: get from props
+export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: PackageCardProps) {
     // Calculate total net for fixed package defaults
     const subtotal = pkg.lineItems.reduce((sum, item) => sum + item.priceNet, 0);
     const totalNet = Math.max(0, subtotal + pkg.packageAdjustmentNet);

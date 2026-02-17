@@ -21,7 +21,10 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
+import { AppConfig } from "@/lib/config-schema";
+
 interface AdminSidebarProps {
+    config: AppConfig;
     onSectionChange?: (section: string) => void;
     activeSection?: string;
     logoutAction: () => Promise<void>;
@@ -38,7 +41,7 @@ export const ADMIN_SECTIONS = [
     { id: "integrations", label: "Integrations", icon: Github },
 ];
 
-export function AdminSidebar({ onSectionChange, activeSection, logoutAction }: AdminSidebarProps) {
+export function AdminSidebar({ config, onSectionChange, activeSection, logoutAction }: AdminSidebarProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleSidebar = () => setIsOpen(!isOpen);
@@ -47,6 +50,8 @@ export function AdminSidebar({ onSectionChange, activeSection, logoutAction }: A
         onSectionChange?.(id);
         setIsOpen(false);
     };
+
+    const titleParts = (config.header?.title?.it || "Garfagnanafoto.it").split('.');
 
     return (
         <>
@@ -76,7 +81,12 @@ export function AdminSidebar({ onSectionChange, activeSection, logoutAction }: A
                 <div className="h-full flex flex-col">
                     <div className="p-6 border-b">
                         <h1 className="text-xl font-bold tracking-tight text-[#4c4c4c]">
-                            Garfagnanafoto<span className="text-[#719436]">.</span>
+                            {titleParts.map((part, i) => (
+                                <span key={i}>
+                                    {part}
+                                    {i < titleParts.length - 1 && <span className="text-[#719436]">.</span>}
+                                </span>
+                            ))}
                         </h1>
                         <p className="text-xs text-gray-500 mt-1 uppercase tracking-widest font-semibold">Admin Panel</p>
                     </div>

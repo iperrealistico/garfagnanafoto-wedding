@@ -8,9 +8,10 @@ interface LocalizedInputProps {
     onChange: (val: LocalizedString) => void;
     label?: string;
     multiline?: boolean;
+    placeholder?: { it?: string; en?: string };
 }
 
-export function LocalizedInput({ value, onChange, label, multiline }: LocalizedInputProps) {
+export function LocalizedInput({ value, onChange, label, multiline, placeholder }: LocalizedInputProps) {
     return (
         <div className="space-y-2">
             {label && <Label>{label}</Label>}
@@ -21,11 +22,13 @@ export function LocalizedInput({ value, onChange, label, multiline }: LocalizedI
                         <Textarea
                             value={value.it}
                             onChange={(e) => onChange({ ...value, it: e.target.value })}
+                            placeholder={placeholder?.it}
                         />
                     ) : (
                         <Input
                             value={value.it}
                             onChange={(e) => onChange({ ...value, it: e.target.value })}
+                            placeholder={placeholder?.it}
                         />
                     )}
                 </div>
@@ -35,11 +38,13 @@ export function LocalizedInput({ value, onChange, label, multiline }: LocalizedI
                         <Textarea
                             value={value.en || ""}
                             onChange={(e) => onChange({ ...value, en: e.target.value })}
+                            placeholder={placeholder?.en}
                         />
                     ) : (
                         <Input
                             value={value.en || ""}
                             onChange={(e) => onChange({ ...value, en: e.target.value })}
+                            placeholder={placeholder?.en}
                         />
                     )}
                 </div>

@@ -18,6 +18,10 @@ export async function updateConfigAction(formData: AppConfig) {
         return { success: true };
     } catch (e: any) {
         console.error("Failed to update config", e);
+        if (e.errors) {
+            const issues = e.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ');
+            return { success: false, error: `Validation Error: ${issues}` };
+        }
         return { success: false, error: e.message };
     }
 }

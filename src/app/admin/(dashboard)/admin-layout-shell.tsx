@@ -3,13 +3,15 @@
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { AdminSidebar, ADMIN_SECTIONS } from "@/components/admin/admin-sidebar";
 import { Toaster } from "sonner";
+import { AppConfig } from "@/lib/config-schema";
 
 interface AdminLayoutShellProps {
     children: React.ReactNode;
     logoutAction: () => Promise<void>;
+    config: AppConfig;
 }
 
-export function AdminLayoutShell({ children, logoutAction }: AdminLayoutShellProps) {
+export function AdminLayoutShell({ children, logoutAction, config }: AdminLayoutShellProps) {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
@@ -30,6 +32,7 @@ export function AdminLayoutShell({ children, logoutAction }: AdminLayoutShellPro
             <Toaster position="top-right" richColors />
 
             <AdminSidebar
+                config={config}
                 activeSection={activeSection}
                 onSectionChange={handleSectionChange}
                 logoutAction={logoutAction}

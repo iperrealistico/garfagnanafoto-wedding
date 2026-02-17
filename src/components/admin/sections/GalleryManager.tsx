@@ -96,7 +96,10 @@ export function GalleryManager({ config, updateConfig }: GalleryManagerProps) {
             id: `img_${Date.now()}`,
             src: src,
             order: images.length,
-            altByLocale: { it: "", en: "" }
+            altByLocale: {
+                it: "Matrimonio in Garfagnana",
+                en: "Wedding in Tuscany"
+            }
         };
 
         updateConfig({

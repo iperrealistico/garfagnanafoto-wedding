@@ -48,14 +48,6 @@ export function ReviewsSection({ config, updateConfig }: ReviewsSectionProps) {
                                 onChange={(e) => handleUpdateReviews({ ratingValue: parseFloat(e.target.value) })}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label>External Reviews URL</Label>
-                            <Input
-                                value={config.copy?.reviews?.reviewsUrl ?? ""}
-                                onChange={(e) => handleUpdateReviews({ reviewsUrl: e.target.value })}
-                                placeholder="https://www.google.com/maps/..."
-                            />
-                        </div>
                     </div>
 
                     <LocalizedInput
