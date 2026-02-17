@@ -4,7 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 // Need to create Separator or use <hr> or border
 
+import { getLocalized } from "@/lib/i18n-utils";
+
 export function QuoteSummary({ pricing, title }: { pricing: PricingResult; title: string }) {
+    const lang = "it"; // TODO: get from props or context
     return (
         <Card className="w-full bg-white shadow-lg overflow-hidden">
             <CardHeader className="bg-gray-50 border-b">
@@ -14,7 +17,7 @@ export function QuoteSummary({ pricing, title }: { pricing: PricingResult; title
                 <div className="space-y-2">
                     {pricing.lineItems.map((item) => (
                         <div key={item.id} className="flex justify-between text-sm">
-                            <span className="text-gray-700">{item.label}</span>
+                            <span className="text-gray-700">{getLocalized(item.label, lang)}</span>
                             <span className="font-medium">€{item.priceNet}</span>
                         </div>
                     ))}

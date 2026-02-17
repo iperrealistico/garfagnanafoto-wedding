@@ -92,76 +92,82 @@ interface QuoteDocumentProps {
     date: string;
 }
 
-export const QuoteDocument = ({ config, pricing, pkgName, pkgDescription, date }: QuoteDocumentProps) => (
-    <Document>
-        <Page size="A4" style={styles.page}>
+import { getLocalized } from "@/lib/i18n-utils";
 
-            {/* Header */}
-            <View style={styles.header}>
-                <Text style={styles.title}>Garfagnanafoto Wedding</Text>
-                <Text style={styles.subtitle}>Preventivo Servizio Fotografico/Video</Text>
-                <Text style={styles.subtitle}>Data: {date}</Text>
-            </View>
+export const QuoteDocument = ({ config, pricing, pkgName, pkgDescription, date }: QuoteDocumentProps) => {
+    const lang = "it"; // TODO: get from props? route.tsx should pass lang
 
-            {/* Package Info */}
-            <View style={styles.section}>
-                <Text style={styles.pkgTitle}>{pkgName}</Text>
-                {pkgDescription && <Text style={styles.pkgDesc}>{pkgDescription}</Text>}
-            </View>
+    return (
+        <Document>
+            <Page size="A4" style={styles.page}>
 
-            {/* Line Items */}
-            <View style={styles.section}>
-                {pricing.lineItems.map((item) => (
-                    <View key={item.id} style={styles.row}>
-                        <Text style={styles.rowLabel}>{item.label}</Text>
-                        <Text style={styles.rowValue}>{item.priceNet.toFixed(2)} €</Text>
-                    </View>
-                ))}
-            </View>
-
-            {/* Totals */}
-            <View style={styles.totals}>
-                <View style={styles.totalRow}>
-                    <Text>Imponibile</Text>
-                    <Text>{pricing.subtotalNet.toFixed(2)} €</Text>
+                {/* Header */}
+                <View style={styles.header}>
+                    <Text style={styles.title}>Garfagnanafoto Wedding</Text>
+                    <Text style={styles.subtitle}>Preventivo Servizio Fotografico/Video</Text>
+                    <Text style={styles.subtitle}>Data: {date}</Text>
                 </View>
 
-                {pricing.packageAdjustmentNet !== 0 && (
+                {/* Package Info */}
+                <View style={styles.section}>
+                    <Text style={styles.pkgTitle}>{pkgName}</Text>
+                    {pkgDescription && <Text style={styles.pkgDesc}>{pkgDescription}</Text>}
+                </View>
+
+                {/* Line Items */}
+                <View style={styles.section}>
+                    {pricing.lineItems.map((item) => (
+                        <View key={item.id} style={styles.row}>
+                            <Text style={styles.rowLabel}>{getLocalized(item.label, lang)}</Text>
+                            <Text style={styles.rowValue}>{item.priceNet.toFixed(2)} €</Text>
+                        </View>
+                    ))}
+                </View>
+
+                {/* Totals */}
+                <View style={styles.totals}>
                     <View style={styles.totalRow}>
-                        <Text>Sconto/Adeguamento</Text>
-                        <Text>{pricing.packageAdjustmentNet.toFixed(2)} €</Text>
+                        <Text>Imponibile</Text>
+                        <Text>{pricing.subtotalNet.toFixed(2)} €</Text>
                     </View>
-                )}
 
-                <View style={{ ...styles.totalRow, marginTop: 5 }}>
-                    <Text style={styles.totalLabel}>Totale Netto</Text>
-                    <Text style={styles.totalValue}>{pricing.totalNet.toFixed(2)} €</Text>
+                    {pricing.packageAdjustmentNet !== 0 && (
+                        <View style={styles.totalRow}>
+                            <Text>Sconto/Adeguamento</Text>
+                            <Text>{pricing.packageAdjustmentNet.toFixed(2)} €</Text>
+                        </View>
+                    )}
+
+                    <View style={{ ...styles.totalRow, marginTop: 5 }}>
+                        <Text style={styles.totalLabel}>Totale Netto</Text>
+                        <Text style={styles.totalValue}>{pricing.totalNet.toFixed(2)} €</Text>
+                    </View>
+
+                    <View style={styles.totalRow}>
+                        <Text>IVA {(pricing.vatRate * 100).toFixed(0)}%</Text>
+                        <Text>{pricing.vatAmount.toFixed(2)} €</Text>
+                    </View>
+
+                    <View style={{ ...styles.totalRow, marginTop: 5, fontSize: 14 }}>
+                        <Text style={{ fontWeight: "bold" }}>Totale Lordo</Text>
+                        <Text style={{ fontWeight: "bold" }}>{pricing.totalGross.toFixed(2)} €</Text>
+                    </View>
                 </View>
 
-                <View style={styles.totalRow}>
-                    <Text>IVA {(pricing.vatRate * 100).toFixed(0)}%</Text>
-                    <Text>{pricing.vatAmount.toFixed(2)} €</Text>
+                {/* Footer / Legal */}
+                <View style={styles.footer}>
+                    <View style={styles.legal}>
+                        <Text>Termini di consegna: {getLocalized(config.legalCopy.deliveryTime, lang)}</Text>
+                    </View>
+                    <View style={styles.legal}>
+                        <Text>Pagamento: {getLocalized(config.legalCopy.paymentTerms, lang)}</Text>
+                    </View>
+                    <View style={styles.legal}>
+                        <Text>{getLocalized(config.legalCopy.disclaimer, lang)}</Text>
+                    </View>
                 </View>
 
-                <View style={{ ...styles.totalRow, marginTop: 5, fontSize: 14 }}>
-                    <Text style={{ fontWeight: "bold" }}>Totale Lordo</Text>
-                    <Text style={{ fontWeight: "bold" }}>{pricing.totalGross.toFixed(2)} €</Text>
-                </View>
-            </View>
-
-            {/* Footer / Legal */}
-            <View style={styles.footer}>
-                <View style={styles.legal}>
-                    <Text>Termini di consegna: {config.legalCopy.deliveryTime}</Text>
-                </View>
-                <View style={styles.legal}>
-                    <Text>Pagamento: {config.legalCopy.paymentTerms}</Text>
-                </View>
-                <View style={styles.legal}>
-                    <Text>{config.legalCopy.disclaimer}</Text>
-                </View>
-            </View>
-
-        </Page>
-    </Document>
-);
+            </Page>
+        </Document>
+    )
+};

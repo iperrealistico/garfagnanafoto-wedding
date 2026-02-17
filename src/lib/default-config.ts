@@ -5,42 +5,42 @@ export const DEFAULT_CONFIG: AppConfigInput = {
     packages: [
         {
             id: "pkg_photo_only",
-            name: "One",
-            tagline: "L'essenziale per il tuo matrimonio",
-            description: "Servizio fotografico completo con fotolibro.",
+            name: { it: "One", en: "One" },
+            tagline: { it: "L'essenziale per il tuo matrimonio", en: "The essentials for your wedding" },
+            description: { it: "Servizio fotografico completo con fotolibro.", en: "Full photographic service including photobook." },
             lineItems: [
-                { id: "photo_full_day", label: "Fotografo giornata intera (11:00 - 24:00)", priceNet: 900, icon: "camera" },
-                { id: "photo_edit", label: "Selezione ed elaborazione foto", priceNet: 200, icon: "sliders" },
+                { id: "photo_full_day", label: { it: "Fotografo giornata intera (11:00 - 24:00)", en: "Full day photographer (11am - 12pm)" }, priceNet: 900, icon: "camera" },
+                { id: "photo_edit", label: { it: "Selezione ed elaborazione foto", en: "Photo selection and editing" }, priceNet: 200, icon: "sliders" },
             ],
             packageAdjustmentNet: 0,
         },
         {
             id: "pkg_photo_video",
-            name: "Duo",
-            tagline: "La copertura completa",
-            description: "Foto e Video per non perdere nessun momento.",
+            name: { it: "Duo", en: "Duo" },
+            tagline: { it: "La copertura completa", en: "Complete coverage" },
+            description: { it: "Foto e Video per non perdere nessun momento.", en: "Photo and Video to capture every moment." },
             lineItems: [
-                { id: "photo_full_day", label: "Fotografo giornata intera (11:00 - 24:00)", priceNet: 900, icon: "camera" },
-                { id: "photo_edit", label: "Selezione ed elaborazione foto", priceNet: 200, icon: "sliders" },
-                { id: "video_full_day", label: "Videomaker + montaggio", priceNet: 1200, icon: "video" },
+                { id: "photo_full_day", label: { it: "Fotografo giornata intera (11:00 - 24:00)", en: "Full day photographer (11am - 12pm)" }, priceNet: 900, icon: "camera" },
+                { id: "photo_edit", label: { it: "Selezione ed elaborazione foto", en: "Photo selection and editing" }, priceNet: 200, icon: "sliders" },
+                { id: "video_full_day", label: { it: "Videomaker + montaggio", en: "Videomaker + editing" }, priceNet: 1200, icon: "video" },
             ],
             packageAdjustmentNet: -100,
         },
     ],
     customFlow: {
         baseLineItems: [
-            { id: "photo_full_day", label: "Fotografo giornata intera (11:00 - 24:00)", priceNet: 900, icon: "camera" },
-            { id: "photo_edit", label: "Selezione ed elaborazione foto", priceNet: 200, icon: "sliders" },
+            { id: "photo_full_day", label: { it: "Fotografo giornata intera (11:00 - 24:00)", en: "Full day photographer (11am - 12pm)" }, priceNet: 900, icon: "camera" },
+            { id: "photo_edit", label: { it: "Selezione ed elaborazione foto", en: "Photo selection and editing" }, priceNet: 200, icon: "sliders" },
         ],
         questions: [
             {
                 id: "q_video",
                 order: 1,
                 enabled: true,
-                questionText: "Vuoi anche il servizio video?",
+                questionText: { it: "Vuoi anche il servizio video?", en: "Do you also want video service?" },
                 effectsYes: {
                     addLineItems: [
-                        { id: "video_full_day", label: "Videomaker + montaggio", priceNet: 1200, icon: "video" }
+                        { id: "video_full_day", label: { it: "Videomaker + montaggio", en: "Videomaker + editing" }, priceNet: 1200, icon: "video" }
                     ]
                 }
             },
@@ -48,10 +48,10 @@ export const DEFAULT_CONFIG: AppConfigInput = {
                 id: "q_second_photographer",
                 order: 2,
                 enabled: true,
-                questionText: "Serve un secondo fotografo per coprire preparazioni o location diverse?",
+                questionText: { it: "Serve un secondo fotografo per coprire preparazioni o location diverse?", en: "Do you need a second photographer?" },
                 effectsYes: {
                     addLineItems: [
-                        { id: "second_photographer", label: "Secondo fotografo giornata intera", priceNet: 450, icon: "users" }
+                        { id: "second_photographer", label: { it: "Secondo fotografo giornata intera", en: "Second photographer full day" }, priceNet: 450, icon: "users" }
                     ]
                 }
             },
@@ -59,10 +59,10 @@ export const DEFAULT_CONFIG: AppConfigInput = {
                 id: "q_photobook",
                 order: 3,
                 enabled: true,
-                questionText: "Vuoi includere un fotolibro premium 28x28 (circa 100 foto)?",
+                questionText: { it: "Vuoi includere un fotolibro premium 28x28 (circa 100 foto)?", en: "Include a premium 28x28 photobook?" },
                 effectsYes: {
                     addLineItems: [
-                        { id: "photobook_premium", label: "Fotolibro premium 28x28", priceNet: 150, icon: "book-open" }
+                        { id: "photobook_premium", label: { it: "Fotolibro premium 28x28", en: "Premium photobook 28x28" }, priceNet: 150, icon: "book-open" }
                     ]
                 }
             },
@@ -70,11 +70,11 @@ export const DEFAULT_CONFIG: AppConfigInput = {
                 id: "q_drone",
                 order: 4,
                 enabled: true,
-                questionText: "Vuoi riprese con drone (operatore abilitato)?",
+                questionText: { it: "Vuoi riprese con drone (operatore abilitato)?", en: "Do you want drone footage?" },
                 requiredConditions: { requiresVideo: true },
                 effectsYes: {
                     addLineItems: [
-                        { id: "drone", label: "Riprese con drone", priceNet: 150, icon: "plane" }
+                        { id: "drone", label: { it: "Riprese con drone", en: "Drone footage" }, priceNet: 150, icon: "plane" }
                     ],
                 }
             },
@@ -82,10 +82,10 @@ export const DEFAULT_CONFIG: AppConfigInput = {
                 id: "q_extra_videomaker",
                 order: 5,
                 enabled: true,
-                questionText: "Hai richieste di ripresa specifiche e complesse che richiedono un videomaker aggiuntivo?",
+                questionText: { it: "Hai richieste di ripresa specifiche e complesse che richiedono un videomaker aggiuntivo?", en: "Do you need an extra videomaker?" },
                 effectsYes: {
                     addLineItems: [
-                        { id: "extra_videomaker", label: "Videomaker aggiuntivo", priceNet: 450, icon: "user-plus" }
+                        { id: "extra_videomaker", label: { it: "Videomaker aggiuntivo", en: "Extra videomaker" }, priceNet: 450, icon: "user-plus" }
                     ]
                 }
             },
@@ -93,7 +93,7 @@ export const DEFAULT_CONFIG: AppConfigInput = {
                 id: "q_half_day",
                 order: 6,
                 enabled: true,
-                questionText: "Preferisci mezza giornata o orari ridotti?",
+                questionText: { it: "Preferisci mezza giornata o orari ridotti?", en: "Do you prefer half day or reduced hours?" },
                 effectsYes: {
                     priceDeltaNet: 0 // Da impostare
                 }
@@ -102,7 +102,7 @@ export const DEFAULT_CONFIG: AppConfigInput = {
                 id: "q_additional_requests",
                 order: 7,
                 enabled: true,
-                questionText: "Ci sono ulteriori richieste specifiche aggiuntive che potrebbero variare il prezzo?",
+                questionText: { it: "Ci sono ulteriori richieste specifiche aggiuntive che potrebbero variare il prezzo?", en: "Any other specific requests?" },
                 effectsYes: {
                     notes: { triggersAdditionalRequestsBox: true }
                 }
@@ -110,9 +110,20 @@ export const DEFAULT_CONFIG: AppConfigInput = {
         ]
     },
     legalCopy: {
-        deliveryTime: "Consegna prevista: 30-60 giorni lavorativi.",
-        paymentTerms: "Pagamento: 20% acconto alla conferma, 80% alla consegna.",
-        disclaimer: "Trasferte incluse entro 50km. Per distanze superiori verrà calcolato un rimborso chilometrico."
+        deliveryTime: { it: "Consegna prevista: 30-60 giorni lavorativi.", en: "Estimated delivery: 30-60 working days." },
+        paymentTerms: { it: "Pagamento: 20% acconto alla conferma, 80% alla consegna.", en: "Payment: 20% deposit on confirmation, 80% on delivery." },
+        disclaimer: { it: "Trasferte incluse entro 50km. Per distanze superiori verrà calcolato un rimborso chilometrico.", en: "Travel included within 50km. Extra mileage will be charged for longer distances." }
+    },
+    copy: {
+        heroTitle: { it: "Reportage di Matrimonio in Toscana", en: "Wedding Reportage in Tuscany" },
+        heroSubtitle: { it: "Catturiamo l'essenza del vostro amore in ogni scatto.", en: "We capture the essence of your love in every shot." },
+        reviews: {
+            ratingValue: 5.0,
+            ratingLabel: { it: "Vedi recensioni", en: "See reviews" },
+            location: { it: "Castiglione di Garfagnana, Italia", en: "Castiglione di Garfagnana, Italy" },
+            reviewsUrl: "#"
+        },
+        footerText: { it: "P.IVA applicata a norma di legge.", en: "VAT applied according to law." }
     },
     images: {
         hero: "/images/garfagnana-foto-wedding-11.jpg",

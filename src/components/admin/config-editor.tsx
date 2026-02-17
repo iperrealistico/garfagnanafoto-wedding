@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState, useTransition } from "react";
-import { AppConfig } from "@/lib/config-schema";
+import { AppConfig, LocalizedString } from "@/lib/config-schema";
 import { updateConfigAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import { cn } from "@/lib/utils";
+import { LocalizedInput } from "./localized-input";
 
 const Tabs = TabsPrimitive.Root
 
@@ -59,11 +60,6 @@ const TabsContent = React.forwardRef<
 ))
 TabsContent.displayName = TabsPrimitive.Content.displayName
 
-
-// NOTE: For MVP, we are using a simplified form approach. 
-// Ideally we valid with Zod Schema, but for "edit fields" we can just bind to state or use react-hook-form.
-// Given complexity of nested arrays, react-hook-form is best.
-
 interface ConfigEditorProps {
     initialConfig: AppConfig;
 }
@@ -71,19 +67,6 @@ interface ConfigEditorProps {
 export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
     const [isPending, startTransition] = useTransition();
     const [message, setMessage] = useState("");
-
-    // We'll manage form state via React Hook Form
-    // BUT to avoid installing @hookform/resolvers and complex setup right now,
-    // I'll implement a "JSON Dump" editor for fallback + specific fields editor?
-    // No, let's try to make a nice form for critical parts.
-
-    // Actually, full form is huge. 
-    // Let's implement editing for:
-    // 1. Package Prices (Net)
-    // 2. Legal Copy
-    // 3. Questions (just text and prices)
-
-    // I will use a simple state approach for MVP speed.
     const [config, setConfig] = useState<AppConfig>(initialConfig);
 
     const handleSave = () => {
@@ -129,31 +112,61 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                     {config.packages.map(pkg => (
                         <Card key={pkg.id}>
                             <CardHeader>
-                                <CardTitle>{pkg.name} ({pkg.id})</CardTitle>
+                                <CardTitle>{pkg.name.it} ({pkg.id})</CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div>
-                                    <Label>Description</Label>
-                                    <Textarea
-                                        value={pkg.description}
-                                        onChange={e => {
-                                            const newPkgs = config.packages.map(p => p.id === pkg.id ? { ...p, description: e.target.value } : p);
-                                            setConfig({ ...config, packages: newPkgs });
-                                        }}
-                                    />
-                                </div>
+                                <LocalizedInput
+                                    label="Name"
+                                    value={pkg.name}
+                                    onChange={(val) => {
+                                        const newPkgs = config.packages.map(p => p.id === pkg.id ? { ...p, name: val } : p);
+                                        setConfig({ ...config, packages: newPkgs });
+                                    }}
+                                />
+                                <LocalizedInput
+                                    label="Tagline"
+                                    value={pkg.tagline || { it: "", en: "" }}
+                                    onChange={(val) => {
+                                        const newPkgs = config.packages.map(p => p.id === pkg.id ? { ...p, tagline: val } : p);
+                                        setConfig({ ...config, packages: newPkgs });
+                                    }}
+                                />
+                                <LocalizedInput
+                                    label="Description"
+                                    multiline
+                                    value={pkg.description || { it: "", en: "" }}
+                                    onChange={(val) => {
+                                        const newPkgs = config.packages.map(p => p.id === pkg.id ? { ...p, description: val } : p);
+                                        setConfig({ ...config, packages: newPkgs });
+                                    }}
+                                />
+
                                 <div className="space-y-2">
-                                    <Label>Line Items (Prices)</Label>
+                                    <Label>Line Items (Prices & Labels)</Label>
                                     {pkg.lineItems.map((item, idx) => (
-                                        <div key={item.id} className="flex items-center gap-2">
-                                            <span className="flex-1 text-sm">{item.label}</span>
-                                            <Input
-                                                type="number"
-                                                className="w-32"
-                                                value={item.priceNet}
-                                                onChange={e => updatePackagePrice(pkg.id, idx, Number(e.target.value))}
+                                        <div key={item.id} className="border p-2 rounded">
+                                            <div className="flex justify-between mb-2">
+                                                <span className="text-sm font-bold">{item.id}</span>
+                                                <div className="flex items-center gap-2">
+                                                    <Input
+                                                        type="number"
+                                                        className="w-24 h-8"
+                                                        value={item.priceNet}
+                                                        onChange={e => updatePackagePrice(pkg.id, idx, Number(e.target.value))}
+                                                    />
+                                                    <span className="text-sm">€</span>
+                                                </div>
+                                            </div>
+                                            <LocalizedInput
+                                                value={item.label}
+                                                onChange={(val) => {
+                                                    const newPackages = [...config.packages];
+                                                    const newItems = [...newPackages.find(p => p.id === pkg.id)!.lineItems];
+                                                    newItems[idx] = { ...newItems[idx], label: val };
+                                                    const newPkgs = config.packages.map(p => p.id === pkg.id ? { ...p, lineItems: newItems } : p);
+                                                    setConfig({ ...config, packages: newPkgs });
+                                                }}
                                             />
-                                            <span className="text-sm text-gray-500">€</span>
                                         </div>
                                     ))}
                                 </div>
@@ -180,6 +193,34 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                         <Card key={q.id}>
                             <CardHeader className="py-3">
                                 <div className="flex items-center gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={qIndex === 0}
+                                        onClick={() => {
+                                            const newQs = [...config.customFlow.questions];
+                                            [newQs[qIndex - 1], newQs[qIndex]] = [newQs[qIndex], newQs[qIndex - 1]];
+                                            // Update order property
+                                            newQs.forEach((q, i) => q.order = i);
+                                            setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
+                                        }}
+                                    >
+                                        ↑
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={qIndex === config.customFlow.questions.length - 1}
+                                        onClick={() => {
+                                            const newQs = [...config.customFlow.questions];
+                                            [newQs[qIndex + 1], newQs[qIndex]] = [newQs[qIndex], newQs[qIndex + 1]];
+                                            // Update order property
+                                            newQs.forEach((q, i) => q.order = i);
+                                            setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
+                                        }}
+                                    >
+                                        ↓
+                                    </Button>
                                     <input
                                         type="checkbox"
                                         checked={q.enabled}
@@ -189,45 +230,116 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                                             setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
                                         }}
                                     />
-                                    <span className="font-bold text-sm">#{q.order} {q.id}</span>
+                                    <span className="font-bold text-sm text-gray-400">#{qIndex + 1}</span>
+                                    <Input
+                                        value={q.id}
+                                        readOnly
+                                        className="w-32 h-7 text-xs bg-gray-100 text-gray-500"
+                                    />
                                 </div>
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => {
+                                        if (!confirm("Are you sure you want to delete this question?")) return;
+                                        const newQs = config.customFlow.questions.filter((_, i) => i !== qIndex);
+                                        setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
+                                    }}
+                                >
+                                    Delete
+                                </Button>
                             </CardHeader>
-                            <CardContent className="space-y-2 py-4">
-                                <Input
+                            <CardContent className="space-y-4 py-4">
+                                <LocalizedInput
+                                    label="Question Text"
                                     value={q.questionText}
-                                    onChange={e => {
+                                    onChange={(val) => {
                                         const newQs = [...config.customFlow.questions];
-                                        newQs[qIndex] = { ...newQs[qIndex], questionText: e.target.value };
+                                        newQs[qIndex] = { ...newQs[qIndex], questionText: val };
                                         setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
                                     }}
                                 />
-                                {/* Price editing for effects. Simplification: Assume single item in effectsYes */}
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    <LocalizedInput
+                                        label="Yes Label"
+                                        value={q.yesLabel}
+                                        onChange={(val) => {
+                                            const newQs = [...config.customFlow.questions];
+                                            newQs[qIndex] = { ...newQs[qIndex], yesLabel: val };
+                                            setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
+                                        }}
+                                    />
+                                    <LocalizedInput
+                                        label="No Label"
+                                        value={q.noLabel}
+                                        onChange={(val) => {
+                                            const newQs = [...config.customFlow.questions];
+                                            newQs[qIndex] = { ...newQs[qIndex], noLabel: val };
+                                            setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
+                                        }}
+                                    />
+                                </div>
+
                                 {q.effectsYes?.addLineItems?.map((item, iIdx) => (
-                                    <div key={item.id} className="flex items-center gap-2 ml-4">
-                                        <span className="text-sm text-gray-500">Effect: {item.label}</span>
-                                        <Input
-                                            type="number"
-                                            className="w-24 h-8"
-                                            value={item.priceNet}
-                                            onChange={e => {
+                                    <div key={item.id} className="border p-2 rounded bg-gray-50">
+                                        <div className="flex justify-between mb-1">
+                                            <span className="text-xs font-bold uppercase">Effect Item</span>
+                                            <div className="flex items-center gap-2">
+                                                <Input
+                                                    type="number"
+                                                    className="w-20 h-6 text-xs"
+                                                    value={item.priceNet}
+                                                    onChange={e => {
+                                                        const newQs = [...config.customFlow.questions];
+                                                        const newItems = [...(newQs[qIndex].effectsYes!.addLineItems!)];
+                                                        newItems[iIdx] = { ...newItems[iIdx], priceNet: Number(e.target.value) };
+                                                        newQs[qIndex] = { ...newQs[qIndex], effectsYes: { ...newQs[qIndex].effectsYes!, addLineItems: newItems } };
+                                                        setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
+                                                    }}
+                                                />
+                                                <span className="text-xs">€</span>
+                                            </div>
+                                        </div>
+                                        <LocalizedInput
+                                            value={item.label}
+                                            onChange={(val) => {
                                                 const newQs = [...config.customFlow.questions];
                                                 const newItems = [...(newQs[qIndex].effectsYes!.addLineItems!)];
-                                                newItems[iIdx] = { ...newItems[iIdx], priceNet: Number(e.target.value) };
+                                                newItems[iIdx] = { ...newItems[iIdx], label: val };
                                                 newQs[qIndex] = { ...newQs[qIndex], effectsYes: { ...newQs[qIndex].effectsYes!, addLineItems: newItems } };
                                                 setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
                                             }}
                                         />
-                                        <span className="text-sm">€</span>
                                     </div>
                                 ))}
                             </CardContent>
                         </Card>
                     ))}
+                    <Button
+                        className="w-full mt-4"
+                        variant="outline"
+                        onClick={() => {
+                            const newQs = [...config.customFlow.questions];
+                            const newId = `q_${Date.now()}`;
+                            newQs.push({
+                                id: newId,
+                                enabled: true,
+                                order: newQs.length,
+                                questionText: { it: "Nuova Domanda", en: "New Question" },
+                                yesLabel: { it: "Sì", en: "Yes" },
+                                noLabel: { it: "No", en: "No" }
+                            });
+                            setConfig({ ...config, customFlow: { ...config.customFlow, questions: newQs } });
+                        }}
+                    >
+                        + Add Question
+                    </Button>
                 </TabsContent>
 
                 <TabsContent value="legal" className="space-y-4">
                     <Card>
-                        <CardHeader><CardTitle>Global Settings</CardTitle></CardHeader>
+                        <CardHeader><CardTitle>Global Settings: Legal & VAT</CardTitle></CardHeader>
                         <CardContent className="space-y-4">
                             <div>
                                 <Label>VAT Rate (0.22 = 22%)</Label>
@@ -238,25 +350,101 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                                     onChange={e => setConfig({ ...config, vatRate: Number(e.target.value) })}
                                 />
                             </div>
-                            <div>
-                                <Label>Delivery Time</Label>
-                                <Input
-                                    value={config.legalCopy.deliveryTime}
-                                    onChange={e => setConfig({ ...config, legalCopy: { ...config.legalCopy, deliveryTime: e.target.value } })}
+                            <LocalizedInput
+                                label="Delivery Time"
+                                value={config.legalCopy.deliveryTime}
+                                onChange={val => setConfig({ ...config, legalCopy: { ...config.legalCopy, deliveryTime: val } })}
+                            />
+                            <LocalizedInput
+                                label="Payment Terms"
+                                value={config.legalCopy.paymentTerms}
+                                onChange={val => setConfig({ ...config, legalCopy: { ...config.legalCopy, paymentTerms: val } })}
+                            />
+                            <LocalizedInput
+                                label="Disclaimer"
+                                multiline
+                                value={config.legalCopy.disclaimer}
+                                onChange={val => setConfig({ ...config, legalCopy: { ...config.legalCopy, disclaimer: val } })}
+                            />
+                        </CardContent>
+                    </Card>
+
+                    <Card>
+                        <CardHeader><CardTitle>Website Copy (Hero & Footer)</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <LocalizedInput
+                                label="Hero Title"
+                                value={config.copy?.heroTitle || { it: "Reportage di Matrimonio in Toscana", en: "Wedding Reportage in Tuscany" }}
+                                onChange={val => {
+                                    const newCopy = { ...config.copy, heroTitle: val } as any;
+                                    // Use type assertion or default object construction to avoid TS issues if copy is undefined
+                                    setConfig({ ...config, copy: { ...(config.copy || {}), heroTitle: val } as any });
+                                }}
+                            />
+                            <LocalizedInput
+                                label="Hero Subtitle"
+                                value={config.copy?.heroSubtitle || { it: "", en: "" }}
+                                onChange={val => {
+                                    setConfig({ ...config, copy: { ...(config.copy || {}), heroSubtitle: val } as any });
+                                }}
+                            />
+                            <LocalizedInput
+                                label="Footer Text"
+                                value={config.copy?.footerText || { it: "", en: "" }}
+                                onChange={val => {
+                                    setConfig({ ...config, copy: { ...(config.copy || {}), footerText: val } as any });
+                                }}
+                            />
+
+                            <div className="space-y-4 pt-4 border-t">
+                                <Label className="text-lg font-semibold">Reviews Widget</Label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label>Rating Value (e.g. 5.0)</Label>
+                                        <Input
+                                            type="number"
+                                            step="0.1"
+                                            value={config.copy?.reviews?.ratingValue ?? 5.0}
+                                            onChange={e => {
+                                                const currentCopy = config.copy || {};
+                                                const currentReviews = (currentCopy as any).reviews || { ratingLabel: { it: "", en: "" }, location: { it: "", en: "" } };
+                                                const newReviews = { ...currentReviews, ratingValue: Number(e.target.value) };
+                                                setConfig({ ...config, copy: { ...currentCopy, reviews: newReviews } as any });
+                                            }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <Label>Reviews URL</Label>
+                                        <Input
+                                            value={config.copy?.reviews?.reviewsUrl ?? "#"}
+                                            onChange={e => {
+                                                const currentCopy = config.copy || {};
+                                                const currentReviews = (currentCopy as any).reviews || { ratingLabel: { it: "", en: "" }, location: { it: "", en: "" } };
+                                                const newReviews = { ...currentReviews, reviewsUrl: e.target.value };
+                                                setConfig({ ...config, copy: { ...currentCopy, reviews: newReviews } as any });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <LocalizedInput
+                                    label="Rating Label (e.g. '124 recensioni')"
+                                    value={config.copy?.reviews?.ratingLabel || { it: "124 recensioni", en: "124 reviews" }}
+                                    onChange={val => {
+                                        const currentCopy = config.copy || {};
+                                        const currentReviews = (currentCopy as any).reviews || { ratingValue: 5.0, reviewsUrl: "#", location: { it: "", en: "" } };
+                                        const newReviews = { ...currentReviews, ratingLabel: val };
+                                        setConfig({ ...config, copy: { ...currentCopy, reviews: newReviews } as any });
+                                    }}
                                 />
-                            </div>
-                            <div>
-                                <Label>Payment Terms</Label>
-                                <Input
-                                    value={config.legalCopy.paymentTerms}
-                                    onChange={e => setConfig({ ...config, legalCopy: { ...config.legalCopy, paymentTerms: e.target.value } })}
-                                />
-                            </div>
-                            <div>
-                                <Label>Disclaimer</Label>
-                                <Textarea
-                                    value={config.legalCopy.disclaimer}
-                                    onChange={e => setConfig({ ...config, legalCopy: { ...config.legalCopy, disclaimer: e.target.value } })}
+                                <LocalizedInput
+                                    label="Location Label"
+                                    value={config.copy?.reviews?.location || { it: "Toscana, Italia", en: "Tuscany, Italy" }}
+                                    onChange={val => {
+                                        const currentCopy = config.copy || {};
+                                        const currentReviews = (currentCopy as any).reviews || { ratingValue: 5.0, reviewsUrl: "#", ratingLabel: { it: "", en: "" } };
+                                        const newReviews = { ...currentReviews, location: val };
+                                        setConfig({ ...config, copy: { ...currentCopy, reviews: newReviews } as any });
+                                    }}
                                 />
                             </div>
                         </CardContent>
@@ -313,7 +501,7 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                     </Card>
                 </TabsContent>
             </Tabs>
-        </div>
+        </div >
     );
 }
 

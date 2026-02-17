@@ -11,11 +11,15 @@ interface StepQuestionProps {
     onBack: () => void;
 }
 
+import { getLocalized } from "@/lib/i18n-utils";
+
 export function StepQuestion({ question, onAnswer, canGoBack, onBack }: StepQuestionProps) {
+    const lang = "it"; // TODO: get from context
+
     return (
         <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
             <CardContent className="p-10 flex flex-col items-center text-center space-y-8">
-                <h2 className="text-2xl font-bold text-gray-900">{question.questionText}</h2>
+                <h2 className="text-2xl font-bold text-gray-900">{getLocalized(question.questionText, lang)}</h2>
 
                 <div className="grid grid-cols-2 gap-4 w-full max-w-sm">
                     <Button
@@ -24,14 +28,14 @@ export function StepQuestion({ question, onAnswer, canGoBack, onBack }: StepQues
                         className="h-16 text-lg hover:bg-gray-100"
                         onClick={() => onAnswer(false)}
                     >
-                        {question.noLabel}
+                        {getLocalized(question.noLabel, lang)}
                     </Button>
                     <Button
                         size="lg"
                         className="h-16 text-lg"
                         onClick={() => onAnswer(true)}
                     >
-                        {question.yesLabel}
+                        {getLocalized(question.yesLabel, lang)}
                     </Button>
                 </div>
 

@@ -1,21 +1,28 @@
 import { z } from "zod";
 
+export const LocalizedStringSchema = z.object({
+    it: z.string(),
+    en: z.string().optional().default(""),
+});
+
+export type LocalizedString = z.infer<typeof LocalizedStringSchema>;
+
 export const IconNameSchema = z.string().describe("FontAwesome icon class name");
 
 export const LineItemSchema = z.object({
     id: z.string(),
-    label: z.string(),
+    label: LocalizedStringSchema,
     icon: IconNameSchema.optional(),
     priceNet: z.number().min(0),
 });
 
 export const PackageSchema = z.object({
     id: z.string(),
-    name: z.string(),
-    tagline: z.string().optional(),
-    description: z.string().optional(),
+    name: LocalizedStringSchema,
+    tagline: LocalizedStringSchema.optional(),
+    description: LocalizedStringSchema.optional(),
     lineItems: z.array(LineItemSchema),
-    packageAdjustmentNet: z.number().default(0), // Can be negative for discount
+    packageAdjustmentNet: z.number().default(0),
 });
 
 export const QuestionEffectSchema = z.object({
@@ -30,9 +37,9 @@ export const QuestionSchema = z.object({
     id: z.string(),
     enabled: z.boolean().default(true),
     order: z.number().default(0),
-    questionText: z.string(),
-    yesLabel: z.string().default("Sì"),
-    noLabel: z.string().default("No"),
+    questionText: LocalizedStringSchema,
+    yesLabel: LocalizedStringSchema.default({ it: "Sì", en: "Yes" }),
+    noLabel: LocalizedStringSchema.default({ it: "No", en: "No" }),
     requiredConditions: z.object({
         requiresVideo: z.boolean().optional(),
     }).optional(),
@@ -45,15 +52,28 @@ export const CustomFlowSchema = z.object({
     questions: z.array(QuestionSchema),
 });
 
+export const GlobalCopySchema = z.object({
+    heroTitle: LocalizedStringSchema,
+    heroSubtitle: LocalizedStringSchema.optional(),
+    reviews: z.object({
+        ratingValue: z.number().default(5.0),
+        ratingLabel: LocalizedStringSchema,
+        location: LocalizedStringSchema,
+        reviewsUrl: z.string().default("#"),
+    }),
+    footerText: LocalizedStringSchema.optional(),
+});
+
 export const AppConfigSchema = z.object({
     vatRate: z.number().default(0.22),
     packages: z.array(PackageSchema),
     customFlow: CustomFlowSchema,
     legalCopy: z.object({
-        deliveryTime: z.string(),
-        paymentTerms: z.string(),
-        disclaimer: z.string(),
+        deliveryTime: LocalizedStringSchema,
+        paymentTerms: LocalizedStringSchema,
+        disclaimer: LocalizedStringSchema,
     }),
+    copy: GlobalCopySchema.optional(),
     images: z.object({
         hero: z.string().default("/images/garfagnana-foto-wedding-11.jpg"),
         gallery: z.array(z.string()).default([]),

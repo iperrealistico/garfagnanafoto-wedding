@@ -5,10 +5,13 @@ import { QuoteDocument } from "@/components/pdf/quote-document";
 import { NextResponse } from "next/server";
 import { parseCustomParams } from "@/lib/url-params";
 
+import { getLocalized } from "@/lib/i18n-utils";
+
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const packageId = searchParams.get("packageId");
     const isCustom = searchParams.get("custom") === "true";
+    const lang = "it"; // TODO: get from query param
 
     const config = await getAppConfig();
     let pricing;
@@ -19,8 +22,8 @@ export async function GET(request: Request) {
         pricing = calculateFixedPackageQuote(config, packageId);
         const pkg = config.packages.find((p) => p.id === packageId);
         if (pkg) {
-            pkgName = pkg.name;
-            pkgDescription = pkg.description || "";
+            pkgName = getLocalized(pkg.name, lang);
+            pkgDescription = getLocalized(pkg.description, lang) || "";
         }
     } else if (isCustom) {
         const { answers } = parseCustomParams(searchParams);
