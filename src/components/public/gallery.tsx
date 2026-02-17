@@ -10,25 +10,35 @@ import "yet-another-react-lightbox/plugins/thumbnails.css";
 import Zoom from "yet-another-react-lightbox/plugins/zoom";
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen";
 
-interface GalleryProps {
-    images: string[];
-    heroImage: string;
-    showAllLabel?: string;
+export interface GalleryImage {
+    id: string;
+    src: string;
+    altByLocale?: { it: string; en: string };
+    order: number;
 }
 
-export function Gallery({ images, heroImage, showAllLabel = "Mostra tutte le foto" }: GalleryProps) {
+interface GalleryProps {
+    images: GalleryImage[];
+    heroImage: string;
+    showAllLabel?: string;
+    lang?: string;
+}
+
+export function Gallery({ images, heroImage, showAllLabel = "Mostra tutte le foto", lang = "it" }: GalleryProps) {
     const [open, setOpen] = useState(false);
     const [index, setIndex] = useState(0);
 
-    // Combine hero and gallery for the lightbox slides
-    // Ensure hero is first if not already in gallery, or just use gallery if hero is part of it?
-    // Usually hero is separate. Let's assume:
-    // Lightbox slides = [heroImage, ...images] (deduplicated if necessary)
+    // Filter out hero from images if it's there? Normally it shouldn't be.
+    // Ensure images are sorted by order
+    const sortedGallery = [...images].sort((a, b) => a.order - b.order);
 
-    // Simple approach: All images available in lightbox
-    const allImages = [heroImage, ...images.filter(img => img !== heroImage)];
-
-    const slides = allImages.map(src => ({ src }));
+    const slides = [
+        { src: heroImage, alt: "Hero" },
+        ...sortedGallery.map(img => ({
+            src: img.src,
+            alt: lang === 'en' ? img.altByLocale?.en : img.altByLocale?.it
+        }))
+    ];
 
     const handleOpen = (idx: number) => {
         setIndex(idx);
@@ -52,15 +62,15 @@ export function Gallery({ images, heroImage, showAllLabel = "Mostra tutte le fot
                 </div>
 
                 {/* Display up to 4 other images */}
-                {images.slice(0, 4).map((img, idx) => (
+                {sortedGallery.slice(0, 4).map((img, idx) => (
                     <div
-                        key={idx}
+                        key={img.id}
                         className="relative cursor-pointer"
                         onClick={() => handleOpen(idx + 1)} // +1 because index 0 is hero
                     >
                         <Image
-                            src={img}
-                            alt={`Dettaglio matrimonio ${idx + 1}`}
+                            src={img.src}
+                            alt={lang === 'en' ? (img.altByLocale?.en || "") : (img.altByLocale?.it || "")}
                             fill
                             className="object-cover hover:brightness-90 transition-all duration-300"
                         />

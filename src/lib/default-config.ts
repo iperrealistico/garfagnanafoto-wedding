@@ -125,19 +125,26 @@ export const DEFAULT_CONFIG: AppConfigInput = {
         },
         footerText: { it: "P.IVA applicata a norma di legge.", en: "VAT applied according to law." }
     },
+    header: {
+        title: { it: "Garfagnanafoto", en: "Garfagnanafoto" },
+        logo: {
+            src: "/images/logo.png",
+            alt: { it: "Garfagnanafoto Logo", en: "Garfagnanafoto Logo" }
+        }
+    },
     images: {
         hero: "/images/garfagnana-foto-wedding-11.jpg",
         gallery: [
-            "/images/garfagnana-foto-wedding-1.jpg",
-            "/images/garfagnana-foto-wedding-2.jpg",
-            "/images/garfagnana-foto-wedding-3.jpg",
-            "/images/garfagnana-foto-wedding-4.jpg",
-            "/images/garfagnana-foto-wedding-5.jpg",
-            "/images/garfagnana-foto-wedding-6.jpg",
-            "/images/garfagnana-foto-wedding-7.jpg",
-            "/images/garfagnana-foto-wedding-8.jpg",
-            "/images/garfagnana-foto-wedding-9.jpg",
-            "/images/garfagnana-foto-wedding-10.jpg"
+            { id: "img_1", src: "/images/garfagnana-foto-wedding-1.jpg", order: 0, altByLocale: { it: "", en: "" } },
+            { id: "img_2", src: "/images/garfagnana-foto-wedding-2.jpg", order: 1, altByLocale: { it: "", en: "" } },
+            { id: "img_3", src: "/images/garfagnana-foto-wedding-3.jpg", order: 2, altByLocale: { it: "", en: "" } },
+            { id: "img_4", src: "/images/garfagnana-foto-wedding-4.jpg", order: 3, altByLocale: { it: "", en: "" } },
+            { id: "img_5", src: "/images/garfagnana-foto-wedding-5.jpg", order: 4, altByLocale: { it: "", en: "" } },
+            { id: "img_6", src: "/images/garfagnana-foto-wedding-6.jpg", order: 5, altByLocale: { it: "", en: "" } },
+            { id: "img_7", src: "/images/garfagnana-foto-wedding-7.jpg", order: 6, altByLocale: { it: "", en: "" } },
+            { id: "img_8", src: "/images/garfagnana-foto-wedding-8.jpg", order: 7, altByLocale: { it: "", en: "" } },
+            { id: "img_9", src: "/images/garfagnana-foto-wedding-9.jpg", order: 8, altByLocale: { it: "", en: "" } },
+            { id: "img_10", src: "/images/garfagnana-foto-wedding-10.jpg", order: 9, altByLocale: { it: "", en: "" } }
         ]
     }
 };

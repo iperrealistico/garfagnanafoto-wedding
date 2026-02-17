@@ -44,9 +44,16 @@ export default async function Home({
         <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative w-10 h-10">
-              <Image src="/images/logo.png" alt="Garfagnanafoto Logo" fill className="object-contain" />
+              <Image
+                src={config.header?.logo?.src || "/images/logo.png"}
+                alt={getLocalized(config.header?.logo?.alt, lang) || "Logo"}
+                fill
+                className="object-contain"
+              />
             </div>
-            <span className="text-xl font-bold tracking-tight text-primary">Garfagnanafoto</span>
+            <span className="text-xl font-bold tracking-tight text-primary">
+              {getLocalized(config.header?.title, lang) || "Garfagnanafoto"}
+            </span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link href="#gallery" className="hover:text-primary transition-colors">Galleria</Link>
@@ -78,7 +85,8 @@ export default async function Home({
         <Gallery
           heroImage={heroImage}
           images={gallery}
-          showAllLabel="Mostra tutte le foto"
+          showAllLabel={lang === 'en' ? "Show all photos" : "Mostra tutte le foto"}
+          lang={lang}
         />
       </section>
 

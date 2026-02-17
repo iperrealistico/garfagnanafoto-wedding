@@ -1,30 +1,33 @@
-# TODO.md - v2 Upgrade Tracking
+# Admin UX Pro Upgrade - Status
 
-## Phase 1: Foundation & Branding
-- [ ] Update Brand Colors (#719436, #4c4c4c) in Tailwind/CSS `// verify: check buttons/text colors`
-- [ ] Remove "Booking" aside block `// verify: visual check`
-- [ ] Remove Footer Links (Privacy/Terms) `// verify: visual check`
-- [ ] Replace Header Logo `// verify: check header`
+## 2024-11-20 Update: COMPLETED ✅
 
-## Phase 2: Schema & i18n Data
-- [ ] Update `AppConfigSchema` for i18n (copyByLocale, etc.) `// verify: typecheck`
-- [ ] Update `DEFAULT_CONFIG` with default IT/EN content `// verify: typecheck`
+### Phase 1: Foundation & Branding ✅
+- [x] Create `AdminSidebar` component.
+- [x] Update `config-schema.ts` for Header Title & Logo.
+- [x] Update `default-config.ts`.
+- [x] Implement `BrandingSection` for Logo/Title control.
 
-## Phase 3: Routing & Middleware
-- [ ] Move `src/app/page.tsx` to `src/app/[lang]/page.tsx` `// verify: build`
-- [ ] Implement `src/middleware.ts` for locale redirection `// verify: curl localhost:3000 -> 307 to /it`
-- [ ] Update Metadata for SEO (canonical, hreflang) `// verify: inspect HTML head`
+### Phase 2: Admin UX Redesign ✅
+- [x] Implement `AdminLayoutShell` with sidebar & top bar.
+- [x] Refactor `ConfigEditor` into modular sections (Reviews, Packages, Questions, etc).
+- [x] Implement **Sticky Save Bar** with Dirty State detection.
+- [x] Add `Toaster` for feedback.
 
-## Phase 4: Gallery & Lightbox
-- [ ] Install `yet-another-react-lightbox`
-- [ ] Implement `Gallery` component with Grid + Lightbox `// verify: click open, swipe`
-- [ ] Implement "Show All Photos" button behavior `// verify: opens full view`
+### Phase 3: Header & Gallery Features ✅
+- [x] Update public site `Header` and `Gallery` to use new config.
+- [x] Implement sortable gallery with `@dnd-kit`.
+- [x] Implement localized alt text editing in gallery.
 
-## Phase 5: Admin Panel
-- [ ] Refactor `ConfigEditor` for localized fields `// verify: edit EN title, save, check EN page`
-- [ ] Implement Image Management (Upload/Reorder) `// verify: add image in admin, appears in gallery`
+### Phase 4: GitHub Upload Fix ✅
+- [x] Diagnostic API route `/api/admin/github-test`.
+- [x] Implement base64-based upload via Octokit in `uploadImageAction`.
+- [x] Integrated `ImageUpload` component in Branding and Gallery sections.
 
-## Phase 6: Polish
-- [ ] Implement Share Button (Web Share / Copy) `// verify: click share`
-- [ ] Enable Smooth Scrolling `// verify: click anchor links`
-- [ ] Full E2E Smoke Test `// verify: npm run test:e2e`
+### Phase 5: Verification & Polish ✅
+- [x] Verified localized alt text display.
+- [x] Verified sort order persistence.
+- [x] Verified Sticky Save bar appearance.
+
+---
+**Deployment Note:** Ensure `GITHUB_TOKEN`, `GITHUB_OWNER`, and `GITHUB_REPO_NAME` are set in Vercel.

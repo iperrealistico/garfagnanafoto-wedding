@@ -52,6 +52,23 @@ export const CustomFlowSchema = z.object({
     questions: z.array(QuestionSchema),
 });
 
+export const GalleryImageSchema = z.object({
+    id: z.string(),
+    src: z.string(),
+    altByLocale: LocalizedStringSchema.optional().default({ it: "", en: "" }),
+    order: z.number().default(0),
+    width: z.number().optional(),
+    height: z.number().optional(),
+});
+
+export const HeaderConfigSchema = z.object({
+    title: LocalizedStringSchema,
+    logo: z.object({
+        src: z.string(),
+        alt: LocalizedStringSchema,
+    }),
+});
+
 export const GlobalCopySchema = z.object({
     heroTitle: LocalizedStringSchema,
     heroSubtitle: LocalizedStringSchema.optional(),
@@ -74,9 +91,20 @@ export const AppConfigSchema = z.object({
         disclaimer: LocalizedStringSchema,
     }),
     copy: GlobalCopySchema.optional(),
+    header: HeaderConfigSchema.optional(),
     images: z.object({
         hero: z.string().default("/images/garfagnana-foto-wedding-11.jpg"),
-        gallery: z.array(z.string()).default([]),
+        gallery: z.preprocess((val) => {
+            if (Array.isArray(val) && val.length > 0 && typeof val[0] === "string") {
+                return val.map((src, index) => ({
+                    id: `img_${index}_${Date.now()}`,
+                    src,
+                    altByLocale: { it: "", en: "" },
+                    order: index,
+                }));
+            }
+            return val;
+        }, z.array(GalleryImageSchema)).default([]),
     }).optional(),
 });
 
@@ -84,6 +112,7 @@ export const AppConfigSchema = z.object({
 export type LineItem = z.infer<typeof LineItemSchema>;
 export type Package = z.infer<typeof PackageSchema>;
 export type Question = z.infer<typeof QuestionSchema>;
+export type GalleryImage = z.infer<typeof GalleryImageSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 
 export type AppConfigInput = z.input<typeof AppConfigSchema>;
