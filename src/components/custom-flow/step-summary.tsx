@@ -13,8 +13,9 @@ interface StepSummaryProps {
     config: AppConfig;
     answers: CustomAnswers;
     additionalRequests: string;
-    leadData: Partial<Lead>;
     onBack: () => void;
+    handleAction: (callback: (lead: Lead) => void) => void;
+    leadData?: Partial<Lead>;
     lang?: string;
 }
 
@@ -24,13 +25,10 @@ export function StepSummary({
     answers,
     additionalRequests,
     onBack,
+    handleAction,
+    leadData,
     lang = "it"
-}: Omit<StepSummaryProps, 'leadData'>) {
-    const gdprNotice = getLocalized(config.advancedSettings?.gdprNotice, lang) ||
-        (lang === 'it'
-            ? "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta."
-            : "Your data will be used exclusively to contact you regarding this request.");
-
+}: StepSummaryProps) {
     const buildQueryString = (lead: any) => {
         const searchParams = new URLSearchParams();
         searchParams.set("custom", "true");
@@ -59,74 +57,63 @@ export function StepSummary({
         return searchParams.toString();
     };
 
+    const queryString = buildQueryString(leadData);
+
     return (
-        <LeadGate
-            quoteSnapshot={pricing}
-            gdprNotice={gdprNotice}
-            lang={lang}
-            initialLeadData={{ is_custom: true, additional_requests: additionalRequests }}
-        >
-            {({ handleAction, leadData }) => {
-                const queryString = buildQueryString(leadData);
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+            <div className="flex items-center justify-between">
+                <Button variant="ghost" onClick={onBack} className="text-gray-500 hover:text-gray-900 transition-colors">
+                    <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                    {lang === 'it' ? 'Indietro' : 'Back'}
+                </Button>
+                <div className="text-right">
+                    <h2 className="text-2xl font-bold text-gray-900">{lang === 'it' ? 'Preventivo Generato' : 'Quote Generated'}</h2>
+                    <p className="text-xs text-[#719436] font-bold uppercase tracking-wider mt-1 flex items-center justify-end">
+                        <FontAwesomeIcon icon={faCheckCircle} className="mr-1.5" />
+                        {lang === 'it' ? 'Pronto per il cliente' : 'Ready for client'}
+                    </p>
+                </div>
+            </div>
 
-                return (
-                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
-                        <div className="flex items-center justify-between">
-                            <Button variant="ghost" onClick={onBack} className="text-gray-500 hover:text-gray-900 transition-colors">
-                                <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                                {lang === 'it' ? 'Indietro' : 'Back'}
-                            </Button>
-                            <div className="text-right">
-                                <h2 className="text-2xl font-bold text-gray-900">{lang === 'it' ? 'Preventivo Generato' : 'Quote Generated'}</h2>
-                                <p className="text-xs text-[#719436] font-bold uppercase tracking-wider mt-1 flex items-center justify-end">
-                                    <FontAwesomeIcon icon={faCheckCircle} className="mr-1.5" />
-                                    {lang === 'it' ? 'Pronto per il cliente' : 'Ready for client'}
-                                </p>
-                            </div>
-                        </div>
+            <QuoteSummary
+                pricing={pricing}
+                title={lang === 'it' ? 'La tua configurazione' : 'Your configuration'}
+                leadData={leadData}
+                additionalRequests={additionalRequests}
+                lang={lang}
+            />
 
-                        <QuoteSummary
-                            pricing={pricing}
-                            title={lang === 'it' ? 'La tua configurazione' : 'Your configuration'}
-                            leadData={leadData}
-                            additionalRequests={additionalRequests}
-                            lang={lang}
-                        />
+            <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-center shadow-inner">
+                <Button
+                    size="lg"
+                    className="flex-1 h-14 text-lg shadow-md hover:shadow-lg transition-all w-full md:w-auto rounded-2xl"
+                    onClick={() => handleAction(() => {
+                        window.open(`/quote/print?${queryString}`, "_blank");
+                    })}
+                >
+                    <FontAwesomeIcon icon={faPrint} className="mr-2" />
+                    {lang === 'it' ? 'Stampa Preventivo' : 'Print Quote'}
+                </Button>
+                <Button
+                    variant="outline"
+                    size="lg"
+                    className="flex-1 h-14 text-lg border-2 w-full md:w-auto rounded-2xl"
+                    onClick={() => handleAction(() => {
+                        window.open(`/quote/pdf?${queryString}`, "_blank");
+                    })}
+                >
+                    <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
+                    {lang === 'it' ? 'Scarica PDF' : 'Download PDF'}
+                </Button>
+            </div>
 
-                        <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-center shadow-inner">
-                            <Button
-                                size="lg"
-                                className="flex-1 h-14 text-lg shadow-md hover:shadow-lg transition-all w-full md:w-auto rounded-2xl"
-                                onClick={() => handleAction(() => {
-                                    window.open(`/quote/print?${queryString}`, "_blank");
-                                })}
-                            >
-                                <FontAwesomeIcon icon={faPrint} className="mr-2" />
-                                {lang === 'it' ? 'Stampa Preventivo' : 'Print Quote'}
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="lg"
-                                className="flex-1 h-14 text-lg border-2 w-full md:w-auto rounded-2xl"
-                                onClick={() => handleAction(() => {
-                                    window.open(`/quote/pdf?${queryString}`, "_blank");
-                                })}
-                            >
-                                <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
-                                {lang === 'it' ? 'Scarica PDF' : 'Download PDF'}
-                            </Button>
-                        </div>
-
-                        <div className="mt-8 text-center">
-                            <p className="text-sm text-gray-500 italic">
-                                {lang === 'it'
-                                    ? "Stampa o salva il PDF per consegnarlo al cliente. In caso di dubbio, consulta i pacchetti standard."
-                                    : "Print or save the PDF to share with the client. If unsure, refer to the standard packages."}
-                            </p>
-                        </div>
-                    </div>
-                );
-            }}
-        </LeadGate>
+            <div className="mt-8 text-center">
+                <p className="text-sm text-gray-500 italic">
+                    {lang === 'it'
+                        ? "Stampa o salva il PDF per consegnarlo al cliente. In caso di dubbio, consulta i pacchetti standard."
+                        : "Print or save the PDF to share with the client. If unsure, refer to the standard packages."}
+                </p>
+            </div>
+        </div>
     );
 }

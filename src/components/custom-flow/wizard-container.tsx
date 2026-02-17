@@ -16,6 +16,7 @@ import { getLocalized } from "@/lib/i18n-utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LeadGate } from "../public/lead-gate";
 
 type FlowStep = 'questions' | 'requests' | 'summary';
 
@@ -177,6 +178,11 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
         [config, answers]
     );
 
+    const gdprNotice = getLocalized(config.advancedSettings?.gdprNotice, lang) ||
+        (lang === 'it'
+            ? "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta."
+            : "Your data will be used exclusively to contact you regarding this request.");
+
     // Password gate
     if (!isUnlocked) {
         return (
@@ -191,88 +197,101 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
         );
     }
 
-    const renderStep = () => {
-        switch (flowStep) {
-            case 'questions':
-                return (
-                    <StepQuestion
-                        question={currentQuestion}
-                        onAnswer={handleAnswer}
-                        canGoBack={history.length > 1}
-                        onBack={goBack}
-                        lang={lang}
-                        initialValue={answers[currentQuestion?.id]}
-                    />
-                );
-            case 'requests':
-                return (
-                    <StepAdditionalRequests
-                        value={additionalRequests}
-                        onChange={setAdditionalRequests}
-                        onNext={goToSummary}
-                        onBack={goBack}
-                        lang={lang}
-                    />
-                );
-            case 'summary':
-                return (
-                    <StepSummary
-                        pricing={pricing}
-                        config={config}
-                        answers={answers}
-                        additionalRequests={additionalRequests}
-                        onBack={goBack}
-                        lang={lang}
-                    />
-                );
-            default:
-                return null;
-        }
-    };
-
     return (
-        <div className="max-w-2xl mx-auto">
-            <div className="mb-8 flex items-center justify-between px-4">
-                <Link href="/" className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest">
-                    &larr; {lang === 'it' ? 'Annulla' : 'Cancel'}
-                </Link>
-                {flowStep === 'questions' && (
-                    <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#719436] bg-[#719436]/5 px-4 py-1.5 rounded-full border border-[#719436]/20 shadow-sm">
-                        Step {currentStepIndex + 1} / {visibleQuestions.length}
-                    </div>
-                )}
-            </div>
+        <LeadGate
+            quoteSnapshot={pricing}
+            gdprNotice={gdprNotice}
+            lang={lang}
+            initialLeadData={{ is_custom: true, additional_requests: additionalRequests }}
+        >
+            {({ handleAction, leadData }) => {
+                const renderStep = () => {
+                    switch (flowStep) {
+                        case 'questions':
+                            return (
+                                <StepQuestion
+                                    question={currentQuestion}
+                                    onAnswer={handleAnswer}
+                                    canGoBack={history.length > 1}
+                                    onBack={goBack}
+                                    lang={lang}
+                                    initialValue={answers[currentQuestion?.id]}
+                                />
+                            );
+                        case 'requests':
+                            return (
+                                <StepAdditionalRequests
+                                    value={additionalRequests}
+                                    onChange={setAdditionalRequests}
+                                    onNext={goToSummary}
+                                    onBack={goBack}
+                                    lang={lang}
+                                />
+                            );
+                        case 'summary':
+                            return (
+                                <StepSummary
+                                    pricing={pricing}
+                                    config={config}
+                                    answers={answers}
+                                    additionalRequests={additionalRequests}
+                                    onBack={goBack}
+                                    handleAction={handleAction}
+                                    leadData={leadData}
+                                    lang={lang}
+                                />
+                            );
+                        default:
+                            return null;
+                    }
+                };
 
-            <div className="relative min-h-[500px]">
-                <AnimatePresence mode="wait">
-                    <motion.div
-                        key={flowStep + (flowStep === 'questions' ? currentQuestion?.id : '')}
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        exit={{ y: -20, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
-                    >
-                        {renderStep()}
-                    </motion.div>
-                </AnimatePresence>
-            </div>
+                return (
+                    <div className="max-w-2xl mx-auto">
+                        <div className="mb-8 flex items-center justify-between px-4">
+                            <Link href="/" className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest">
+                                &larr; {lang === 'it' ? 'Annulla' : 'Cancel'}
+                            </Link>
+                            {flowStep === 'questions' && (
+                                <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#719436] bg-[#719436]/5 px-4 py-1.5 rounded-full border border-[#719436]/20 shadow-sm">
+                                    Step {currentStepIndex + 1} / {visibleQuestions.length}
+                                </div>
+                            )}
+                        </div>
 
-            {flowStep === 'questions' && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="mt-12 text-center"
-                >
-                    <div className="inline-block px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-xl">
-                        <span className="text-xs text-gray-400 font-medium uppercase tracking-widest block mb-1">
-                            {lang === 'it' ? 'Stima parziale' : 'Partial estimate'}
-                        </span>
-                        <span className="text-xl text-gray-900 font-semibold tracking-tight">
-                            € {pricing.totalNet.toLocaleString()} <span className="text-xs text-gray-400 font-normal">+ IVA</span>
-                        </span>
+                        <div className="relative min-h-[500px]">
+                            <AnimatePresence mode="wait">
+                                <motion.div
+                                    key={flowStep + (flowStep === 'questions' ? currentQuestion?.id : '')}
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    exit={{ y: -20, opacity: 0 }}
+                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                >
+                                    {renderStep()}
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+
+                        {flowStep === 'questions' && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="mt-12 text-center"
+                            >
+                                <div className="inline-block px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-xl">
+                                    <span className="text-xs text-gray-400 font-medium uppercase tracking-widest block mb-1">
+                                        {lang === 'it' ? 'Stima parziale' : 'Partial estimate'}
+                                    </span>
+                                    <span className="text-xl text-gray-900 font-semibold tracking-tight">
+                                        € {pricing.totalNet.toLocaleString()} <span className="text-xs text-gray-400 font-normal">+ IVA</span>
+                                    </span>
+                                </div>
+                            </motion.div>
+                        )}
                     </div>
-                </motion.div>
-            )}
-        </div>
+                );
+            }}
+        </LeadGate>
     );
 }
