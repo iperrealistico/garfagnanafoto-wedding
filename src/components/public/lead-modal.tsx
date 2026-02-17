@@ -5,6 +5,7 @@ import { LeadForm } from "./lead-form";
 import { Lead } from "@/lib/config-schema";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
+import { useEffect } from "react";
 
 interface LeadModalProps {
     isOpen: boolean;
@@ -17,6 +18,17 @@ interface LeadModalProps {
 }
 
 export function LeadModal({ isOpen, onClose, onSuccess, gdprNotice, lang, initialData, title }: LeadModalProps) {
+    // Handle ESC key to close
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && isOpen) {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEsc);
+        return () => window.removeEventListener('keydown', handleEsc);
+    }, [isOpen, onClose]);
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -38,7 +50,16 @@ export function LeadModal({ isOpen, onClose, onSuccess, gdprNotice, lang, initia
                             <h2 className="text-xl font-bold text-gray-900">
                                 {title || (lang === 'it' ? 'I tuoi recapiti' : 'Your Contact Info')}
                             </h2>
-                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onClose(); }} className="rounded-full">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onClose();
+                                }}
+                                className="rounded-full hover:bg-gray-100"
+                                aria-label="Close"
+                            >
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>

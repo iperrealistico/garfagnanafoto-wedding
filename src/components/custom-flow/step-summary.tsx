@@ -87,8 +87,8 @@ export function StepSummary({
                 <Button
                     size="lg"
                     className="flex-1 h-14 text-lg shadow-md hover:shadow-lg transition-all w-full md:w-auto rounded-2xl"
-                    onClick={() => handleAction(() => {
-                        window.open(`/quote/print?${queryString}`, "_blank");
+                    onClick={() => handleAction((lead) => {
+                        window.open(`/quote/print?${buildQueryString(lead)}`, "_blank");
                     })}
                 >
                     <FontAwesomeIcon icon={faPrint} className="mr-2" />
@@ -98,8 +98,8 @@ export function StepSummary({
                     variant="outline"
                     size="lg"
                     className="flex-1 h-14 text-lg border-2 w-full md:w-auto rounded-2xl"
-                    onClick={() => handleAction(() => {
-                        window.open(`/quote/pdf?${queryString}`, "_blank");
+                    onClick={() => handleAction((lead) => {
+                        window.open(`/quote/pdf?${buildQueryString(lead)}`, "_blank");
                     })}
                 >
                     <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
