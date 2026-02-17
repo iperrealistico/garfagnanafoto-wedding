@@ -14,6 +14,8 @@ export default async function PrintPage({
         custom?: string;
         first_name?: string;
         last_name?: string;
+        email?: string;
+        phone?: string;
         location?: string;
         requests?: string;
     }>;
@@ -25,7 +27,7 @@ export default async function PrintPage({
         return notFound();
     }
 
-    const { packageId, custom, first_name, last_name, location, requests } = resolvedSearchParams;
+    const { packageId, custom, first_name, last_name, email, phone, location, requests } = resolvedSearchParams;
     const isCustom = custom === "true";
     const lang = "it";
 
@@ -70,6 +72,8 @@ export default async function PrintPage({
     const leadData = {
         first_name,
         last_name,
+        email,
+        phone,
         wedding_location: location
     };
 
@@ -126,9 +130,23 @@ export default async function PrintPage({
                     <div className="space-y-4">
                         <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Cliente</h2>
                         <p className="text-xl font-bold">{first_name || last_name ? `${first_name} ${last_name}` : '---'}</p>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-600">
+                            {email && (
+                                <div>
+                                    <span className="mr-1 opacity-50 font-bold uppercase tracking-tighter text-[10px]">Email:</span>
+                                    <span className="font-semibold">{email}</span>
+                                </div>
+                            )}
+                            {phone && (
+                                <div>
+                                    <span className="mr-1 opacity-50 font-bold uppercase tracking-tighter text-[10px]">Tel:</span>
+                                    <span className="font-semibold">{phone}</span>
+                                </div>
+                            )}
+                        </div>
                         {location && (
-                            <div className="flex items-center text-sm text-gray-600">
-                                <span className="mr-2 opacity-50 font-bold uppercase tracking-tighter">Location:</span>
+                            <div className="flex items-center text-sm text-gray-600 pt-2 border-t border-gray-200/50 mt-2">
+                                <span className="mr-2 opacity-50 font-bold uppercase tracking-tighter text-[10px]">Location:</span>
                                 <span className="font-semibold">{location}</span>
                             </div>
                         )}

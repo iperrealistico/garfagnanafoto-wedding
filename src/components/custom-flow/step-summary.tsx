@@ -51,6 +51,8 @@ export function StepSummary({
         if (lead) {
             if (lead.first_name) searchParams.set("first_name", lead.first_name);
             if (lead.last_name) searchParams.set("last_name", lead.last_name);
+            if (lead.email) searchParams.set("email", lead.email);
+            if (lead.phone) searchParams.set("phone", lead.phone);
             if (lead.wedding_location) searchParams.set("location", lead.wedding_location);
         }
 

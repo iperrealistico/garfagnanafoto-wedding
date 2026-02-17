@@ -38,7 +38,7 @@ export function LeadModal({ isOpen, onClose, onSuccess, gdprNotice, lang, initia
                             <h2 className="text-xl font-bold text-gray-900">
                                 {title || (lang === 'it' ? 'I tuoi recapiti' : 'Your Contact Info')}
                             </h2>
-                            <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full">
+                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onClose(); }} className="rounded-full">
                                 <X className="w-5 h-5" />
                             </Button>
                         </div>

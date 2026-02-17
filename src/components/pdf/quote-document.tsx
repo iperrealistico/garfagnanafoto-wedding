@@ -196,8 +196,16 @@ export const QuoteDocument = ({
                                 ? `${leadData.first_name} ${leadData.last_name}`.trim()
                                 : "---"}
                         </Text>
+                        <View style={{ marginTop: 4, flexDirection: "row", flexWrap: "wrap", gap: 10 }}>
+                            {leadData?.email && (
+                                <Text style={{ fontSize: 8, color: "#666" }}>Email: {leadData.email}</Text>
+                            )}
+                            {leadData?.phone && (
+                                <Text style={{ fontSize: 8, color: "#666" }}>Tel: {leadData.phone}</Text>
+                            )}
+                        </View>
                         {leadData?.wedding_location && (
-                            <Text style={{ fontSize: 9, color: "#666", marginTop: 4 }}>
+                            <Text style={{ fontSize: 8, color: "#666", marginTop: 4, fontWeight: "bold" }}>
                                 Location: {leadData.wedding_location}
                             </Text>
                         )}

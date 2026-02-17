@@ -40,13 +40,17 @@ export function QuoteSummary({
                 {leadData && (leadData.first_name || leadData.wedding_location) && (
                     <div className="bg-gray-50 p-4 rounded-lg border border-gray-100 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         {leadData.first_name && (
-                            <div>
+                            <div className="md:col-span-2">
                                 <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.client}</span>
                                 <span className="font-semibold text-gray-900">{leadData.first_name} {leadData.last_name}</span>
+                                <span className="text-gray-400 mx-2">|</span>
+                                <span className="text-gray-600 font-medium">{leadData.email}</span>
+                                <span className="text-gray-400 mx-2">|</span>
+                                <span className="text-gray-600 font-medium">{leadData.phone}</span>
                             </div>
                         )}
                         {leadData.wedding_location && (
-                            <div>
+                            <div className="md:col-span-2 pt-2 border-t border-gray-100 mt-2">
                                 <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.location}</span>
                                 <span className="font-semibold text-gray-900">{leadData.wedding_location}</span>
                             </div>

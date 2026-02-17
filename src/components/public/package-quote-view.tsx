@@ -31,6 +31,8 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
         if (lead) {
             searchParams.set("first_name", lead.first_name || "");
             searchParams.set("last_name", lead.last_name || "");
+            searchParams.set("email", lead.email || "");
+            searchParams.set("phone", lead.phone || "");
             searchParams.set("location", lead.wedding_location || "");
         }
         return searchParams.toString();
