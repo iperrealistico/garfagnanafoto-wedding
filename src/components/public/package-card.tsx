@@ -25,11 +25,6 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
 
     return (
         <Card className={cn("flex flex-col h-full relative overflow-visible", isPopular && "border-black shadow-lg")}>
-            {hasDiscount && (
-                <div className="absolute top-0 left-0 -ml-2 -mt-2 bg-gradient-to-r from-red-600 to-red-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md z-10 animate-pulse">
-                    🔥 -{discountAmount}€
-                </div>
-            )}
             {isPopular && (
                 <div className="absolute top-0 right-0 -mr-2 -mt-2 bg-black text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide z-10">
                     Consigliato
@@ -54,7 +49,7 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
                     {hasDiscount && (
                         <li className="flex items-start text-sm text-red-600 font-semibold">
                             <FontAwesomeIcon icon={faCheck} className="text-red-500 mt-1 mr-2 w-4 h-4" />
-                            <span>Sconto pacchetto -{discountAmount}€</span>
+                            <span>{lang === 'en' ? 'Package discount' : 'Sconto pacchetto'} -{discountAmount}€</span>
                         </li>
                     )}
                 </ul>

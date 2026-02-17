@@ -25,6 +25,8 @@ import { QuestionsSection } from "./sections/QuestionsSection";
 import { LegalSection } from "./sections/LegalSection";
 import { IntegrationsSection } from "./sections/IntegrationsSection";
 import { SeoSection } from "./sections/SeoSection";
+import { LeadsManager } from "./sections/LeadsManager";
+import { AdvancedSection } from "./sections/AdvancedSection";
 
 interface ConfigEditorProps {
     initialConfig: AppConfig;
@@ -34,7 +36,7 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
     const [isPending, startTransition] = useTransition();
     const [config, setConfig] = useState<AppConfig>(initialConfig);
     const searchParams = useSearchParams();
-    const activeSection = searchParams.get("section") || "branding";
+    const activeSection = searchParams.get("section") || "leads";
 
     // Track dirty state
     const isDirty = useMemo(() => {
@@ -69,6 +71,8 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
 
     const renderSection = () => {
         switch (activeSection) {
+            case "leads":
+                return <LeadsManager />;
             case "branding":
                 return <BrandingSection config={config} updateConfig={handleUpdateConfig} />;
             case "gallery":
@@ -87,10 +91,14 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                 return <SeoSection config={config} updateConfig={handleUpdateConfig} />;
             case "integrations":
                 return <IntegrationsSection config={config} updateConfig={handleUpdateConfig} />;
+            case "advanced":
+                return <AdvancedSection config={config} updateConfig={handleUpdateConfig} />;
             default:
-                return <BrandingSection config={config} updateConfig={handleUpdateConfig} />;
+                return <LeadsManager />;
         }
     };
+
+    const showSaveBar = isDirty && activeSection !== "leads";
 
     return (
         <div className="pb-32 animate-in fade-in duration-500">
@@ -102,7 +110,7 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
             {/* Sticky Save Bar */}
             <div className={cn(
                 "fixed bottom-8 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-2xl z-50 transition-all duration-300 transform",
-                isDirty ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0 pointer-events-none"
+                showSaveBar ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0 pointer-events-none"
             )}>
                 <div className="bg-gray-900 border border-gray-800 shadow-2xl rounded-2xl p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3 px-2">
@@ -148,7 +156,7 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
             </div>
 
             {/* Status indicator for non-dirty state */}
-            {!isDirty && (
+            {!isDirty && activeSection !== "leads" && (
                 <div className="fixed bottom-10 right-10 text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em] flex items-center gap-2 transition-opacity duration-1000">
                     <CheckCircle2 className="w-3 h-3 text-green-500" />
                     All changes synced

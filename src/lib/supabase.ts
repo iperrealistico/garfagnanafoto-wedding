@@ -1,12 +1,17 @@
 import { createServerClient, type CookieOptions } from "@supabase/ssr"
 import { cookies } from "next/headers"
+import { env } from "./env-adapter"
 
 export const createClient = async () => {
     const cookieStore = await cookies()
 
+    if (!env.supabase.url || !env.supabase.serviceKey) {
+        throw new Error("Missing Supabase credentials in env mapping.");
+    }
+
     return createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.SUPABASE_SERVICE_ROLE_KEY!, // Use Service Role for Config Access
+        env.supabase.url,
+        env.supabase.serviceKey, // Use Service Role for Config Access
         {
             cookies: {
                 getAll() {

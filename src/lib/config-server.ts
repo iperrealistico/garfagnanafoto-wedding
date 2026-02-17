@@ -1,11 +1,12 @@
 import { createClient } from "./supabase";
 import { AppConfig, AppConfigSchema } from "./config-schema";
 import { DEFAULT_CONFIG } from "./default-config";
+import { env } from "./env-adapter";
 
 const CONFIG_KEY = "garfagnanafoto:wedding:config:v1";
 
 export async function getAppConfig(): Promise<AppConfig> {
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    if (!env.supabase.serviceKey || !env.supabase.url) {
         console.warn("Missing Supabase credentials. Returning default config.");
         return AppConfigSchema.parse(DEFAULT_CONFIG);
     }

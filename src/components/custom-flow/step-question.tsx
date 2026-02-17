@@ -17,7 +17,15 @@ export function StepQuestion({ question, onAnswer, canGoBack, onBack }: StepQues
     const lang = "it"; // TODO: get from context
 
     return (
-        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm">
+        <Card className="border-0 shadow-lg bg-white/90 backdrop-blur-sm overflow-hidden">
+            {canGoBack && (
+                <div className="px-6 pt-4">
+                    <Button variant="ghost" size="sm" onClick={onBack} className="text-gray-400 hover:text-gray-900 px-0">
+                        <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                        Indietro
+                    </Button>
+                </div>
+            )}
             <CardContent className="p-10 flex flex-col items-center text-center space-y-8">
                 <h2 className="text-2xl font-bold text-gray-900">{getLocalized(question.questionText, lang)}</h2>
 
@@ -38,13 +46,6 @@ export function StepQuestion({ question, onAnswer, canGoBack, onBack }: StepQues
                         {getLocalized(question.yesLabel, lang)}
                     </Button>
                 </div>
-
-                {canGoBack && (
-                    <Button variant="ghost" size="sm" onClick={onBack} className="absolute top-4 left-4 text-gray-400 hover:text-gray-900">
-                        <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                        Indietro
-                    </Button>
-                )}
             </CardContent>
         </Card>
     );

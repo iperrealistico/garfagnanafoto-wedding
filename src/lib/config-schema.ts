@@ -118,6 +118,12 @@ export const AppConfigSchema = z.object({
             return val;
         }, z.array(GalleryImageSchema)).default([]),
     }).optional(),
+    advancedSettings: z.object({
+        gdprNotice: LocalizedStringSchema.default({
+            it: "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta. Non verranno utilizzati per marketing né ceduti a terzi.",
+            en: "Your data will be used exclusively to contact you regarding this request. It will not be used for marketing or shared with third parties."
+        }),
+    }).optional(),
 });
 
 
@@ -128,4 +134,22 @@ export type GalleryImage = z.infer<typeof GalleryImageSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 
 export type AppConfigInput = z.input<typeof AppConfigSchema>;
+
+export const LeadSchema = z.object({
+    id: z.string().uuid().optional(),
+    created_at: z.string().optional(),
+    first_name: z.string().min(1, "Il nome è obbligatorio"),
+    last_name: z.string().min(1, "Il cognome è obbligatorio"),
+    email: z.string().email("Email non valida"),
+    phone: z.string().min(5, "Telefono non valido"),
+    wedding_location: z.string().optional(),
+    locale: z.string().default("it"),
+    package_id: z.string().optional(),
+    is_custom: z.boolean().default(false),
+    quote_snapshot: z.any().optional(),
+    additional_requests: z.string().optional(),
+    gdpr_accepted_at: z.string().optional(),
+});
+
+export type Lead = z.infer<typeof LeadSchema>;
 

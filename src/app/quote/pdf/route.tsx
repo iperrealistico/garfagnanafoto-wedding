@@ -11,7 +11,11 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const packageId = searchParams.get("packageId");
     const isCustom = searchParams.get("custom") === "true";
-    const lang = "it"; // TODO: get from query param
+    const firstName = searchParams.get("first_name") || "";
+    const lastName = searchParams.get("last_name") || "";
+    const location = searchParams.get("location") || "";
+    const requests = searchParams.get("requests") || "";
+    const lang = "it";
 
     const config = await getAppConfig();
     let pricing;
@@ -42,13 +46,21 @@ export async function GET(request: Request) {
             pkgName={pkgName}
             pkgDescription={pkgDescription}
             date={new Date().toLocaleDateString("it-IT")}
+            leadData={{
+                first_name: firstName,
+                last_name: lastName,
+                wedding_location: location
+            }}
+            additionalRequests={requests}
         />
     );
+
+    const filename = `preventivo-${firstName || "garfagnanafoto"}-${lastName || "wedding"}.pdf`.toLowerCase().replace(/\s+/g, "_");
 
     return new NextResponse(stream as unknown as BodyInit, {
         headers: {
             "Content-Type": "application/pdf",
-            "Content-Disposition": `inline; filename="preventivo-${pkgName.replace(/\s+/g, "_")}.pdf"`,
+            "Content-Disposition": `inline; filename="${filename}"`,
         },
     });
 }

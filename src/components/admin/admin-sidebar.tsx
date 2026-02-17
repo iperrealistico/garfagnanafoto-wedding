@@ -16,7 +16,9 @@ import {
     Menu,
     X,
     LogOut,
-    ExternalLink
+    ExternalLink,
+    Users,
+    Settings2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -31,13 +33,15 @@ interface AdminSidebarProps {
 }
 
 export const ADMIN_SECTIONS = [
-    { id: "branding", label: "Branding", icon: Palette },
-    { id: "gallery", label: "Gallery", icon: ImageIcon },
-    { id: "copy", label: "Hero & Footer", icon: Type },
-    { id: "reviews", label: "Reviews", icon: Star },
+    { id: "leads", label: "Leads", icon: Users },
     { id: "packages", label: "Packages", icon: Box },
     { id: "questions", label: "Questions", icon: Settings },
+    { id: "gallery", label: "Gallery", icon: ImageIcon },
+    { id: "branding", label: "Branding", icon: Palette },
+    { id: "copy", label: "Hero & Footer", icon: Type },
+    { id: "reviews", label: "Reviews", icon: Star },
     { id: "legal", label: "Legal & SEO", icon: Globe },
+    { id: "advanced", label: "Advanced", icon: Settings2 },
     { id: "integrations", label: "Integrations", icon: Github },
 ];
 

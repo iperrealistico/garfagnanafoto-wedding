@@ -1,33 +1,40 @@
-# Admin UX Pro Upgrade - Status
+# Garfagnanafoto Wedding - v3 Upgrade TODO
 
-## 2024-11-20 Update: COMPLETED ✅
+## 1. Foundation & Stability
+- [x] Implement robust Env Adapter for Supabase/GitHub keys (Canonical names + Fallbacks)
+- [x] Debug and fix "Failed to update config" (Better error reporting + Schema alignment)
+- [x] Create Supabase `leads` table (SQL Migration)
+- [x] Update `AppConfigSchema` for unlimited packages and custom GDPR notice
+- [x] Verify: `npm run build` passes with new schema
 
-### Phase 1: Foundation & Branding ✅
-- [x] Create `AdminSidebar` component.
-- [x] Update `config-schema.ts` for Header Title & Logo.
-- [x] Update `default-config.ts`.
-- [x] Implement `BrandingSection` for Logo/Title control.
+## 2. Public UI Refinements
+- [x] Fix Wizard "Indietro" button overlap (CSS/Flexbox fix)
+- [x] Simplify Discount display: Remove blinking badge, replace with simple red line
+- [x] Ensure "Additional Requests" text is passed to summary and documents
+- [x] Verify: Responsive check on Wizard at 375px width
 
-### Phase 2: Admin UX Redesign ✅
-- [x] Implement `AdminLayoutShell` with sidebar & top bar.
-- [x] Refactor `ConfigEditor` into modular sections (Reviews, Packages, Questions, etc).
-- [x] Implement **Sticky Save Bar** with Dirty State detection.
-- [x] Add `Toaster` for feedback.
+## 3. Lead Capture & Flows
+- [x] Integrate Personal Data form (Location, Name, Phone, Email) into Custom Wizard
+- [x] Implement Lead Capture Modal for Standard Packages (triggered by Print/PDF)
+- [x] Show GDPR notice in flows (Configurable via Admin)
+- [x] Implement `saveLead` server action
+- [x] Verify: Custom flow doesn't show summary until persona data is submitted
 
-### Phase 3: Header & Gallery Features ✅
-- [x] Update public site `Header` and `Gallery` to use new config.
-- [x] Implement sortable gallery with `@dnd-kit`.
-- [x] Implement localized alt text editing in gallery.
+## 4. Admin Management
+- [x] Implement Package CRUD (Add/Delete/Reorder unlimited packages)
+- [x] Create "Leads" tab in Admin with search, sort, pagination, and delete actions
+- [x] Add "Advanced Settings" for GDPR notice configuration
+- [x] Verify: CRUD operations reflect on landing page instantly
 
-### Phase 4: GitHub Upload Fix ✅
-- [x] Diagnostic API route `/api/admin/github-test`.
-- [x] Implement base64-based upload via Octokit in `uploadImageAction`.
-- [x] Integrated `ImageUpload` component in Branding and Gallery sections.
+## 5. Unified Documentation (PDF/Print)
+- [x] Unify Printer/PDF layout into a single Source of Truth
+- [x] Add monochrome low-opacity logo watermark
+- [x] Add timestamp (Europe/Rome) to documents
+- [x] Ensure discount and additional requests are included
+- [x] Implement auto-trigger for browser print
+- [x] Verify: PDF and Print outputs are visually identical
 
-### Phase 5: Verification & Polish ✅
-- [x] Verified localized alt text display.
-- [x] Verified sort order persistence.
-- [x] Verified Sticky Save bar appearance.
-
----
-**Deployment Note:** Ensure `GITHUB_TOKEN`, `GITHUB_OWNER`, and `GITHUB_REPO_NAME` are set in Vercel.
+## 6. Final Verification
+- [x] Full build and typecheck
+- [x] Smoke test all critical flows
+- [x] Push to GitHub with clean commit messages
