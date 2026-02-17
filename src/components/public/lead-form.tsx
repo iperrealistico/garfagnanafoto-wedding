@@ -41,33 +41,25 @@ export function LeadForm({ onSubmitSuccess, gdprNotice, lang, initialData, submi
     const onFormSubmit = async (data: Lead) => {
         setIsSubmitting(true);
         try {
-            const result = await saveLeadAction({
+            // Kick off save in background to avoid blocking the window.open interaction context
+            saveLeadAction({
                 ...data,
                 gdpr_accepted_at: new Date().toISOString(),
+            }).then(result => {
+                if (result.success) {
+                    toast.success(lang === 'it' ? "Richiesta inviata con successo!" : "Request sent successfully!");
+                } else {
+                    console.error("Lead save failed:", result.error);
+                }
+            }).catch(e => {
+                console.error("Lead save exception:", e);
             });
 
-            if (result.success) {
-                toast.success(lang === 'it' ? "Richiesta inviata con successo!" : "Request sent successfully!");
-            } else {
-                // Lead save failed, but we still let the user proceed
-                console.error("Lead save failed:", result.error);
-                toast.warning(
-                    lang === 'it'
-                        ? "Non siamo riusciti a salvare i tuoi dati, ma il preventivo è pronto."
-                        : "We couldn't save your data, but your quote is ready."
-                );
-            }
-        } catch (e) {
-            // Network or server error — still let the user proceed
-            console.error("Lead save exception:", e);
-            toast.warning(
-                lang === 'it'
-                    ? "Errore di connessione. Il preventivo è comunque disponibile."
-                    : "Connection error. Your quote is still available."
-            );
-        } finally {
-            // ALWAYS advance the flow regardless of save success
+            // Immediately advance flow to preserve "trusted" context for window.open
             onSubmitSuccess(data);
+        } catch (e) {
+            console.error("Error during submission flow:", e);
+        } finally {
             setIsSubmitting(false);
         }
     };
@@ -111,9 +103,19 @@ export function LeadForm({ onSubmitSuccess, gdprNotice, lang, initialData, submi
                 </p>
             </div>
 
-            <Button type="submit" className="w-full h-12 text-lg" disabled={isSubmitting}>
+            {Object.keys(errors).length > 0 && (
+                <div className="p-3 bg-red-50 border border-red-100 rounded-lg text-xs text-red-600 animate-in fade-in slide-in-from-top-1">
+                    {lang === 'it' ? 'Per favore, compila tutti i campi obbligatori correttamente.' : 'Please fill all required fields correctly.'}
+                </div>
+            )}
+
+            <button
+                type="submit"
+                className="w-full h-14 text-lg font-bold bg-black text-white rounded-2xl hover:bg-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg active:scale-95"
+                disabled={isSubmitting}
+            >
                 {isSubmitting ? (lang === 'it' ? 'Invio in corso...' : 'Sending...') : (submitLabel || (lang === 'it' ? 'Procedi al Preventivo' : 'Proceed to Quote'))}
-            </Button>
+            </button>
         </form>
     );
 }

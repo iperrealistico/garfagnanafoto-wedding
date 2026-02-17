@@ -39,17 +39,24 @@ export function LeadGate({
     }, [leadState]);
 
     const handleSuccess = (data: Lead) => {
-        // Just keep in memory for this component's lifecycle
-        const quoteId = hashQuote(quoteSnapshot);
-        const leadWithQuote = { ...data, quote_id: quoteId, quote_snapshot: quoteSnapshot };
+        try {
+            // Just keep in memory for this component's lifecycle
+            const quoteId = hashQuote(quoteSnapshot);
+            const leadWithQuote = { ...data, quote_id: quoteId, quote_snapshot: quoteSnapshot };
 
-        setLeadState({ hasLead: true, data: leadWithQuote });
-        setIsModalOpen(false);
+            setLeadState({ hasLead: true, data: leadWithQuote });
+            setIsModalOpen(false);
 
-        // Immediately execute the requested action
-        if (pendingCallback) {
-            pendingCallback(leadWithQuote);
-            setPendingCallback(null);
+            // Immediately execute the requested action
+            if (pendingCallback) {
+                const callback = pendingCallback;
+                setPendingCallback(null);
+                callback(leadWithQuote);
+            }
+        } catch (e) {
+            console.error("Critical error in handleSuccess:", e);
+            // Fallback: at least try to close modal
+            setIsModalOpen(false);
         }
     };
 
