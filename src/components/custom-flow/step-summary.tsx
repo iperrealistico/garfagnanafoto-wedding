@@ -56,10 +56,10 @@ export function StepSummary({
                     {lang === 'it' ? 'Indietro' : 'Back'}
                 </Button>
                 <div className="text-right">
-                    <h2 className="text-2xl font-bold text-gray-900">{lang === 'it' ? 'Riepilogo Finale' : 'Final Summary'}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900">{lang === 'it' ? 'Preventivo Generato' : 'Quote Generated'}</h2>
                     <p className="text-xs text-[#719436] font-bold uppercase tracking-wider mt-1 flex items-center justify-end">
                         <FontAwesomeIcon icon={faCheckCircle} className="mr-1.5" />
-                        {lang === 'it' ? 'Configurazione Completata' : 'Configuration Complete'}
+                        {lang === 'it' ? 'Pronto per il cliente' : 'Ready for client'}
                     </p>
                 </div>
             </div>
@@ -90,8 +90,8 @@ export function StepSummary({
             <div className="mt-8 text-center">
                 <p className="text-sm text-gray-500 italic">
                     {lang === 'it'
-                        ? "* Ti abbiamo inviato una copia di questo preventivo anche via email."
-                        : "* We have also sent a copy of this quote to your email."}
+                        ? "Stampa o salva il PDF per consegnarlo al cliente. In caso di dubbio, consulta i pacchetti standard."
+                        : "Print or save the PDF to share with the client. If unsure, refer to the standard packages."}
                 </p>
             </div>
         </div>

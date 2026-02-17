@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faUserCheck } from "@fortawesome/free-solid-svg-icons";
+import { faArrowLeft, faUserCheck, faLock } from "@fortawesome/free-solid-svg-icons";
 import { getLocalized } from "@/lib/i18n-utils";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type FlowStep = 'questions' | 'requests' | 'persona' | 'summary';
 
@@ -22,7 +24,65 @@ interface WizardContainerProps {
     lang?: string;
 }
 
+function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState(false);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        // Use the same admin login action
+        const res = await fetch("/api/admin/custom-auth", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password }),
+        });
+        if (res.ok) {
+            onUnlock();
+        } else {
+            setError(true);
+        }
+    };
+
+    return (
+        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm overflow-hidden max-w-md mx-auto">
+            <CardContent className="p-8 md:p-10 space-y-6">
+                <div className="text-center space-y-3">
+                    <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
+                        <FontAwesomeIcon icon={faLock} className="text-2xl" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900">Area Riservata</h2>
+                    <p className="text-sm text-gray-500 leading-relaxed">
+                        Il configuratore personalizzato è riservato al fotografo.<br />
+                        Inserisci la password admin per procedere.
+                    </p>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="custom-pw">Password</Label>
+                        <Input
+                            id="custom-pw"
+                            type="password"
+                            value={password}
+                            onChange={(e) => { setPassword(e.target.value); setError(false); }}
+                            placeholder="Password admin"
+                            autoFocus
+                        />
+                        {error && <p className="text-xs text-red-500">Password errata. Riprova.</p>}
+                    </div>
+                    <Button type="submit" className="w-full h-12">
+                        Accedi al configuratore
+                    </Button>
+                </form>
+                <p className="text-xs text-center text-gray-400">
+                    Se non conosci la password, scegli uno dei <a href="/" className="text-[#719436] underline">pacchetti standard</a>.
+                </p>
+            </CardContent>
+        </Card>
+    );
+}
+
 export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
+    const [isUnlocked, setIsUnlocked] = useState(false);
     const [flowStep, setFlowStep] = useState<FlowStep>('questions');
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [answers, setAnswers] = useState<CustomAnswers>({});
@@ -49,11 +109,6 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
 
     const currentQuestion = questions[currentStepIndex];
 
-    const showRequestsForm = useMemo(() => {
-        const triggerQ = questions.find(q => q.effectsYes?.notes?.triggersAdditionalRequestsBox);
-        return triggerQ ? !!answers[triggerQ.id] : false;
-    }, [questions, answers]);
-
     const handleAnswer = (val: boolean) => {
         if (!currentQuestion) return;
         const newAnswers = { ...answers, [currentQuestion.id]: val };
@@ -65,8 +120,11 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
         }
 
         if (nextIndex >= questions.length) {
-            // Finished questions, determine next flow step
-            const nextStep = showRequestsForm ? 'requests' : 'persona';
+            // Compute showRequestsForm from the NEW answers, not stale state
+            const triggerQ = questions.find(q => q.effectsYes?.notes?.triggersAdditionalRequestsBox);
+            const needsRequests = triggerQ ? !!newAnswers[triggerQ.id] : false;
+
+            const nextStep = needsRequests ? 'requests' : 'persona';
             setFlowStep(nextStep);
             setHistory(prev => [...prev, { step: nextStep, index: nextIndex }]);
         } else {
@@ -106,6 +164,20 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
             ? "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta. Non verranno utilizzati per marketing né ceduti a terzi."
             : "Your data will be used exclusively to contact you regarding this request. It will not be used for marketing or shared with third parties.");
 
+    // Password gate
+    if (!isUnlocked) {
+        return (
+            <div className="max-w-2xl mx-auto">
+                <div className="mb-8 flex items-center justify-between px-4">
+                    <Link href="/" className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest">
+                        &larr; {lang === 'it' ? 'Torna alla Home' : 'Back to Home'}
+                    </Link>
+                </div>
+                <PasswordGate onUnlock={() => setIsUnlocked(true)} />
+            </div>
+        );
+    }
+
     const renderStep = () => {
         switch (flowStep) {
             case 'questions':
@@ -142,12 +214,12 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                                     <FontAwesomeIcon icon={faUserCheck} className="text-2xl" />
                                 </div>
                                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                                    {lang === 'it' ? 'Ultimo passo!' : 'One last step!'}
+                                    {lang === 'it' ? 'Dati del cliente' : 'Client details'}
                                 </h2>
                                 <p className="text-gray-500">
                                     {lang === 'it'
-                                        ? 'Completa con i tuoi dati per ricevere il preventivo.'
-                                        : 'Fill in your details to receive the quote.'}
+                                        ? 'Inserisci i recapiti del cliente per generare il preventivo.'
+                                        : 'Enter client contact info to generate the quote.'}
                                 </p>
                             </div>
                             <LeadForm
@@ -159,6 +231,7 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                                     quote_snapshot: pricing,
                                     additional_requests: additionalRequests
                                 }}
+                                submitLabel={lang === 'it' ? 'Genera Preventivo' : 'Generate Quote'}
                             />
                         </CardContent>
                     </Card>
@@ -214,11 +287,11 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                     className="mt-12 text-center"
                 >
                     <div className="inline-block px-6 py-3 bg-white rounded-2xl border border-gray-100 shadow-xl">
-                        <span className="text-xs text-gray-400 font-bold uppercase tracking-widest block mb-1">
+                        <span className="text-xs text-gray-400 font-medium uppercase tracking-widest block mb-1">
                             {lang === 'it' ? 'Stima parziale' : 'Partial estimate'}
                         </span>
-                        <span className="text-xl text-gray-900 font-black tracking-tighter">
-                            € {pricing.totalNet.toLocaleString()} <span className="text-xs text-gray-400 font-medium">+ IVA</span>
+                        <span className="text-xl text-gray-900 font-semibold tracking-tight">
+                            € {pricing.totalNet.toLocaleString()} <span className="text-xs text-gray-400 font-normal">+ IVA</span>
                         </span>
                     </div>
                 </motion.div>

@@ -30,19 +30,19 @@ export function StepAdditionalRequests({ value, onChange, onNext, onBack, lang }
                         {lang === 'it' ? 'Note e Richieste Aggiuntive' : 'Additional Notes & Requests'}
                     </h2>
                     <p className="text-sm text-gray-500">
-                        {lang === 'it' ? 'Hai richieste particolari? Scrivile qui sotto.' : 'Any special requests? Write them below.'}
+                        {lang === 'it' ? 'Annota eventuali richieste specifiche del cliente.' : 'Note any specific client requests.'}
                     </p>
                 </div>
 
                 <div className="text-left space-y-4">
                     <Label htmlFor="requests">
-                        {lang === 'it' ? 'Le tue note' : 'Your notes'}
+                        {lang === 'it' ? 'Note per il preventivo' : 'Quote notes'}
                     </Label>
                     <Textarea
                         id="requests"
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
-                        placeholder={lang === 'it' ? 'Esempio: Vorrei includere un album extra...' : 'Example: I would like an extra album...'}
+                        placeholder={lang === 'it' ? 'Esempio: Il cliente vorrebbe un album extra, riprese drone...' : 'Example: Client wants an extra album, drone footage...'}
                         className="min-h-[150px]"
                     />
                     <p className="text-xs text-amber-600 italic">

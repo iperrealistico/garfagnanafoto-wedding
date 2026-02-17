@@ -18,12 +18,32 @@ export default async function PrintPage({
         requests?: string;
     }>;
 }) {
-    const resolvedSearchParams = await searchParams;
+    let resolvedSearchParams;
+    try {
+        resolvedSearchParams = await searchParams;
+    } catch {
+        return notFound();
+    }
+
     const { packageId, custom, first_name, last_name, location, requests } = resolvedSearchParams;
     const isCustom = custom === "true";
     const lang = "it";
 
-    const config = await getAppConfig();
+    let config;
+    try {
+        config = await getAppConfig();
+    } catch (e) {
+        console.error("Failed to load config for print page:", e);
+        return (
+            <div className="min-h-screen bg-white flex items-center justify-center p-12">
+                <div className="text-center space-y-4">
+                    <h1 className="text-2xl font-bold text-gray-900">Errore di configurazione</h1>
+                    <p className="text-gray-500">Non è stato possibile caricare la configurazione. Riprova più tardi.</p>
+                </div>
+            </div>
+        );
+    }
+
     let pricing;
     let pkgName = "";
     let pkgTagline = "";
@@ -36,8 +56,6 @@ export default async function PrintPage({
             pkgTagline = getLocalized(pkg.tagline, lang);
         }
     } else if (isCustom) {
-        // Build answers from generic searchParams keys if needed, 
-        // but here we assume the URL has the correct format for parseCustomParams
         const { answers } = parseCustomParams(resolvedSearchParams as any);
         pricing = calculateCustomQuote(config, answers);
         pkgName = lang === 'it' ? "Preventivo Personalizzato" : "Custom Quote";
@@ -50,6 +68,11 @@ export default async function PrintPage({
         last_name,
         wedding_location: location
     };
+
+    // Safe access to legalCopy with fallbacks
+    const deliveryTime = config.legalCopy?.deliveryTime ? getLocalized(config.legalCopy.deliveryTime, lang) : "";
+    const paymentTerms = config.legalCopy?.paymentTerms ? getLocalized(config.legalCopy.paymentTerms, lang) : "";
+    const disclaimer = config.legalCopy?.disclaimer ? getLocalized(config.legalCopy.disclaimer, lang) : "";
 
     return (
         <div className="bg-white min-h-screen text-black relative overflow-hidden print:p-0">
@@ -67,7 +90,7 @@ export default async function PrintPage({
                     transform: translate(-50%, -50%) rotate(-45deg);
                     font-size: 8rem;
                     font-weight: 900;
-                    color: rgba(0,0,0,0,0.03);
+                    color: rgba(0,0,0,0.03);
                     white-space: nowrap;
                     pointer-events: none;
                     z-index: 0;
@@ -85,7 +108,7 @@ export default async function PrintPage({
                 <div className="flex justify-between items-start border-b-2 border-gray-900 pb-8">
                     <div className="space-y-1">
                         <h1 className="text-4xl font-black tracking-tighter text-gray-900">GARFAGNANAFOTO</h1>
-                        <p className="text-[#719436] font-bold tracking-widest text-xs uppercase">Wedding Photography & Video</p>
+                        <p className="text-[#719436] font-bold tracking-widest text-xs uppercase">Wedding Photography &amp; Video</p>
                     </div>
                     <div className="text-right text-xs text-gray-500 uppercase font-bold tracking-widest leading-relaxed">
                         <p>Sillico, Castelnuovo di Garfagnana</p>
@@ -129,19 +152,25 @@ export default async function PrintPage({
                 </div>
 
                 {/* Legal & Footer */}
-                <div className="grid grid-cols-2 gap-12 text-sm pt-8">
-                    <div className="space-y-3">
-                        <h4 className="font-black uppercase tracking-widest text-[10px] text-gray-400">Termini di Consegna</h4>
-                        <p className="text-gray-700 leading-relaxed font-medium">{getLocalized(config.legalCopy.deliveryTime, lang)}</p>
+                {(deliveryTime || paymentTerms) && (
+                    <div className="grid grid-cols-2 gap-12 text-sm pt-8">
+                        {deliveryTime && (
+                            <div className="space-y-3">
+                                <h4 className="font-black uppercase tracking-widest text-[10px] text-gray-400">Termini di Consegna</h4>
+                                <p className="text-gray-700 leading-relaxed font-medium">{deliveryTime}</p>
+                            </div>
+                        )}
+                        {paymentTerms && (
+                            <div className="space-y-3">
+                                <h4 className="font-black uppercase tracking-widest text-[10px] text-gray-400">Pagamento</h4>
+                                <p className="text-gray-700 leading-relaxed font-medium">{paymentTerms}</p>
+                            </div>
+                        )}
                     </div>
-                    <div className="space-y-3">
-                        <h4 className="font-black uppercase tracking-widest text-[10px] text-gray-400">Pagamento</h4>
-                        <p className="text-gray-700 leading-relaxed font-medium">{getLocalized(config.legalCopy.paymentTerms, lang)}</p>
-                    </div>
-                </div>
+                )}
 
                 <div className="text-[10px] text-center text-gray-400 mt-12 pt-8 border-t border-dashed space-y-2 uppercase tracking-widest font-bold">
-                    <p>{getLocalized(config.legalCopy.disclaimer, lang)}</p>
+                    {disclaimer && <p>{disclaimer}</p>}
                     <p className="text-[#719436]">Grazie per aver scelto Garfagnanafoto.it</p>
                     <p className="mt-4 opacity-50 font-mono">Generated on: {new Date().toISOString()}</p>
                 </div>
@@ -149,4 +178,3 @@ export default async function PrintPage({
         </div>
     );
 }
-
