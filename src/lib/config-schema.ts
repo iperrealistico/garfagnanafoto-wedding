@@ -139,6 +139,7 @@ export const AppConfigSchema = z.object({
 
 export type LineItem = z.infer<typeof LineItemSchema>;
 export type Package = z.infer<typeof PackageSchema>;
+export type QuestionEffect = z.infer<typeof QuestionEffectSchema>;
 export type Question = z.infer<typeof QuestionSchema>;
 export type GalleryImage = z.infer<typeof GalleryImageSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
