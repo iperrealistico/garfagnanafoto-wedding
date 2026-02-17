@@ -29,11 +29,11 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
         const searchParams = new URLSearchParams();
         searchParams.set("packageId", pkg.id);
         if (lead) {
-            if (lead.first_name) searchParams.set("first_name", lead.first_name);
-            if (lead.last_name) searchParams.set("last_name", lead.last_name);
-            if (lead.email) searchParams.set("email", lead.email);
-            if (lead.phone) searchParams.set("phone", lead.phone);
-            if (lead.wedding_location) searchParams.set("location", lead.wedding_location);
+            searchParams.set("first_name", lead.first_name || "");
+            searchParams.set("last_name", lead.last_name || "");
+            searchParams.set("email", lead.email || "");
+            searchParams.set("phone", lead.phone || "");
+            searchParams.set("location", lead.wedding_location || "");
         }
         return searchParams.toString();
     };
@@ -46,6 +46,8 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
             initialLeadData={{ package_id: pkg.id }}
         >
             {({ handleAction, leadData }) => {
+                const queryString = buildQueryString(leadData);
+
                 return (
                     <>
                         <div className="mb-10 text-center md:text-left">
@@ -68,9 +70,8 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
                             <Button
                                 size="lg"
                                 className="flex-1 h-14 text-lg shadow-md rounded-2xl"
-                                onClick={() => handleAction((liveLead) => {
-                                    const qs = buildQueryString(liveLead);
-                                    window.open(`/quote/print?${qs}`, "_blank");
+                                onClick={() => handleAction(() => {
+                                    window.open(`/quote/print?${queryString}`, "_blank");
                                 })}
                             >
                                 <FontAwesomeIcon icon={faPrint} className="mr-2" />
@@ -81,9 +82,8 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
                                 variant="outline"
                                 size="lg"
                                 className="flex-1 h-14 text-lg border-2 rounded-2xl"
-                                onClick={() => handleAction((liveLead) => {
-                                    const qs = buildQueryString(liveLead);
-                                    window.open(`/quote/pdf?${qs}`, "_blank");
+                                onClick={() => handleAction(() => {
+                                    window.open(`/quote/pdf?${queryString}`, "_blank");
                                 })}
                             >
                                 <FontAwesomeIcon icon={faFilePdf} className="mr-2" />

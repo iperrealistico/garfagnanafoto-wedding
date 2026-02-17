@@ -10,8 +10,6 @@ export async function GET(request: Request) {
     const isCustom = searchParams.get("custom") === "true";
     const firstName = searchParams.get("first_name") || "";
     const lastName = searchParams.get("last_name") || "";
-    const email = searchParams.get("email") || "";
-    const phone = searchParams.get("phone") || "";
     const location = searchParams.get("location") || "";
     const requests = searchParams.get("requests") || "";
     const lang = "it";
@@ -52,8 +50,6 @@ export async function GET(request: Request) {
                 leadData={{
                     first_name: firstName,
                     last_name: lastName,
-                    email: email,
-                    phone: phone,
                     wedding_location: location
                 }}
                 additionalRequests={requests}

@@ -38,13 +38,9 @@ export function LeadModal({ isOpen, onClose, onSuccess, gdprNotice, lang, initia
                             <h2 className="text-xl font-bold text-gray-900">
                                 {title || (lang === 'it' ? 'I tuoi recapiti' : 'Your Contact Info')}
                             </h2>
-                            <button
-                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
-                                className="p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-400 hover:text-gray-900"
-                                aria-label="Close"
-                            >
+                            <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); onClose(); }} className="rounded-full">
                                 <X className="w-5 h-5" />
-                            </button>
+                            </Button>
                         </div>
                         <div className="p-8">
                             <LeadForm

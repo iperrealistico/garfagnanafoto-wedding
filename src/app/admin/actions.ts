@@ -97,10 +97,6 @@ import { Lead } from "@/lib/config-schema";
 import { createClient } from "@/lib/supabase";
 
 export async function saveLeadAction(leadData: Lead) {
-    console.log("saveLeadAction triggered for:", leadData.email, {
-        is_custom: leadData.is_custom,
-        package_id: leadData.package_id
-    });
     try {
         if (!env.supabase.url || !env.supabase.serviceKey) {
             console.warn("Supabase not configured — skipping lead save");
@@ -130,11 +126,7 @@ export async function saveLeadAction(leadData: Lead) {
                 gdpr_accepted_at: leadData.gdpr_accepted_at || new Date().toISOString(),
             });
 
-        if (error) {
-            console.error("Supabase insert error:", error);
-            throw error;
-        }
-        console.log("Lead saved successfully in Supabase");
+        if (error) throw error;
         return { success: true };
     } catch (e: any) {
         console.error("Failed to save lead", e);

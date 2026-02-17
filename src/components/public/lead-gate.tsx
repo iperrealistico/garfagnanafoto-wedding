@@ -29,42 +29,27 @@ export function LeadGate({
     const [leadState, setLeadState] = useState<{ hasLead: boolean; data?: Lead }>({ hasLead: false });
 
     const handleAction = useCallback((callback: (lead: Lead) => void) => {
-        console.log("LeadGate: handleAction triggered");
         if (leadState.hasLead && leadState.data) {
-            console.log("LeadGate: Lead already exists, executing callback immediately");
             callback(leadState.data);
             return;
         }
 
-        console.log("LeadGate: Opening modal...");
         setPendingCallback(() => callback);
         setIsModalOpen(true);
     }, [leadState]);
 
     const handleSuccess = (data: Lead) => {
-        console.log("LeadGate: handleSuccess triggered", data);
-        try {
-            // Just keep in memory for this component's lifecycle
-            const quoteId = hashQuote(quoteSnapshot);
-            const leadWithQuote = { ...data, quote_id: quoteId, quote_snapshot: quoteSnapshot };
+        // Just keep in memory for this component's lifecycle
+        const quoteId = hashQuote(quoteSnapshot);
+        const leadWithQuote = { ...data, quote_id: quoteId, quote_snapshot: quoteSnapshot };
 
-            console.log("LeadGate: Updating state and closing modal");
-            setLeadState({ hasLead: true, data: leadWithQuote });
-            setIsModalOpen(false);
+        setLeadState({ hasLead: true, data: leadWithQuote });
+        setIsModalOpen(false);
 
-            // Immediately execute the requested action
-            if (pendingCallback) {
-                console.log("LeadGate: Executing pendingCallback");
-                const callback = pendingCallback;
-                setPendingCallback(null);
-                callback(leadWithQuote);
-            } else {
-                console.warn("LeadGate: No pendingCallback found in handleSuccess");
-            }
-        } catch (e) {
-            console.error("Critical error in handleSuccess:", e);
-            // Fallback: at least try to close modal
-            setIsModalOpen(false);
+        // Immediately execute the requested action
+        if (pendingCallback) {
+            pendingCallback(leadWithQuote);
+            setPendingCallback(null);
         }
     };
 
