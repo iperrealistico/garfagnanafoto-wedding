@@ -39,26 +39,30 @@ export function LeadForm({ onSubmitSuccess, gdprNotice, lang, initialData, submi
     });
 
     const onFormSubmit = async (data: Lead) => {
+        console.log("LeadForm: onFormSubmit triggered", data);
         setIsSubmitting(true);
         try {
+            console.log("LeadForm: Triggering saveLeadAction (background)...");
             // Kick off save in background to avoid blocking the window.open interaction context
             saveLeadAction({
                 ...data,
                 gdpr_accepted_at: new Date().toISOString(),
             }).then(result => {
+                console.log("LeadForm: saveLeadAction result", result);
                 if (result.success) {
                     toast.success(lang === 'it' ? "Richiesta inviata con successo!" : "Request sent successfully!");
                 } else {
                     console.error("Lead save failed:", result.error);
                 }
             }).catch(e => {
-                console.error("Lead save exception:", e);
+                console.error("LeadForm: saveLeadAction exception", e);
             });
 
+            console.log("LeadForm: Calling onSubmitSuccess...");
             // Immediately advance flow to preserve "trusted" context for window.open
             onSubmitSuccess(data);
         } catch (e) {
-            console.error("Error during submission flow:", e);
+            console.error("LeadForm: Error during submission flow", e);
         } finally {
             setIsSubmitting(false);
         }
