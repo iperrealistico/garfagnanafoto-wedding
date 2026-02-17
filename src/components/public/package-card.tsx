@@ -55,7 +55,7 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
                 </ul>
             </CardContent>
             <CardFooter className="mt-auto">
-                <Button asChild className="w-full" variant={isPopular ? "default" : "outline"}>
+                <Button asChild className="w-full rounded-2xl h-12" variant={isPopular ? "default" : "outline"}>
                     <Link href={href}>Scegli {getLocalized(pkg.name, lang)}</Link>
                 </Button>
             </CardFooter>

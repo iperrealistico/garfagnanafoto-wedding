@@ -72,7 +72,7 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
                 <Button
                     asChild={hasProvidedData}
                     size="lg"
-                    className="flex-1 h-14 text-lg shadow-md"
+                    className="flex-1 h-14 text-lg shadow-md rounded-2xl"
                     onClick={!hasProvidedData ? handleActionClick : undefined}
                 >
                     {hasProvidedData ? (
@@ -92,7 +92,7 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
                     asChild={hasProvidedData}
                     variant="outline"
                     size="lg"
-                    className="flex-1 h-14 text-lg border-2"
+                    className="flex-1 h-14 text-lg border-2 rounded-2xl"
                     onClick={!hasProvidedData ? handleActionClick : undefined}
                 >
                     {hasProvidedData ? (

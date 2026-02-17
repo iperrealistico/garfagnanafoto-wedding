@@ -73,13 +73,13 @@ export function StepSummary({
             />
 
             <div className="bg-gray-50/50 p-6 rounded-2xl border border-gray-100 flex flex-col sm:flex-row gap-4 items-center justify-center shadow-inner">
-                <Button asChild size="lg" className="flex-1 h-14 text-lg shadow-md hover:shadow-lg transition-all w-full md:w-auto">
+                <Button asChild size="lg" className="flex-1 h-14 text-lg shadow-md hover:shadow-lg transition-all w-full md:w-auto rounded-2xl">
                     <Link href={printUrl} target="_blank">
                         <FontAwesomeIcon icon={faPrint} className="mr-2" />
                         {lang === 'it' ? 'Stampa Preventivo' : 'Print Quote'}
                     </Link>
                 </Button>
-                <Button asChild variant="outline" size="lg" className="flex-1 h-14 text-lg border-2 w-full md:w-auto">
+                <Button asChild variant="outline" size="lg" className="flex-1 h-14 text-lg border-2 w-full md:w-auto rounded-2xl">
                     <Link href={pdfUrl} target="_blank">
                         <FontAwesomeIcon icon={faFilePdf} className="mr-2" />
                         {lang === 'it' ? 'Scarica PDF' : 'Download PDF'}

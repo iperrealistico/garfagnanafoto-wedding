@@ -3,7 +3,7 @@
 import { AppConfig } from "@/lib/config-schema";
 import { LocalizedInput } from "../localized-input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Palette } from "lucide-react";
 
 interface AdvancedSectionProps {
     config: AppConfig;
@@ -38,6 +38,25 @@ export function AdvancedSection({ config, updateConfig }: AdvancedSectionProps) 
                         multiline
                         value={config.advancedSettings?.gdprNotice || { it: "", en: "" }}
                         onChange={(val) => handleUpdateAdvanced({ gdprNotice: val })}
+                    />
+                </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-blue-500">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Palette className="w-5 h-5 text-blue-500" />
+                        Footer Copy
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <p className="text-sm text-gray-500">
+                        Customize the text displayed at the bottom of every page.
+                    </p>
+                    <LocalizedInput
+                        label="Footer Text"
+                        value={config.advancedSettings?.footerText || { it: "© 2026 — Garfagnanafoto.it", en: "© 2026 — Garfagnanafoto.it" }}
+                        onChange={(val) => handleUpdateAdvanced({ footerText: val })}
                     />
                 </CardContent>
             </Card>

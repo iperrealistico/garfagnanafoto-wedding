@@ -6,9 +6,18 @@ import { revalidatePath } from "next/cache";
 
 import { Octokit } from "@octokit/rest";
 import { env } from "@/lib/env-adapter";
+import { getSession } from "@/lib/auth";
+
+async function ensureAdmin() {
+    const session = await getSession();
+    if (!session) {
+        throw new Error("Unauthorized access. Admin session required.");
+    }
+}
 
 export async function updateConfigAction(formData: AppConfig) {
     try {
+        await ensureAdmin();
         // Validate again just in case
         const parsed = AppConfigSchema.parse(formData);
 
@@ -23,27 +32,28 @@ export async function updateConfigAction(formData: AppConfig) {
             const issues = (e.errors || []).map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ');
             return { success: false, error: `Validation Error: ${issues || e.message}` };
         }
-        return { success: false, error: `Database Error: ${e.message}` };
+        return { success: false, error: `Error: ${e.message}` };
     }
 }
 
 export async function uploadImageAction(formData: FormData) {
-    const file = formData.get("file") as File;
-    if (!file) {
-        return { success: false, error: "No file provided" };
-    }
-
-    const { token, owner, repo, branch } = env.github;
-
-    if (!token || !owner || !repo) {
-        console.error("Missing GitHub configuration", { owner, repo, hasToken: !!token });
-        return {
-            success: false,
-            error: "GitHub integration is not fully configured. Please check your atmosphere/environment variables."
-        };
-    }
-
     try {
+        await ensureAdmin();
+        const file = formData.get("file") as File;
+        if (!file) {
+            return { success: false, error: "No file provided" };
+        }
+
+        const { token, owner, repo, branch } = env.github;
+
+        if (!token || !owner || !repo) {
+            console.error("Missing GitHub configuration", { owner, repo, hasToken: !!token });
+            return {
+                success: false,
+                error: "GitHub integration is not fully configured. Please check your atmosphere/environment variables."
+            };
+        }
+
         const octokit = new Octokit({ auth: token });
 
         // 1. Get file content as buffer
@@ -67,7 +77,6 @@ export async function uploadImageAction(formData: FormData) {
         });
 
         // 4. Return the public path
-        // In Next.js, files in /public/images/file.jpg are served at /images/file.jpg
         const publicPath = `/images/${filename}`;
 
         return {
@@ -75,10 +84,10 @@ export async function uploadImageAction(formData: FormData) {
             path: publicPath
         };
     } catch (e: any) {
-        console.error("GitHub upload error", e);
+        console.error("Upload error", e);
         return {
             success: false,
-            error: `GitHub error: ${e.message}. Status: ${e.status}`
+            error: `Error: ${e.message}`
         };
     }
 }
@@ -110,6 +119,7 @@ export async function fetchLeadsAction(options: {
     orderDir?: 'asc' | 'desc'
 }) {
     try {
+        await ensureAdmin();
         const { page = 1, pageSize = 20, search, orderBy = 'created_at', orderDir = 'desc' } = options;
         const supabase = await createClient();
 
@@ -143,6 +153,7 @@ export async function fetchLeadsAction(options: {
 
 export async function deleteLeadAction(id: string) {
     try {
+        await ensureAdmin();
         const supabase = await createClient();
         const { error } = await supabase
             .from("leads")
@@ -159,6 +170,7 @@ export async function deleteLeadAction(id: string) {
 
 export async function bulkDeleteLeadsAction(ids: string[]) {
     try {
+        await ensureAdmin();
         const supabase = await createClient();
         const { error } = await supabase
             .from("leads")

@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { saveLeadAction } from "@/app/admin/actions";
 import { useState } from "react";
+import { formatError } from "@/lib/utils";
 
 interface LeadFormProps {
     onSubmitSuccess: (data: Lead) => void;
@@ -50,10 +51,10 @@ export function LeadForm({ onSubmitSuccess, gdprNotice, lang, initialData, submi
                 toast.success(lang === 'it' ? "Richiesta inviata con successo!" : "Request sent successfully!");
                 onSubmitSuccess(data);
             } else {
-                toast.error(result.error || "Failed to save lead");
+                toast.error(formatError(result.error));
             }
         } catch (e) {
-            toast.error("An unexpected error occurred");
+            toast.error(formatError(e));
         } finally {
             setIsSubmitting(false);
         }

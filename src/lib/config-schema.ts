@@ -84,7 +84,6 @@ export const GlobalCopySchema = z.object({
         location: LocalizedStringSchema,
         reviewsUrl: z.string().optional().default("#"),
     }),
-    footerText: LocalizedStringSchema.optional(),
 });
 
 export const AppConfigSchema = z.object({
@@ -122,6 +121,10 @@ export const AppConfigSchema = z.object({
         gdprNotice: LocalizedStringSchema.default({
             it: "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta. Non verranno utilizzati per marketing né ceduti a terzi.",
             en: "Your data will be used exclusively to contact you regarding this request. It will not be used for marketing or shared with third parties."
+        }),
+        footerText: LocalizedStringSchema.default({
+            it: "© 2026 — Garfagnanafoto.it",
+            en: "© 2026 — Garfagnanafoto.it"
         }),
     }).optional(),
 });

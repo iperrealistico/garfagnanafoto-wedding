@@ -150,7 +150,7 @@ export default async function Home({
               <p className="text-sm text-gray-600 mt-2">Crea il tuo pacchetto personalizzato. Scegli solo i servizi che ti interessano.</p>
             </div>
             <div className="mt-auto pt-6">
-              <Button asChild className="rounded-xl px-8 w-full">
+              <Button asChild className="rounded-2xl px-8 w-full h-12">
                 <Link href="/custom">Personalizza</Link>
               </Button>
             </div>
@@ -161,7 +161,7 @@ export default async function Home({
       <footer className="bg-gray-50 border-t py-12 mt-20">
         <div className="max-w-7xl mx-auto px-4 text-sm text-gray-500 flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
-            © {new Date().getFullYear()} Garfagnanafoto
+            {getLocalized(config.advancedSettings?.footerText, lang) || `© ${new Date().getFullYear()} Garfagnanafoto`}
           </div>
           <div className="flex items-center gap-6 font-semibold text-black">
             {/* Footer links removed for v2 branding */}

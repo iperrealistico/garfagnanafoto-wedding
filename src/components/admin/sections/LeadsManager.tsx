@@ -20,7 +20,7 @@ import {
     CheckSquare,
     Square
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatError } from "@/lib/utils";
 
 export function LeadsManager() {
     const [leads, setLeads] = useState<Lead[]>([]);
@@ -43,10 +43,10 @@ export function LeadsManager() {
                 setLeads(res.data || []);
                 setTotal(res.total || 0);
             } else {
-                toast.error(res.error || "Failed to fetch leads");
+                toast.error(formatError(res.error));
             }
         } catch (e) {
-            toast.error("An error occurred while fetching leads");
+            toast.error(formatError(e));
         } finally {
             setLoading(false);
         }
@@ -61,24 +61,32 @@ export function LeadsManager() {
 
     const handleDelete = async (id: string) => {
         if (!confirm("Are you sure you want to delete this lead?")) return;
-        const res = await deleteLeadAction(id);
-        if (res.success) {
-            toast.success("Lead deleted");
-            fetchLeads();
-        } else {
-            toast.error(res.error);
+        try {
+            const res = await deleteLeadAction(id);
+            if (res.success) {
+                toast.success("Lead deleted");
+                fetchLeads();
+            } else {
+                toast.error(formatError(res.error));
+            }
+        } catch (e) {
+            toast.error(formatError(e));
         }
     };
 
     const handleBulkDelete = async () => {
         if (!confirm(`Are you sure you want to delete ${selectedIds.length} leads?`)) return;
-        const res = await bulkDeleteLeadsAction(selectedIds);
-        if (res.success) {
-            toast.success("Leads deleted");
-            setSelectedIds([]);
-            fetchLeads();
-        } else {
-            toast.error(res.error);
+        try {
+            const res = await bulkDeleteLeadsAction(selectedIds);
+            if (res.success) {
+                toast.success("Leads deleted");
+                setSelectedIds([]);
+                fetchLeads();
+            } else {
+                toast.error(formatError(res.error));
+            }
+        } catch (e) {
+            toast.error(formatError(e));
         }
     };
 

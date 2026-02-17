@@ -13,7 +13,7 @@ import {
     AlertCircle,
     CheckCircle2
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, formatError } from "@/lib/utils";
 
 // Sections
 import { BrandingSection } from "./sections/BrandingSection";
@@ -56,7 +56,7 @@ export function ConfigEditor({ initialConfig }: ConfigEditorProps) {
                 });
             } else {
                 toast.error("Failed to save changes", {
-                    description: res.error
+                    description: formatError(res.error)
                 });
             }
         });

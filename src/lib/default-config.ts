@@ -122,8 +122,7 @@ export const DEFAULT_CONFIG: AppConfigInput = {
             ratingLabel: { it: "124 recensioni", en: "124 reviews" },
             location: { it: "Pieve Fosciana, Garfagnana", en: "Pieve Fosciana, Garfagnana" },
             reviewsUrl: "#"
-        },
-        footerText: { it: "P.IVA applicata a norma di legge.", en: "VAT applied according to law." }
+        }
     },
     header: {
         title: { it: "Garfagnanafoto.it", en: "Garfagnanafoto.it" },
@@ -154,6 +153,16 @@ export const DEFAULT_CONFIG: AppConfigInput = {
             { id: "img_9", src: "/images/garfagnana-foto-wedding-9.jpg", order: 8, altByLocale: { it: "Matrimonio in Garfagnana", en: "Wedding in Tuscany" } },
             { id: "img_10", src: "/images/garfagnana-foto-wedding-10.jpg", order: 9, altByLocale: { it: "Matrimonio in Garfagnana", en: "Wedding in Tuscany" } }
         ]
+    },
+    advancedSettings: {
+        gdprNotice: {
+            it: "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta. Non verranno utilizzati per marketing né ceduti a terzi.",
+            en: "Your data will be used exclusively to contact you regarding this request. It will not be used for marketing or shared with third parties."
+        },
+        footerText: {
+            it: "© 2026 — Garfagnanafoto.it",
+            en: "© 2026 — Garfagnanafoto.it"
+        }
     }
 };
 

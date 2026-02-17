@@ -1,6 +1,7 @@
-import { logout } from "@/lib/auth";
+import { logout, getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AdminLayoutShell } from "./admin-layout-shell";
+import { getAppConfig } from "@/lib/config-server";
 
 async function handleLogout() {
     "use server";
@@ -8,13 +9,16 @@ async function handleLogout() {
     redirect("/admin/login");
 }
 
-import { getAppConfig } from "@/lib/config-server";
-
 export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode;
 }) {
+    const session = await getSession();
+    if (!session) {
+        redirect("/admin/login");
+    }
+
     const config = await getAppConfig();
 
     return (

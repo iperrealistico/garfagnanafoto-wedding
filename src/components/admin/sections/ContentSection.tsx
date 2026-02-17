@@ -33,17 +33,6 @@ export function ContentSection({ config, updateConfig }: ContentSectionProps) {
         });
     };
 
-    const handleFooterTextChange = (val: LocalizedString) => {
-        updateConfig({
-            copy: {
-                ...(config.copy || {
-                    heroTitle: { it: "", en: "" },
-                    reviews: { ratingValue: 5.0, ratingLabel: { it: "", en: "" }, location: { it: "", en: "" }, reviewsUrl: "#" }
-                }),
-                footerText: val
-            }
-        });
-    };
 
     return (
         <div className="space-y-6">
@@ -62,20 +51,6 @@ export function ContentSection({ config, updateConfig }: ContentSectionProps) {
                         multiline
                         value={config.copy?.heroSubtitle || { it: "", en: "" }}
                         onChange={handleHeroSubtitleChange}
-                    />
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg">Footer Content</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <LocalizedInput
-                        label="Footer Information / Legal Text"
-                        multiline
-                        value={config.copy?.footerText || { it: "", en: "" }}
-                        onChange={handleFooterTextChange}
                     />
                 </CardContent>
             </Card>
