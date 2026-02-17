@@ -48,5 +48,5 @@
 - [x] `pnpm test` (ran via `npm run test`, `pnpm` not available in environment)
 - [x] `pnpm build` (ran via `npm run build`, `pnpm` not available in environment)
 - [x] `pnpm test:e2e` (ran via `npm run test:e2e`, `pnpm` not available in environment)
-- [ ] Commit
-- [ ] Push to GitHub
+- [x] Commit
+- [x] Push to GitHub
