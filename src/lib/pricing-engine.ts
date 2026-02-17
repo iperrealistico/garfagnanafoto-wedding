@@ -1,5 +1,7 @@
 import { AppConfig, LineItem } from "./config-schema";
 
+export type CustomAnswers = Record<string, boolean | string>;
+
 export interface PricingResult {
     lineItems: LineItem[];
     subtotalNet: number;
@@ -8,9 +10,8 @@ export interface PricingResult {
     vatRate: number;
     vatAmount: number;
     totalGross: number;
+    textAnswers?: Record<string, string>; // Store text-type answers for summary
 }
-
-export type CustomAnswers = Record<string, boolean>;
 
 export function calculateCustomQuote(
     config: AppConfig,
@@ -24,70 +25,61 @@ export function calculateCustomQuote(
         lineItemsMap.set(item.id, item);
     });
 
-    // 2. Process Questions
-    // Sort questions by order just in case
-    const sortedQuestions = [...config.customFlow.questions].sort((a, b) => a.order - b.order);
+    // 2. Process Questions Recursively
+    const textAnswers: Record<string, string> = {};
+    const processedQuestionIds = new Set<string>();
 
-    sortedQuestions.forEach((q) => {
-        if (!q.enabled) return;
-
-        // Check conditions (e.g. requiresVideo)
-        // Simplified: we assume the answers map reflects valid choices.
-        // If the UI didn't show the question, the answer should be missing or false.
-        // However, if we want robust backend checks, we should verify conditions here.
-        // For now, trust the answers map (false/undefined = No).
+    const processQuestion = (q: any) => {
+        if (!q.enabled || processedQuestionIds.has(q.id)) return;
+        processedQuestionIds.add(q.id);
 
         const answer = answers[q.id];
 
+        // Is it a text question?
+        if (q.type === "text") {
+            if (answer && typeof answer === "string") {
+                textAnswers[q.id] = answer;
+            }
+        }
+
         if (answer) {
-            // YES Logic
+            // YES / TEXT Logic
             if (q.effectsYes) {
                 if (q.effectsYes.addLineItems) {
-                    q.effectsYes.addLineItems.forEach((item) => lineItemsMap.set(item.id, item));
-                }
-                // Price delta logic could be separate or just an item.
-                // If priceDeltaNet is non-zero and NOT an item, we should add a generic item?
-                // Or just affect the total?
-                // The spec configSchema has priceDeltaNet... but typically line items are better for invoicing.
-                // If priceDeltaNet exists and no line items, we treat it as an adjustment or invisible item?
-                // Best practice: add a generated line item if priceDelta > 0.
-                if (q.effectsYes.priceDeltaNet !== 0) {
-                    // Check if we already added items. If yes, the price is probably in the items.
-                    // If no items but price change, create a dynamic item.
-                    // Wait, the schema allows BOTH.
-                    // Let's assume priceDeltaNet is the SUM of items if items are present,
-                    // OR an extra charge.
-                    // Actually, in the default config, we only used addLineItems.
-                    // If we have "priceDeltaNet" without items, we should account for it.
-                    // Let's add it to total, but better to warn if no line item explains it.
-                    // For now, I'll ignore priceDeltaNet if lineItems are present (assuming consistency),
-                    // OR simply sum everything up from lineItemsMap.
-                    // RE-READING SCHEMA:
-                    // "priceDeltaNet: number.default(0)"
-                    // "addLineItems: array..."
-                    // I will use ONLY lineItemsMap to calculate total for now, to ensure breakdown matches total.
-                    // Only use priceDeltaNet if it represents a "hidden" adjustment? No, keep it transparent.
-                    // I'll assume standard usage is: EITHER add items with prices, OR add a generic item.
-                    // In my default config, I used addLineItems with prices.
+                    q.effectsYes.addLineItems.forEach((item: LineItem) => lineItemsMap.set(item.id, item));
                 }
             }
         } else {
             // NO Logic
             if (q.effectsNo) {
                 if (q.effectsNo.addLineItems) {
-                    q.effectsNo.addLineItems.forEach((item) => lineItemsMap.set(item.id, item));
+                    q.effectsNo.addLineItems.forEach((item: LineItem) => lineItemsMap.set(item.id, item));
                 }
             }
         }
-    });
+
+        // Process children if parent answered (for yes/no) or always (if configured)
+        const children = config.customFlow.questions.filter(child => child.parentId === q.id);
+        children.forEach(child => {
+            const isVisible = child.showWhen === "always" ||
+                (child.showWhen === "yes" && !!answer) ||
+                (child.showWhen === "no" && !answer);
+
+            if (isVisible) {
+                processQuestion(child);
+            }
+        });
+    };
+
+    // Start with root questions
+    const rootQuestions = config.customFlow.questions
+        .filter(q => !q.parentId)
+        .sort((a, b) => a.order - b.order);
+
+    rootQuestions.forEach(q => processQuestion(q));
 
     const lineItems = Array.from(lineItemsMap.values());
     const subtotalNet = lineItems.reduce((sum, item) => sum + item.priceNet, 0);
-
-    // adjustment
-    // For custom flow, maybe we have a custom adjustment passed in?
-    // config.packages have packageAdjustmentNet. Custom flow might not.
-    // I added `customAdjustment` param.
 
     const totalNet = Math.max(0, subtotalNet + customAdjustment);
     const vatRate = config.vatRate;
@@ -102,6 +94,7 @@ export function calculateCustomQuote(
         vatRate,
         vatAmount,
         totalGross,
+        textAnswers,
     };
 }
 

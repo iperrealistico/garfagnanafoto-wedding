@@ -1,11 +1,12 @@
 import { PricingResult } from "@/lib/pricing-engine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLocalized } from "@/lib/i18n-utils";
-import { Lead } from "@/lib/config-schema";
+import { Lead, AppConfig } from "@/lib/config-schema";
 
 interface QuoteSummaryProps {
     pricing: PricingResult;
     title: string;
+    config?: AppConfig;
     additionalRequests?: string;
     leadData?: Partial<Lead>;
     lang?: string;
@@ -14,6 +15,7 @@ interface QuoteSummaryProps {
 export function QuoteSummary({
     pricing,
     title,
+    config,
     additionalRequests,
     leadData,
     lang = "it"
@@ -84,12 +86,31 @@ export function QuoteSummary({
                     </div>
                 </div>
 
-                {additionalRequests && (
-                    <div className="mt-6 pt-6 border-t border-dashed border-gray-200">
-                        <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider mb-2">{labels.notes}</span>
-                        <p className="text-sm text-gray-700 bg-amber-50/50 p-3 rounded italic border border-amber-100/50">
-                            "{additionalRequests}"
-                        </p>
+                {((pricing.textAnswers && Object.keys(pricing.textAnswers).length > 0) || additionalRequests) && (
+                    <div className="mt-6 pt-6 border-t border-dashed border-gray-200 space-y-4">
+                        {pricing.textAnswers && Object.entries(pricing.textAnswers).map(([qId, val]) => {
+                            const q = config?.customFlow.questions.find(q => q.id === qId);
+                            if (!q) return null;
+                            return (
+                                <div key={qId}>
+                                    <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider mb-1">
+                                        {getLocalized(q.questionText, lang)}
+                                    </span>
+                                    <p className="text-sm text-gray-900 border-l-2 border-[#719436] pl-3 py-0.5">
+                                        {val}
+                                    </p>
+                                </div>
+                            );
+                        })}
+
+                        {additionalRequests && (
+                            <div>
+                                <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider mb-1">{labels.notes}</span>
+                                <p className="text-sm text-gray-700 bg-amber-50/50 p-3 rounded italic border border-amber-100/50">
+                                    "{additionalRequests}"
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
             </CardContent>

@@ -103,9 +103,28 @@ export async function saveLeadAction(leadData: Lead) {
             return { success: false, error: "Lead storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY." };
         }
         const supabase = await createClient();
+
+        // Deduplication: if quote_id exists, check if this email already submitted for this quote
+        if (leadData.quote_id) {
+            const { data: existing } = await supabase
+                .from("leads")
+                .select("id")
+                .eq("email", leadData.email)
+                .eq("quote_id", leadData.quote_id)
+                .maybeSingle();
+
+            if (existing) {
+                console.log("Lead already exists for this quote and email, skipping insert.");
+                return { success: true, alreadyExists: true };
+            }
+        }
+
         const { error } = await supabase
             .from("leads")
-            .insert(leadData);
+            .insert({
+                ...leadData,
+                gdpr_accepted_at: leadData.gdpr_accepted_at || new Date().toISOString(),
+            });
 
         if (error) throw error;
         return { success: true };

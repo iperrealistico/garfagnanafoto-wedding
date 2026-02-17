@@ -150,6 +150,7 @@ export default async function PrintPage({
                     <QuoteSummary
                         pricing={pricing}
                         title=""
+                        config={config}
                         additionalRequests={requests}
                         lang={lang}
                     />

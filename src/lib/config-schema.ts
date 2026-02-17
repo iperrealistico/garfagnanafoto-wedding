@@ -33,13 +33,20 @@ export const QuestionEffectSchema = z.object({
     }).optional(),
 });
 
+export const QuestionTypeSchema = z.enum(["yes_no", "text"]);
+
 export const QuestionSchema = z.object({
     id: z.string(),
     enabled: z.boolean().default(true),
     order: z.number().default(0),
+    parentId: z.string().optional(),
+    showWhen: z.enum(["always", "yes", "no"]).default("always"),
+    type: QuestionTypeSchema.default("yes_no"),
     questionText: LocalizedStringSchema,
     yesLabel: LocalizedStringSchema.default({ it: "Sì", en: "Yes" }),
     noLabel: LocalizedStringSchema.default({ it: "No", en: "No" }),
+    required: z.boolean().default(false),
+    placeholder: LocalizedStringSchema.optional(),
     requiredConditions: z.object({
         requiresVideo: z.boolean().optional(),
     }).optional(),
@@ -149,6 +156,7 @@ export const LeadSchema = z.object({
     locale: z.string().default("it"),
     package_id: z.string().optional(),
     is_custom: z.boolean().default(false),
+    quote_id: z.string().optional(),
     quote_snapshot: z.any().optional(),
     additional_requests: z.string().optional(),
     gdpr_accepted_at: z.string().optional(),

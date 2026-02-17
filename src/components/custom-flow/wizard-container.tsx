@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { AppConfig, Question, Lead } from "@/lib/config-schema";
 import { calculateCustomQuote, CustomAnswers } from "@/lib/pricing-engine";
 import { StepQuestion } from "./step-question";
@@ -17,7 +17,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type FlowStep = 'questions' | 'requests' | 'persona' | 'summary';
+type FlowStep = 'questions' | 'requests' | 'summary';
 
 interface WizardContainerProps {
     config: AppConfig;
@@ -87,44 +87,68 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [answers, setAnswers] = useState<CustomAnswers>({});
     const [additionalRequests, setAdditionalRequests] = useState("");
-    const [leadData, setLeadData] = useState<Partial<Lead>>({});
     const [history, setHistory] = useState<{ step: FlowStep; index: number }[]>([
         { step: 'questions', index: 0 }
     ]);
 
-    // Filter enabled questions
-    const questions = useMemo(() =>
-        config.customFlow.questions
-            .filter(q => q.enabled)
-            .sort((a, b) => a.order - b.order),
-        [config]
-    );
+    // Compute the sequence of visible questions based on current answers
+    const getVisibleSequence = useCallback(() => {
+        const sequence: Question[] = [];
+        const processed = new Set<string>();
 
-    const isQuestionVisible = (q: Question) => {
-        if (q.requiredConditions?.requiresVideo) {
-            return !!answers["q_video"];
-        }
-        return true;
-    };
+        const process = (q: Question) => {
+            if (!q.enabled || processed.has(q.id)) return;
+            processed.add(q.id);
+            sequence.push(q);
 
-    const currentQuestion = questions[currentStepIndex];
+            const answer = answers[q.id];
 
-    const handleAnswer = (val: boolean) => {
+            // Should children be shown?
+            const children = config.customFlow.questions
+                .filter(child => child.parentId === q.id)
+                .sort((a, b) => a.order - b.order);
+
+            children.forEach(child => {
+                const isVisible = child.showWhen === "always" ||
+                    (child.showWhen === "yes" && !!answer) ||
+                    (child.showWhen === "no" && !answer);
+
+                if (isVisible) {
+                    process(child);
+                }
+            });
+        };
+
+        const roots = config.customFlow.questions
+            .filter(q => !q.parentId)
+            .sort((a, b) => a.order - b.order);
+
+        roots.forEach(process);
+        return sequence;
+    }, [config, answers]);
+
+    const visibleQuestions = useMemo(() => getVisibleSequence(), [getVisibleSequence]);
+    const currentQuestion = visibleQuestions[currentStepIndex];
+
+    const handleAnswer = (val: boolean | string) => {
         if (!currentQuestion) return;
+
         const newAnswers = { ...answers, [currentQuestion.id]: val };
         setAnswers(newAnswers);
 
-        let nextIndex = currentStepIndex + 1;
-        while (nextIndex < questions.length && !isQuestionVisible(questions[nextIndex])) {
-            nextIndex++;
-        }
+        const nextIndex = currentStepIndex + 1;
 
-        if (nextIndex >= questions.length) {
-            // Compute showRequestsForm from the NEW answers, not stale state
-            const triggerQ = questions.find(q => q.effectsYes?.notes?.triggersAdditionalRequestsBox);
+        // Re-calculate visible sequence with NEW answers to check if we are at the end
+        // This is tricky because calculateVisibleSequence depends on state...
+        // Let's use a manual check for the "next" step.
+
+        // If the current question was the last in the visible sequence
+        if (nextIndex >= visibleQuestions.length) {
+            // Check if ANY sub-questions MIGHT show up after this answer
+            const triggerQ = config.customFlow.questions.find(q => q.effectsYes?.notes?.triggersAdditionalRequestsBox);
             const needsRequests = triggerQ ? !!newAnswers[triggerQ.id] : false;
 
-            const nextStep = needsRequests ? 'requests' : 'persona';
+            const nextStep = needsRequests ? 'requests' : 'summary';
             setFlowStep(nextStep);
             setHistory(prev => [...prev, { step: nextStep, index: nextIndex }]);
         } else {
@@ -143,26 +167,15 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
         setCurrentStepIndex(prev.index);
     };
 
-    const goToPersona = () => {
-        setFlowStep('persona');
-        setHistory(prev => [...prev, { step: 'persona', index: questions.length }]);
-    };
-
-    const onPersonaSuccess = (data: Lead) => {
-        setLeadData(data);
+    const goToSummary = () => {
         setFlowStep('summary');
-        setHistory(prev => [...prev, { step: 'summary', index: questions.length + 1 }]);
+        setHistory(prev => [...prev, { step: 'summary', index: visibleQuestions.length }]);
     };
 
     const pricing = useMemo(() =>
         calculateCustomQuote(config, answers, 0),
         [config, answers]
     );
-
-    const gdprNotice = getLocalized(config.advancedSettings?.gdprNotice, lang) ||
-        (lang === 'it'
-            ? "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta. Non verranno utilizzati per marketing né ceduti a terzi."
-            : "Your data will be used exclusively to contact you regarding this request. It will not be used for marketing or shared with third parties.");
 
     // Password gate
     if (!isUnlocked) {
@@ -187,6 +200,8 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                         onAnswer={handleAnswer}
                         canGoBack={history.length > 1}
                         onBack={goBack}
+                        lang={lang}
+                        initialValue={answers[currentQuestion?.id]}
                     />
                 );
             case 'requests':
@@ -194,47 +209,10 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                     <StepAdditionalRequests
                         value={additionalRequests}
                         onChange={setAdditionalRequests}
-                        onNext={goToPersona}
+                        onNext={goToSummary}
                         onBack={goBack}
                         lang={lang}
                     />
-                );
-            case 'persona':
-                return (
-                    <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm overflow-hidden">
-                        <div className="px-6 pt-4">
-                            <Button variant="ghost" size="sm" onClick={goBack} className="text-gray-400 hover:text-gray-900 px-0">
-                                <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
-                                {lang === 'it' ? 'Indietro' : 'Back'}
-                            </Button>
-                        </div>
-                        <CardContent className="p-8 md:p-10 space-y-8">
-                            <div className="text-center space-y-2">
-                                <div className="w-16 h-16 bg-[#719436]/10 text-[#719436] rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <FontAwesomeIcon icon={faUserCheck} className="text-2xl" />
-                                </div>
-                                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                                    {lang === 'it' ? 'Dati del cliente' : 'Client details'}
-                                </h2>
-                                <p className="text-gray-500">
-                                    {lang === 'it'
-                                        ? 'Inserisci i recapiti del cliente per generare il preventivo.'
-                                        : 'Enter client contact info to generate the quote.'}
-                                </p>
-                            </div>
-                            <LeadForm
-                                onSubmitSuccess={onPersonaSuccess}
-                                gdprNotice={gdprNotice}
-                                lang={lang}
-                                initialData={{
-                                    is_custom: true,
-                                    quote_snapshot: pricing,
-                                    additional_requests: additionalRequests
-                                }}
-                                submitLabel={lang === 'it' ? 'Genera Preventivo' : 'Generate Quote'}
-                            />
-                        </CardContent>
-                    </Card>
                 );
             case 'summary':
                 return (
@@ -243,7 +221,6 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                         config={config}
                         answers={answers}
                         additionalRequests={additionalRequests}
-                        leadData={leadData}
                         onBack={goBack}
                         lang={lang}
                     />
@@ -261,7 +238,7 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                 </Link>
                 {flowStep === 'questions' && (
                     <div className="text-[10px] font-black uppercase tracking-[0.2em] text-[#719436] bg-[#719436]/5 px-4 py-1.5 rounded-full border border-[#719436]/20 shadow-sm">
-                        Step {currentStepIndex + 1} / {questions.length}
+                        Step {currentStepIndex + 1} / {visibleQuestions.length}
                     </div>
                 )}
             </div>
@@ -269,7 +246,7 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
             <div className="relative min-h-[500px]">
                 <AnimatePresence mode="wait">
                     <motion.div
-                        key={flowStep + (flowStep === 'questions' ? currentStepIndex : '')}
+                        key={flowStep + (flowStep === 'questions' ? currentQuestion?.id : '')}
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: -20, opacity: 0 }}

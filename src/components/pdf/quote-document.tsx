@@ -258,11 +258,25 @@ export const QuoteDocument = ({
                     </View>
                 </View>
 
-                {/* Additional Requests */}
-                {additionalRequests && (
+                {/* Additional Requests & Text Answers */}
+                {(additionalRequests || (pricing.textAnswers && Object.keys(pricing.textAnswers).length > 0)) && (
                     <View style={styles.notesSection}>
-                        <Text style={styles.infoLabel}>Note Aggiuntive</Text>
-                        <Text style={{ fontStyle: "italic", marginTop: 5, lineHeight: 1.4 }}>"{additionalRequests}"</Text>
+                        {pricing.textAnswers && Object.entries(pricing.textAnswers).map(([qId, val]) => {
+                            const q = config.customFlow.questions.find(q => q.id === qId);
+                            if (!q) return null;
+                            return (
+                                <View key={qId} style={{ marginBottom: 8 }}>
+                                    <Text style={styles.infoLabel}>{getLocalized(q.questionText, lang)}</Text>
+                                    <Text style={{ marginTop: 2 }}>{val}</Text>
+                                </View>
+                            );
+                        })}
+                        {additionalRequests && (
+                            <View>
+                                <Text style={styles.infoLabel}>Note Aggiuntive</Text>
+                                <Text style={{ fontStyle: "italic", marginTop: 5, lineHeight: 1.4 }}>"{additionalRequests}"</Text>
+                            </View>
+                        )}
                     </View>
                 )}
 
