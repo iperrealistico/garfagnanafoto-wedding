@@ -141,15 +141,19 @@ export default async function Home({
               lang={lang}
             />
           ))}
-          <div className="bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-300 flex flex-col justify-center items-center text-center">
-            <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center text-black mb-4">
-              <FontAwesomeIcon icon={faWandMagicSparkles} />
+          <div className="bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-300 flex flex-col h-full">
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
+              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center text-black mb-4">
+                <FontAwesomeIcon icon={faWandMagicSparkles} />
+              </div>
+              <h3 className="text-lg font-semibold">Su Misura</h3>
+              <p className="text-sm text-gray-600 mt-2">Crea il tuo pacchetto personalizzato. Scegli solo i servizi che ti interessano.</p>
             </div>
-            <h3 className="text-lg font-semibold">Su Misura</h3>
-            <p className="text-sm text-gray-600 mt-2 mb-6">Crea il tuo pacchetto personalizzato. Scegli solo i servizi che ti interessano.</p>
-            <Button asChild className="rounded-xl px-8 w-full">
-              <Link href="/custom">Personalizza</Link>
-            </Button>
+            <div className="mt-auto pt-6">
+              <Button asChild className="rounded-xl px-8 w-full">
+                <Link href="/custom">Personalizza</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

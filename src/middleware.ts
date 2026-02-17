@@ -23,7 +23,8 @@ export function middleware(request: NextRequest) {
     if (
         pathname.startsWith("/admin") ||
         pathname.startsWith("/api") ||
-        pathname.startsWith("/quote/pdf") ||
+        pathname.startsWith("/quote") ||
+        pathname.startsWith("/custom") ||
         pathname.startsWith("/_next") ||
         pathname.includes(".") // files
     ) {
@@ -52,6 +53,6 @@ export const config = {
          * - admin
          * - quote/pdf
          */
-        "/((?!api|_next/static|_next/image|favicon.ico|admin|quote/pdf).*)",
+        "/((?!api|_next/static|_next/image|favicon.ico|admin|quote|custom).*)",
     ],
 };

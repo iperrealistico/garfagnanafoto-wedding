@@ -37,7 +37,7 @@ export function ShareButton() {
     return (
         <Button
             variant="ghost"
-            className="underline font-semibold h-auto p-0 hover:bg-transparent gap-2"
+            className="font-semibold h-auto p-0 hover:bg-transparent gap-2"
             onClick={handleShare}
         >
             <FontAwesomeIcon icon={copied ? faCheck : faShareNodes} />
