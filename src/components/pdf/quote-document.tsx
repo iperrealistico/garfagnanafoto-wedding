@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
-        borderBottom: 2,
+        borderBottomWidth: 2,
         borderBottomColor: "#000",
         paddingBottom: 20,
         marginBottom: 30,
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 14,
         fontWeight: "bold",
-        borderLeft: 3,
+        borderLeftWidth: 3,
         borderLeftColor: "#719436",
         paddingLeft: 10,
         marginBottom: 15,
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     },
     tableHeader: {
         flexDirection: "row",
-        borderBottom: 1,
+        borderBottomWidth: 1,
         borderBottomColor: "#eee",
         paddingVertical: 8,
         fontWeight: "bold",
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     },
     tableRow: {
         flexDirection: "row",
-        borderBottom: 1,
+        borderBottomWidth: 1,
         borderBottomColor: "#f5f5f5",
         paddingVertical: 10,
         alignItems: "center",
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     totalRow: {
         marginTop: 10,
         paddingTop: 10,
-        borderTop: 2,
+        borderTopWidth: 2,
         borderTopColor: "#000",
         flexDirection: "row",
         width: 250,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
         marginTop: 40,
         padding: 10,
         backgroundColor: "#fffdf5",
-        border: 1,
+        borderWidth: 1,
         borderColor: "#fef3c7",
     },
     footer: {
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
         bottom: 50,
         left: 50,
         right: 50,
-        borderTop: 1,
+        borderTopWidth: 1,
         borderTopColor: "#eee",
         paddingTop: 15,
         textAlign: "center",

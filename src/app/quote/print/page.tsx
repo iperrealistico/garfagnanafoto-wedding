@@ -56,7 +56,11 @@ export default async function PrintPage({
             pkgTagline = getLocalized(pkg.tagline, lang);
         }
     } else if (isCustom) {
-        const { answers } = parseCustomParams(resolvedSearchParams as any);
+        const urlParams = new URLSearchParams();
+        Object.entries(resolvedSearchParams).forEach(([key, val]) => {
+            if (val !== undefined) urlParams.set(key, String(val));
+        });
+        const { answers } = parseCustomParams(urlParams);
         pricing = calculateCustomQuote(config, answers);
         pkgName = lang === 'it' ? "Preventivo Personalizzato" : "Custom Quote";
     }
