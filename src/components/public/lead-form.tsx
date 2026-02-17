@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { saveLeadAction } from "@/app/admin/actions";
 import { useState } from "react";
-import { formatError } from "@/lib/utils";
 
 interface LeadFormProps {
     onSubmitSuccess: (data: Lead) => void;
@@ -49,13 +48,26 @@ export function LeadForm({ onSubmitSuccess, gdprNotice, lang, initialData, submi
 
             if (result.success) {
                 toast.success(lang === 'it' ? "Richiesta inviata con successo!" : "Request sent successfully!");
-                onSubmitSuccess(data);
             } else {
-                toast.error(formatError(result.error));
+                // Lead save failed, but we still let the user proceed
+                console.error("Lead save failed:", result.error);
+                toast.warning(
+                    lang === 'it'
+                        ? "Non siamo riusciti a salvare i tuoi dati, ma il preventivo è pronto."
+                        : "We couldn't save your data, but your quote is ready."
+                );
             }
         } catch (e) {
-            toast.error(formatError(e));
+            // Network or server error — still let the user proceed
+            console.error("Lead save exception:", e);
+            toast.warning(
+                lang === 'it'
+                    ? "Errore di connessione. Il preventivo è comunque disponibile."
+                    : "Connection error. Your quote is still available."
+            );
         } finally {
+            // ALWAYS advance the flow regardless of save success
+            onSubmitSuccess(data);
             setIsSubmitting(false);
         }
     };

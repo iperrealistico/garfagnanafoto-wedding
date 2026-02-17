@@ -98,6 +98,10 @@ import { createClient } from "@/lib/supabase";
 
 export async function saveLeadAction(leadData: Lead) {
     try {
+        if (!env.supabase.url || !env.supabase.serviceKey) {
+            console.warn("Supabase not configured — skipping lead save");
+            return { success: false, error: "Lead storage is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY." };
+        }
         const supabase = await createClient();
         const { error } = await supabase
             .from("leads")
@@ -107,7 +111,7 @@ export async function saveLeadAction(leadData: Lead) {
         return { success: true };
     } catch (e: any) {
         console.error("Failed to save lead", e);
-        return { success: false, error: e.message };
+        return { success: false, error: typeof e.message === 'string' ? e.message.substring(0, 200) : 'Unknown database error' };
     }
 }
 
@@ -120,6 +124,11 @@ export async function fetchLeadsAction(options: {
 }) {
     try {
         await ensureAdmin();
+
+        if (!env.supabase.url || !env.supabase.serviceKey) {
+            return { success: false, error: "Supabase is not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY environment variables in your Vercel/hosting dashboard." };
+        }
+
         const { page = 1, pageSize = 20, search, orderBy = 'created_at', orderDir = 'desc' } = options;
         const supabase = await createClient();
 
@@ -147,13 +156,16 @@ export async function fetchLeadsAction(options: {
         };
     } catch (e: any) {
         console.error("Failed to fetch leads", e);
-        return { success: false, error: e.message };
+        return { success: false, error: typeof e.message === 'string' ? e.message.substring(0, 200) : 'Unknown database error' };
     }
 }
 
 export async function deleteLeadAction(id: string) {
     try {
         await ensureAdmin();
+        if (!env.supabase.url || !env.supabase.serviceKey) {
+            return { success: false, error: "Supabase is not configured." };
+        }
         const supabase = await createClient();
         const { error } = await supabase
             .from("leads")
@@ -164,13 +176,16 @@ export async function deleteLeadAction(id: string) {
         return { success: true };
     } catch (e: any) {
         console.error("Failed to delete lead", e);
-        return { success: false, error: e.message };
+        return { success: false, error: typeof e.message === 'string' ? e.message.substring(0, 200) : 'Unknown error' };
     }
 }
 
 export async function bulkDeleteLeadsAction(ids: string[]) {
     try {
         await ensureAdmin();
+        if (!env.supabase.url || !env.supabase.serviceKey) {
+            return { success: false, error: "Supabase is not configured." };
+        }
         const supabase = await createClient();
         const { error } = await supabase
             .from("leads")
@@ -181,6 +196,6 @@ export async function bulkDeleteLeadsAction(ids: string[]) {
         return { success: true };
     } catch (e: any) {
         console.error("Failed to delete leads", e);
-        return { success: false, error: e.message };
+        return { success: false, error: typeof e.message === 'string' ? e.message.substring(0, 200) : 'Unknown error' };
     }
 }
