@@ -5,15 +5,13 @@ import { DEFAULT_CONFIG } from "./default-config";
 const CONFIG_KEY = "garfagnanafoto:wedding:config:v1";
 
 export async function getAppConfig(): Promise<AppConfig> {
-    const supabase = await createClient(); // Use Service Role client
-
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-        console.warn("Missing SUPABASE_SERVICE_ROLE_KEY. Returning default config.");
-        // Fallback for build time or missing credentials
-        // In production, this should ideally fail or be handled.
-        // For now, return default.
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY || !process.env.NEXT_PUBLIC_SUPABASE_URL) {
+        console.warn("Missing Supabase credentials. Returning default config.");
         return AppConfigSchema.parse(DEFAULT_CONFIG);
     }
+
+    const supabase = await createClient();
+
 
     const { data, error } = await supabase
         .from("app_config")
