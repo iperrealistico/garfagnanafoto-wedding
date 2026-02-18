@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback } from "react";
-import { AppConfig, Question } from "@/lib/config-schema";
+import { AdditionalAdjustment, AppConfig, Question } from "@/lib/config-schema";
 import { calculateCustomQuote, CustomAnswers } from "@/lib/pricing-engine";
 import { StepQuestion } from "./step-question";
 import { StepSummary } from "./step-summary";
@@ -87,6 +87,7 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [answers, setAnswers] = useState<CustomAnswers>({});
     const [additionalRequests, setAdditionalRequests] = useState("");
+    const [additionalAdjustments, setAdditionalAdjustments] = useState<AdditionalAdjustment[]>([]);
     const [history, setHistory] = useState<{ step: FlowStep; index: number }[]>([
         { step: 'questions', index: 0 }
     ]);
@@ -173,9 +174,32 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
     };
 
     const pricing = useMemo(() =>
-        calculateCustomQuote(config, answers, 0),
-        [config, answers]
+        calculateCustomQuote(config, answers, { customAdjustmentNet: 0, additionalAdjustments }),
+        [config, answers, additionalAdjustments]
     );
+
+    const quoteSnapshot = useMemo(() => ({
+        flow: "custom",
+        answers,
+        additionalRequests,
+        additionalAdjustments,
+        pricing,
+    }), [answers, additionalRequests, additionalAdjustments, pricing]);
+
+    const leadAdditionalRequests = useMemo(() => {
+        const adjustmentsLines = additionalAdjustments.map((item) => {
+            const signedAmount = `${item.priceDeltaNet < 0 ? "-" : "+"}€${Math.abs(item.priceDeltaNet)}`;
+            return `${item.title} (${signedAmount})${item.description ? ` - ${item.description}` : ""}`;
+        });
+
+        return [additionalRequests.trim(), ...adjustmentsLines]
+            .filter(Boolean)
+            .join("\n")
+            .trim();
+    }, [additionalRequests, additionalAdjustments]);
+
+    const additionalAdjustmentsSettings = config.advancedSettings?.additionalAdjustments;
+    const additionalAdjustmentsEnabled = additionalAdjustmentsSettings?.enabled ?? true;
 
     const gdprNotice = getLocalized(config.advancedSettings?.gdprNotice, lang) ||
         (lang === 'it'
@@ -198,10 +222,10 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
 
     return (
         <LeadGate
-            quoteSnapshot={pricing}
+            quoteSnapshot={quoteSnapshot}
             gdprNotice={gdprNotice}
             lang={lang}
-            initialLeadData={{ is_custom: true, additional_requests: additionalRequests }}
+            initialLeadData={{ is_custom: true, additional_requests: leadAdditionalRequests }}
         >
             {({ handleAction, leadData }) => {
                 const renderStep = () => {
@@ -222,9 +246,13 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                                 <StepAdditionalRequests
                                     value={additionalRequests}
                                     onChange={setAdditionalRequests}
+                                    items={additionalAdjustments}
+                                    onItemsChange={setAdditionalAdjustments}
                                     onNext={goToSummary}
                                     onBack={goBack}
                                     lang={lang}
+                                    adjustmentsEnabled={additionalAdjustmentsEnabled}
+                                    labels={additionalAdjustmentsSettings}
                                 />
                             );
                         case 'summary':
@@ -233,6 +261,7 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
                                     pricing={pricing}
                                     answers={answers}
                                     additionalRequests={additionalRequests}
+                                    additionalAdjustments={additionalAdjustments}
                                     onBack={goBack}
                                     handleAction={handleAction}
                                     leadData={leadData}

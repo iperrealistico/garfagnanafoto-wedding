@@ -1,11 +1,19 @@
+import { AdditionalAdjustment } from "./config-schema";
+import { parseAdditionalAdjustments } from "./additional-adjustments";
 import { CustomAnswers } from "@/lib/pricing-engine";
 
-export function parseCustomParams(searchParams: URLSearchParams): { answers: CustomAnswers, additionalRequests: string } {
+export function parseCustomParams(searchParams: URLSearchParams): {
+    answers: CustomAnswers,
+    additionalRequests: string,
+    additionalAdjustments: AdditionalAdjustment[]
+} {
     const answers: CustomAnswers = {};
     const additionalRequests = searchParams.get("requests") || "";
+    const additionalAdjustments = parseAdditionalAdjustments(searchParams.get("adjustments"));
     const reservedKeys = new Set([
         "custom",
         "requests",
+        "adjustments",
         "packageId",
         "firstName",
         "lastName",
@@ -30,5 +38,5 @@ export function parseCustomParams(searchParams: URLSearchParams): { answers: Cus
         }
     });
 
-    return { answers, additionalRequests };
+    return { answers, additionalRequests, additionalAdjustments };
 }

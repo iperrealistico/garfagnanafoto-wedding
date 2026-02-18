@@ -171,6 +171,12 @@ export const QuoteDocument = ({
     additionalRequests,
     lang = "it"
 }: QuoteDocumentProps) => {
+    const formatCurrency = (value: number) =>
+        `€ ${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    const formatSignedCurrency = (value: number) =>
+        `${value < 0 ? "-" : "+"}${formatCurrency(value)}`;
+    const discountLabel = lang === "it" ? "Sconto" : "Discount";
+
     return (
         <Document>
             <Page size="A4" style={styles.page}>
@@ -222,10 +228,49 @@ export const QuoteDocument = ({
                 {pricing.lineItems.map((item) => (
                     <View key={item.id} style={styles.tableRow}>
                         <View style={styles.colDesc}>
-                            <Text style={{ fontWeight: "medium" }}>{getLocalized(item.label, lang)}</Text>
+                            <Text style={{ fontWeight: "medium", color: item.priceNet < 0 ? "#b91c1c" : "#111827" }}>
+                                {item.priceNet < 0 ? `${discountLabel}: ` : ""}
+                                {getLocalized(item.label, lang)}
+                            </Text>
                         </View>
                         <View style={styles.colPrice}>
-                            <Text>€ {item.priceNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                            <Text style={{ color: item.priceNet < 0 ? "#b91c1c" : "#111827" }}>
+                                {item.priceNet < 0 ? "-" : ""}
+                                {formatCurrency(item.priceNet)}
+                            </Text>
+                        </View>
+                    </View>
+                ))}
+                {pricing.questionAdjustments.map((adjustment) => (
+                    <View key={adjustment.id} style={styles.tableRow}>
+                        <View style={styles.colDesc}>
+                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
+                                {adjustment.priceDeltaNet < 0 ? `${discountLabel}: ` : ""}
+                                {getLocalized(adjustment.questionText, lang)}
+                            </Text>
+                        </View>
+                        <View style={styles.colPrice}>
+                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
+                                {formatSignedCurrency(adjustment.priceDeltaNet)}
+                            </Text>
+                        </View>
+                    </View>
+                ))}
+                {pricing.additionalAdjustments.map((adjustment) => (
+                    <View key={adjustment.id} style={styles.tableRow}>
+                        <View style={styles.colDesc}>
+                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
+                                {adjustment.priceDeltaNet < 0 ? `${discountLabel}: ` : ""}
+                                {adjustment.title}
+                            </Text>
+                            {adjustment.description && (
+                                <Text style={{ fontSize: 8, color: "#6b7280", marginTop: 2 }}>{adjustment.description}</Text>
+                            )}
+                        </View>
+                        <View style={styles.colPrice}>
+                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
+                                {formatSignedCurrency(adjustment.priceDeltaNet)}
+                            </Text>
                         </View>
                     </View>
                 ))}
@@ -234,27 +279,29 @@ export const QuoteDocument = ({
                 <View style={styles.summarySection}>
                     <View style={styles.summaryRow}>
                         <Text style={{ color: "#666" }}>Imponibile</Text>
-                        <Text>€ {pricing.subtotalNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                        <Text>{formatCurrency(pricing.subtotalNet)}</Text>
                     </View>
 
                     {pricing.packageAdjustmentNet !== 0 && (
                         <View style={styles.summaryRow}>
                             <Text style={{ color: "#719436", fontStyle: "italic" }}>Sconto/Adeguamento</Text>
-                            <Text style={{ color: "#719436" }}>€ {pricing.packageAdjustmentNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                            <Text style={{ color: pricing.packageAdjustmentNet < 0 ? "#b91c1c" : "#719436" }}>
+                                {formatSignedCurrency(pricing.packageAdjustmentNet)}
+                            </Text>
                         </View>
                     )}
 
                     <View style={styles.totalRow}>
                         <Text style={{ ...styles.totalText, fontSize: 14 }}>Totale Netto</Text>
-                        <Text style={styles.totalText}>€ {pricing.totalNet.toLocaleString(undefined, { minimumFractionDigits: 2 })}</Text>
+                        <Text style={styles.totalText}>{formatCurrency(pricing.totalNet)}</Text>
                     </View>
 
                     <View style={{ ...styles.summaryRow, marginTop: 4 }}>
                         <Text style={{ fontSize: 9, color: "#999" }}>
-                            + IVA {(pricing.vatRate * 100).toFixed(0)}% (€ {pricing.vatAmount.toFixed(2)})
+                            + IVA {(pricing.vatRate * 100).toFixed(0)}% ({formatCurrency(pricing.vatAmount)})
                         </Text>
                         <Text style={{ fontSize: 9, color: "#666", fontWeight: "bold" }}>
-                            Totale € {pricing.totalGross.toFixed(2)}
+                            Totale {formatCurrency(pricing.totalGross)}
                         </Text>
                     </View>
                 </View>

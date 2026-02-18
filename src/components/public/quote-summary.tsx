@@ -20,9 +20,16 @@ export function QuoteSummary({
     leadData,
     lang = "it"
 }: QuoteSummaryProps) {
+    const formatCurrency = (value: number) => `€${Math.abs(value).toLocaleString("it-IT")}`;
+    const formatSignedCurrency = (value: number) => `${value < 0 ? "-" : "+"}${formatCurrency(value)}`;
+    const isDiscount = (value: number) => value < 0;
+
     const labels = {
         subtotal: lang === 'it' ? 'Imponibile' : 'Subtotal',
         adjustment: lang === 'it' ? 'Sconto/Adeguamento' : 'Discount/Adjustment',
+        questionAdjustments: lang === 'it' ? 'Adeguamenti risposte' : 'Answer adjustments',
+        additionalAdjustments: lang === 'it' ? 'Voci aggiuntive' : 'Additional items',
+        discount: lang === 'it' ? 'Sconto' : 'Discount',
         totalNet: lang === 'it' ? 'Totale Netto' : 'Total Net',
         vat: lang === 'it' ? 'IVA' : 'VAT',
         total: lang === 'it' ? 'Totale' : 'Total',
@@ -61,21 +68,66 @@ export function QuoteSummary({
                 <div className="space-y-3">
                     {pricing.lineItems.map((item) => (
                         <div key={item.id} className="flex justify-between text-sm items-center">
-                            <span className="text-gray-700 flex-1">{getLocalized(item.label, lang)}</span>
-                            <span className="font-medium text-gray-900 ml-4">€{item.priceNet.toLocaleString()}</span>
+                            <span className="text-gray-700 flex-1">
+                                {isDiscount(item.priceNet) ? `${labels.discount}: ` : ""}
+                                {getLocalized(item.label, lang)}
+                            </span>
+                            <span className={`font-medium ml-4 ${isDiscount(item.priceNet) ? "text-red-600" : "text-gray-900"}`}>
+                                {item.priceNet < 0 ? "-" : ""}
+                                {formatCurrency(item.priceNet)}
+                            </span>
                         </div>
                     ))}
                 </div>
 
+                {pricing.questionAdjustments.length > 0 && (
+                    <div className="space-y-3 pt-4 border-t border-gray-100">
+                        <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.questionAdjustments}</span>
+                        {pricing.questionAdjustments.map((adjustment) => (
+                            <div key={adjustment.id} className="flex justify-between text-sm items-start">
+                                <span className="text-gray-700 flex-1">
+                                    {isDiscount(adjustment.priceDeltaNet) ? `${labels.discount}: ` : ""}
+                                    {getLocalized(adjustment.questionText, lang)}
+                                </span>
+                                <span className={`font-medium ml-4 ${isDiscount(adjustment.priceDeltaNet) ? "text-red-600" : "text-emerald-700"}`}>
+                                    {formatSignedCurrency(adjustment.priceDeltaNet)}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {pricing.additionalAdjustments.length > 0 && (
+                    <div className="space-y-3 pt-4 border-t border-gray-100">
+                        <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.additionalAdjustments}</span>
+                        {pricing.additionalAdjustments.map((adjustment) => (
+                            <div key={adjustment.id} className="space-y-1">
+                                <div className="flex justify-between text-sm items-start">
+                                    <span className="text-gray-700 flex-1">
+                                        {isDiscount(adjustment.priceDeltaNet) ? `${labels.discount}: ` : ""}
+                                        {adjustment.title}
+                                    </span>
+                                    <span className={`font-medium ml-4 ${isDiscount(adjustment.priceDeltaNet) ? "text-red-600" : "text-emerald-700"}`}>
+                                        {formatSignedCurrency(adjustment.priceDeltaNet)}
+                                    </span>
+                                </div>
+                                {adjustment.description && (
+                                    <p className="text-xs text-gray-500 italic">{adjustment.description}</p>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 <div className="pt-4 border-t border-gray-100 space-y-2">
                     <div className="flex justify-between text-sm text-gray-600">
                         <span>{labels.subtotal}</span>
-                        <span>€{pricing.subtotalNet.toLocaleString()}</span>
+                        <span>{formatCurrency(pricing.subtotalNet)}</span>
                     </div>
                     {pricing.packageAdjustmentNet !== 0 && (
                         <div className="flex justify-between text-sm text-red-600 font-medium italic">
                             <span>{labels.adjustment}</span>
-                            <span>{pricing.packageAdjustmentNet > 0 ? "+" : ""}€{pricing.packageAdjustmentNet.toLocaleString()}</span>
+                            <span>{formatSignedCurrency(pricing.packageAdjustmentNet)}</span>
                         </div>
                     )}
                 </div>
@@ -83,10 +135,10 @@ export function QuoteSummary({
                 <div className="pt-4 border-t-2 border-gray-900">
                     <div className="flex justify-between items-baseline">
                         <span className="text-base font-bold text-gray-900 uppercase tracking-tight">{labels.totalNet}</span>
-                        <span className="text-3xl font-black text-gray-900">€{pricing.totalNet.toLocaleString()}</span>
+                        <span className="text-3xl font-black text-gray-900">{formatCurrency(pricing.totalNet)}</span>
                     </div>
                     <div className="flex justify-end text-xs text-gray-500 mt-1 font-medium">
-                        + {labels.vat} {pricing.vatRate * 100}% (€{pricing.vatAmount.toFixed(0)}) = {labels.total} €{pricing.totalGross.toFixed(0)}
+                        + {labels.vat} {pricing.vatRate * 100}% ({formatCurrency(pricing.vatAmount)}) = {labels.total} {formatCurrency(pricing.totalGross)}
                     </div>
                 </div>
 

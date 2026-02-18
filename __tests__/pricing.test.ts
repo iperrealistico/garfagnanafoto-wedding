@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { calculateCustomQuote, calculateFixedPackageQuote } from '../src/lib/pricing-engine';
 import { DEFAULT_CONFIG } from '../src/lib/default-config';
-import { AppConfigSchema } from '../src/lib/config-schema';
+import { AppConfigSchema, AdditionalAdjustment } from '../src/lib/config-schema';
 
 // Parse default config to match AppConfig type (handles defaults)
 const config = AppConfigSchema.parse(DEFAULT_CONFIG);
@@ -65,6 +65,67 @@ describe('Pricing Engine', () => {
 
             // Base 1100 + Video 1200 + Drone 150 = 2450
             expect(result.subtotalNet).toBe(2450);
+        });
+
+        it('applies a negative delta on NO answer as a discount', () => {
+            const discountedConfig = AppConfigSchema.parse({
+                ...DEFAULT_CONFIG,
+                customFlow: {
+                    ...DEFAULT_CONFIG.customFlow,
+                    questions: DEFAULT_CONFIG.customFlow.questions.map((question) =>
+                        question.id === "q_second_photographer"
+                            ? {
+                                ...question,
+                                effectsNo: {
+                                    ...(question.effectsNo || {}),
+                                    priceDeltaNet: -50,
+                                },
+                            }
+                            : question
+                    ),
+                },
+            });
+
+            const result = calculateCustomQuote(discountedConfig, { q_second_photographer: false });
+
+            expect(result.subtotalNet).toBe(1100);
+            expect(result.questionAdjustments).toHaveLength(1);
+            expect(result.questionAdjustments[0].priceDeltaNet).toBe(-50);
+            expect(result.totalNet).toBe(1050);
+        });
+
+        it('applies multiple additional adjustments including negative values', () => {
+            const additionalAdjustments: AdditionalAdjustment[] = [
+                { id: "adj_1", title: "Drone extra", description: "Riprese extra", priceDeltaNet: 180 },
+                { id: "adj_2", title: "Sconto early booking", description: "Promo", priceDeltaNet: -80 },
+            ];
+
+            const result = calculateCustomQuote(
+                config,
+                { q_video: true },
+                { additionalAdjustments }
+            );
+
+            expect(result.subtotalNet).toBe(2300);
+            expect(result.additionalAdjustments).toHaveLength(2);
+            expect(result.totalNet).toBe(2400);
+        });
+
+        it('clamps total net to 0 when negative adjustments exceed subtotal', () => {
+            const result = calculateCustomQuote(
+                config,
+                {},
+                {
+                    additionalAdjustments: [
+                        { id: "adj_discount", title: "Big discount", priceDeltaNet: -5000 },
+                    ],
+                }
+            );
+
+            expect(result.subtotalNet).toBe(1100);
+            expect(result.totalNet).toBe(0);
+            expect(result.vatAmount).toBe(0);
+            expect(result.totalGross).toBe(0);
         });
     });
 });

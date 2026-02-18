@@ -1,4 +1,4 @@
-import { LeadPayload } from "@/lib/config-schema";
+import { AdditionalAdjustment, LeadPayload } from "@/lib/config-schema";
 import { PricingResult, CustomAnswers } from "@/lib/pricing-engine";
 import { QuoteSummary } from "@/components/public/quote-summary";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ interface StepSummaryProps {
     pricing: PricingResult;
     answers: CustomAnswers;
     additionalRequests: string;
+    additionalAdjustments: AdditionalAdjustment[];
     onBack: () => void;
     handleAction: (callback: (lead: LeadPayload) => void) => void;
     leadData?: Partial<LeadPayload>;
@@ -21,18 +22,31 @@ export function StepSummary({
     pricing,
     answers,
     additionalRequests,
+    additionalAdjustments,
     onBack,
     handleAction,
     leadData,
     lang = "it"
 }: StepSummaryProps) {
     const openQuoteAction = (action: "download" | "print", lead: LeadPayload) => {
-        const href = resolveQuoteDocumentActionUrl(action, {
-            isCustom: true,
-            answers,
-            additionalRequests,
-            lead,
-        });
+        let href = "";
+        try {
+            href = resolveQuoteDocumentActionUrl(action, {
+                isCustom: true,
+                answers,
+                additionalRequests,
+                additionalAdjustments,
+                lead,
+            });
+        } catch (error) {
+            console.error("Failed to build quote URL", error);
+            toast.error(
+                lang === "it"
+                    ? "Impossibile generare il preventivo. Controlla le voci aggiuntive e riprova."
+                    : "Unable to generate the quote. Check additional items and try again."
+            );
+            return;
+        }
 
         const opened = window.open(href, "_blank", "noopener,noreferrer");
         if (!opened) {

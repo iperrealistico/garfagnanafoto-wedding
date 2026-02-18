@@ -130,7 +130,7 @@ export default async function Home({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8" data-testid="packages-grid">
           {packages.map((pkg) => (
             <PackageCard
               key={pkg.id}
@@ -141,16 +141,25 @@ export default async function Home({
               lang={lang}
             />
           ))}
-          <div className="bg-gray-50 rounded-2xl p-6 border border-dashed border-gray-300 flex flex-col h-full">
-            <div className="flex-1 flex flex-col items-center justify-center text-center">
-              <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center text-black mb-4">
-                <FontAwesomeIcon icon={faWandMagicSparkles} />
+        </div>
+
+        <div className="w-full mt-8" data-testid="su-misura-cta">
+          <div className="relative overflow-hidden rounded-3xl border border-gray-200 bg-gradient-to-r from-gray-50 via-white to-gray-50 p-6 md:p-8 shadow-sm">
+            <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-[#719436]/10 blur-2xl" aria-hidden />
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6 relative">
+              <div className="space-y-2 max-w-2xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.24em] text-[#719436]">Custom Quote</p>
+                <h3 className="text-2xl font-semibold text-gray-900 flex items-center gap-3">
+                  <span className="w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center">
+                    <FontAwesomeIcon icon={faWandMagicSparkles} className="text-sm text-[#719436]" />
+                  </span>
+                  Su Misura
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Crea il tuo pacchetto personalizzato. Scegli solo i servizi che ti interessano.
+                </p>
               </div>
-              <h3 className="text-lg font-semibold">Su Misura</h3>
-              <p className="text-sm text-gray-600 mt-2">Crea il tuo pacchetto personalizzato. Scegli solo i servizi che ti interessano.</p>
-            </div>
-            <div className="mt-auto pt-6">
-              <Button asChild className="rounded-2xl px-8 w-full h-12">
+              <Button asChild className="rounded-2xl px-8 w-full md:w-auto h-12">
                 <Link href="/custom">Personalizza</Link>
               </Button>
             </div>
@@ -172,4 +181,3 @@ export default async function Home({
 
   );
 }
-

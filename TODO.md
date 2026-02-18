@@ -1,52 +1,62 @@
-# Ticket TODO - Lead/PDF/Print Reliability
+# Ticket TODO - Q/A Pricing + Additional Adjustments + "Su Misura" Layout
 
-## 1) Full codebase analysis and root-cause confirmation
-- [x] Trace lead state source(s): in-memory gate state, DB save action, no browser cache layer.
-- [x] Trace quote snapshot source(s): pricing snapshot passed to `LeadGate`.
-- [x] Trace PDF renderer path: `/quote/pdf` route -> `QuoteDocument`.
-- [x] Trace print path: `/quote/print` currently separate layout (must be unified to PDF bytes).
-- [x] Confirm `---` root cause:
-  - [x] stale callback closure in `package-quote-view.tsx` and `step-summary.tsx`
-  - [x] `email`/`phone` dropped in `/quote/pdf` route payload
-- [x] Confirm modal close regression:
-  - [x] ESC close handler removed from `lead-modal.tsx`
+## 1) Analysis and mapping (no code edits)
+- [x] Map config schema/types for questions, effects, and pricing fields.
+- [x] Map config storage path (`app_config` in Supabase JSON).
+- [x] Map custom wizard answer state and question rendering flow.
+- [x] Map pricing engine calculation path and totals clamp behavior.
+- [x] Map summary + PDF/print rendering paths.
+- [x] Map current "Su Misura" rendering in homepage packages grid.
 
-## 2) Payload standardization and flow fixes
-- [x] Add normalized `LeadPayload` schema/type (`firstName`, `lastName`, `email`, `phone`, `weddingLocation`).
-- [x] Add mappers between normalized payload and legacy DB `Lead` shape.
-- [x] Route all PDF-generation params through normalized payload composer.
-- [x] Ensure lead submit path uses normalized payload for action execution.
+## 2) Data model and backward compatibility
+- [x] Add `additionalAdjustments` model (`id`, `title`, `description?`, `priceDeltaNet`) for custom quote transport/snapshot.
+- [x] Keep legacy `additionalRequests` support and parse/serialize compatibility.
+- [x] Extend advanced settings with defaults for additional-adjustments feature labels/help and enable flag.
+- [x] Ensure old configs parse with defaults and no migration breakage.
 
-## 3) Modal close behavior
-- [x] Ensure X closes modal deterministically.
-- [x] Ensure ESC closes modal.
-- [x] Ensure close clears pending action state in `LeadGate`.
+## 3) Pricing engine changes
+- [x] Support negative `lineItems[].priceNet` in schema validation.
+- [x] Apply `effectsYes.priceDeltaNet` and `effectsNo.priceDeltaNet`.
+- [x] Carry applied question-level deltas into result breakdown.
+- [x] Apply additional adjustments (positive/negative) to totals.
+- [x] Clamp custom/fixed total net to minimum `0`.
 
-## 4) PDF generation reliability
-- [x] Fix `Conferma e Genera` first-submit path (no stale query strings).
-- [x] Add deterministic loading/error handling around action execution.
-- [x] Verify repeated actions reuse captured lead without resubmission.
+## 4) Guest flow UI (custom quote)
+- [x] Replace/extend additional requests step with multi-item editor.
+- [x] Allow add/remove multiple items and negative amounts with helper copy.
+- [x] Keep legacy notes textarea (compatibility) and include in output.
+- [x] Ensure summary actions fail loudly with user-facing errors if payload cannot be built.
 
-## 5) Print unification
-- [x] Replace separate print layout with PDF-print wrapper that embeds `/quote/pdf`.
-- [x] Trigger print dialog on load (best effort) and provide one-click fallback button.
-- [x] Ensure print action uses same PDF query/payload as download.
+## 5) Admin UI updates
+- [x] Question builder: allow negative values for yes/no deltas.
+- [x] Question builder: add helper text (`Valori negativi = sconti`).
+- [x] Advanced settings: allow enable/disable and labels/help for additional adjustments.
 
-## 6) Tests
-- [x] Unit: payload composer includes all lead fields.
-- [x] Unit: lead cache retrieval + PDF URL generation includes lead fields.
-- [x] Unit: action router maps print -> open PDF + print wrapper.
-- [x] E2E (Playwright): download flow with lead -> PDF includes lead data.
-- [x] E2E (Playwright): print flow with lead -> PDF route opened + print trigger path.
-- [x] E2E (Playwright): modal closes via X.
-- [x] E2E (Playwright): modal closes via ESC.
-- [x] E2E (Playwright): "Conferma e Genera" triggers PDF generation.
+## 6) Summary + PDF/print output
+- [x] Show additional adjustments in quote summary with negative values as discounts.
+- [x] Show question-level discounts/deltas in breakdown.
+- [x] Include additional adjustments in PDF payload and render in PDF notes/breakdown.
 
-## 7) Gates and delivery
-- [x] `pnpm lint` (ran via `npm run lint`, `pnpm` not available in environment)
-- [x] `pnpm typecheck` (ran via `npm run typecheck`, `pnpm` not available in environment)
-- [x] `pnpm test` (ran via `npm run test`, `pnpm` not available in environment)
-- [x] `pnpm build` (ran via `npm run build`, `pnpm` not available in environment)
-- [x] `pnpm test:e2e` (ran via `npm run test:e2e`, `pnpm` not available in environment)
-- [x] Commit
-- [x] Push to GitHub
+## 7) Packages layout fix
+- [x] Keep standard packages inside grid only.
+- [x] Move "Su Misura" to separate full-width CTA block aligned with grid container.
+- [x] Ensure responsive behavior and keyboard-accessible CTA button.
+
+## 8) Tests
+- [x] Unit: negative answer delta scenario.
+- [x] Unit: multiple additional adjustments (positive + negative) totals scenario.
+- [x] Unit: URL/search params serialize + parse additional adjustments.
+- [x] UI/e2e: verify "Su Misura" CTA is full-width and not a package grid item.
+
+## 9) Verification gates
+- [x] `pnpm lint` (or `npm run lint` if `pnpm` unavailable)
+- [x] `pnpm typecheck` (or `npm run typecheck` if `pnpm` unavailable)
+- [x] `pnpm test` (or `npm run test` if `pnpm` unavailable)
+- [x] `pnpm build` (or `npm run build` if `pnpm` unavailable)
+- [x] `pnpm test:e2e` (or `npm run test:e2e` if `pnpm` unavailable)
+
+## 10) Delivery
+- [ ] Summarize changes by requested categories.
+- [ ] List exact local verification commands.
+- [ ] List DB migrations and file paths.
+- [ ] Commit with clear message.

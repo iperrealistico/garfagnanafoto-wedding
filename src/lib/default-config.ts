@@ -162,7 +162,29 @@ export const DEFAULT_CONFIG: AppConfigInput = {
         footerText: {
             it: "© 2026 — Garfagnanafoto.it",
             en: "© 2026 — Garfagnanafoto.it"
+        },
+        additionalAdjustments: {
+            enabled: true,
+            sectionTitle: {
+                it: "Voci aggiuntive",
+                en: "Additional items"
+            },
+            addButtonLabel: {
+                it: "Aggiungi voce",
+                en: "Add item"
+            },
+            amountLabel: {
+                it: "Importo (IVA esclusa)",
+                en: "Amount (VAT excluded)"
+            },
+            amountHint: {
+                it: "Usa un valore negativo per uno sconto.",
+                en: "Use a negative value for a discount."
+            },
+            legacyNotesLabel: {
+                it: "Note legacy (opzionale)",
+                en: "Legacy notes (optional)"
+            }
         }
     }
 };
-

@@ -1,4 +1,5 @@
-import { LeadPayload } from "./config-schema";
+import { AdditionalAdjustment, LeadPayload } from "./config-schema";
+import { serializeAdditionalAdjustments } from "./additional-adjustments";
 import { writeLeadPayloadToSearchParams } from "./lead-payload";
 import { CustomAnswers } from "./pricing-engine";
 
@@ -9,6 +10,7 @@ interface QuoteDocumentParams {
     isCustom?: boolean;
     answers?: CustomAnswers;
     additionalRequests?: string;
+    additionalAdjustments?: ReadonlyArray<AdditionalAdjustment>;
     lead?: Partial<LeadPayload>;
 }
 
@@ -17,6 +19,7 @@ export function buildQuoteDocumentSearchParams({
     isCustom,
     answers,
     additionalRequests,
+    additionalAdjustments,
     lead,
 }: QuoteDocumentParams): URLSearchParams {
     const searchParams = new URLSearchParams();
@@ -44,6 +47,11 @@ export function buildQuoteDocumentSearchParams({
 
     if (additionalRequests?.trim()) {
         searchParams.set("requests", additionalRequests.trim());
+    }
+
+    const serializedAdjustments = serializeAdditionalAdjustments(additionalAdjustments);
+    if (serializedAdjustments) {
+        searchParams.set("adjustments", serializedAdjustments);
     }
 
     writeLeadPayloadToSearchParams(searchParams, lead);

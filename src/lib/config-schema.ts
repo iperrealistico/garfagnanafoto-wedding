@@ -13,7 +13,14 @@ export const LineItemSchema = z.object({
     id: z.string(),
     label: LocalizedStringSchema,
     icon: IconNameSchema.optional(),
-    priceNet: z.number().min(0),
+    priceNet: z.number(),
+});
+
+export const AdditionalAdjustmentSchema = z.object({
+    id: z.string(),
+    title: z.string().trim().min(1, "Titolo obbligatorio"),
+    description: z.string().optional(),
+    priceDeltaNet: z.number(),
 });
 
 export const PackageSchema = z.object({
@@ -133,11 +140,42 @@ export const AppConfigSchema = z.object({
             it: "© 2026 — Garfagnanafoto.it",
             en: "© 2026 — Garfagnanafoto.it"
         }),
+        additionalAdjustments: z.object({
+            enabled: z.boolean().default(true),
+            sectionTitle: LocalizedStringSchema.default({
+                it: "Voci aggiuntive",
+                en: "Additional items",
+            }),
+            addButtonLabel: LocalizedStringSchema.default({
+                it: "Aggiungi voce",
+                en: "Add item",
+            }),
+            amountLabel: LocalizedStringSchema.default({
+                it: "Importo (IVA esclusa)",
+                en: "Amount (VAT excluded)",
+            }),
+            amountHint: LocalizedStringSchema.default({
+                it: "Usa un valore negativo per uno sconto.",
+                en: "Use a negative value for a discount.",
+            }),
+            legacyNotesLabel: LocalizedStringSchema.default({
+                it: "Note legacy (opzionale)",
+                en: "Legacy notes (optional)",
+            }),
+        }).default({
+            enabled: true,
+            sectionTitle: { it: "Voci aggiuntive", en: "Additional items" },
+            addButtonLabel: { it: "Aggiungi voce", en: "Add item" },
+            amountLabel: { it: "Importo (IVA esclusa)", en: "Amount (VAT excluded)" },
+            amountHint: { it: "Usa un valore negativo per uno sconto.", en: "Use a negative value for a discount." },
+            legacyNotesLabel: { it: "Note legacy (opzionale)", en: "Legacy notes (optional)" },
+        }),
     }).optional(),
 });
 
 
 export type LineItem = z.infer<typeof LineItemSchema>;
+export type AdditionalAdjustment = z.infer<typeof AdditionalAdjustmentSchema>;
 export type Package = z.infer<typeof PackageSchema>;
 export type QuestionEffect = z.infer<typeof QuestionEffectSchema>;
 export type Question = z.infer<typeof QuestionSchema>;

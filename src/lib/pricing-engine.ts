@@ -1,9 +1,19 @@
-import { AppConfig, LineItem } from "./config-schema";
+import { AppConfig, AdditionalAdjustment, LineItem, LocalizedString } from "./config-schema";
 
 export type CustomAnswers = Record<string, boolean | string>;
 
+export interface AppliedQuestionAdjustment {
+    id: string;
+    questionId: string;
+    questionText: LocalizedString;
+    appliedOn: "yes" | "no";
+    priceDeltaNet: number;
+}
+
 export interface PricingResult {
     lineItems: LineItem[];
+    questionAdjustments: AppliedQuestionAdjustment[];
+    additionalAdjustments: AdditionalAdjustment[];
     subtotalNet: number;
     packageAdjustmentNet: number;
     totalNet: number;
@@ -13,12 +23,35 @@ export interface PricingResult {
     textAnswers?: Record<string, string>; // Store text-type answers for summary
 }
 
+interface CustomQuoteOptions {
+    customAdjustmentNet?: number;
+    additionalAdjustments?: ReadonlyArray<AdditionalAdjustment>;
+}
+
+type CustomQuoteAdjustmentInput = number | CustomQuoteOptions;
+
+function resolveCustomQuoteOptions(input: CustomQuoteAdjustmentInput = 0): { customAdjustmentNet: number; additionalAdjustments: AdditionalAdjustment[] } {
+    if (typeof input === "number") {
+        return {
+            customAdjustmentNet: input,
+            additionalAdjustments: [],
+        };
+    }
+
+    return {
+        customAdjustmentNet: input.customAdjustmentNet || 0,
+        additionalAdjustments: input.additionalAdjustments ? [...input.additionalAdjustments] : [],
+    };
+}
+
 export function calculateCustomQuote(
     config: AppConfig,
     answers: CustomAnswers,
-    customAdjustment: number = 0
+    customAdjustmentInput: CustomQuoteAdjustmentInput = 0
 ): PricingResult {
+    const { customAdjustmentNet, additionalAdjustments } = resolveCustomQuoteOptions(customAdjustmentInput);
     const lineItemsMap = new Map<string, LineItem>();
+    const questionAdjustments: AppliedQuestionAdjustment[] = [];
 
     // 1. Add Base Items
     config.customFlow.baseLineItems.forEach((item) => {
@@ -34,27 +67,30 @@ export function calculateCustomQuote(
         processedQuestionIds.add(q.id);
 
         const answer = answers[q.id];
+        const hasPositiveAnswer = q.type === "text"
+            ? typeof answer === "string" && answer.trim().length > 0
+            : !!answer;
 
         // Is it a text question?
         if (q.type === "text") {
-            if (answer && typeof answer === "string") {
+            if (typeof answer === "string" && answer.trim()) {
                 textAnswers[q.id] = answer;
             }
         }
 
-        if (answer) {
-            // YES / TEXT Logic
-            if (q.effectsYes) {
-                if (q.effectsYes.addLineItems) {
-                    q.effectsYes.addLineItems.forEach((item: LineItem) => lineItemsMap.set(item.id, item));
-                }
+        const activeEffects = hasPositiveAnswer ? q.effectsYes : q.effectsNo;
+        if (activeEffects) {
+            if (activeEffects.addLineItems) {
+                activeEffects.addLineItems.forEach((item: LineItem) => lineItemsMap.set(item.id, item));
             }
-        } else {
-            // NO Logic
-            if (q.effectsNo) {
-                if (q.effectsNo.addLineItems) {
-                    q.effectsNo.addLineItems.forEach((item: LineItem) => lineItemsMap.set(item.id, item));
-                }
+            if (activeEffects.priceDeltaNet) {
+                questionAdjustments.push({
+                    id: `${q.id}_${hasPositiveAnswer ? "yes" : "no"}`,
+                    questionId: q.id,
+                    questionText: q.questionText,
+                    appliedOn: hasPositiveAnswer ? "yes" : "no",
+                    priceDeltaNet: activeEffects.priceDeltaNet,
+                });
             }
         }
 
@@ -62,8 +98,8 @@ export function calculateCustomQuote(
         const children = config.customFlow.questions.filter(child => child.parentId === q.id);
         children.forEach(child => {
             const isVisible = child.showWhen === "always" ||
-                (child.showWhen === "yes" && !!answer) ||
-                (child.showWhen === "no" && !answer);
+                (child.showWhen === "yes" && hasPositiveAnswer) ||
+                (child.showWhen === "no" && !hasPositiveAnswer);
 
             if (isVisible) {
                 processQuestion(child);
@@ -80,16 +116,20 @@ export function calculateCustomQuote(
 
     const lineItems = Array.from(lineItemsMap.values());
     const subtotalNet = lineItems.reduce((sum, item) => sum + item.priceNet, 0);
+    const questionAdjustmentsNet = questionAdjustments.reduce((sum, adjustment) => sum + adjustment.priceDeltaNet, 0);
+    const additionalAdjustmentsNet = additionalAdjustments.reduce((sum, adjustment) => sum + adjustment.priceDeltaNet, 0);
 
-    const totalNet = Math.max(0, subtotalNet + customAdjustment);
+    const totalNet = Math.max(0, subtotalNet + customAdjustmentNet + questionAdjustmentsNet + additionalAdjustmentsNet);
     const vatRate = config.vatRate;
     const vatAmount = totalNet * vatRate;
     const totalGross = totalNet + vatAmount;
 
     return {
         lineItems,
+        questionAdjustments,
+        additionalAdjustments,
         subtotalNet,
-        packageAdjustmentNet: customAdjustment,
+        packageAdjustmentNet: customAdjustmentNet,
         totalNet,
         vatRate,
         vatAmount,
@@ -114,6 +154,8 @@ export function calculateFixedPackageQuote(
 
     return {
         lineItems: pkg.lineItems,
+        questionAdjustments: [],
+        additionalAdjustments: [],
         subtotalNet,
         packageAdjustmentNet: adjustment,
         totalNet,

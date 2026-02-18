@@ -72,15 +72,116 @@ function SortableQuestionItem({
         marginLeft: `${depth * 24}px`,
     };
 
-    const handleUpdateEffects = (updates: Partial<QuestionEffect>) => {
-        const current = question.effectsYes || { priceDeltaNet: 0 };
+    type EffectKey = "effectsYes" | "effectsNo";
+
+    const handleUpdateEffects = (effectKey: EffectKey, updates: Partial<QuestionEffect>) => {
+        const current = (question[effectKey] || { priceDeltaNet: 0, addLineItems: [] }) as QuestionEffect;
         onUpdate({
-            effectsYes: {
+            [effectKey]: {
                 ...current,
                 ...updates,
                 priceDeltaNet: updates.priceDeltaNet ?? current.priceDeltaNet ?? 0
             }
-        });
+        } as Partial<Question>);
+    };
+
+    const renderPricingEffectsCard = (effectKey: EffectKey, title: string, showNotesToggle = false) => {
+        const effects = (question[effectKey] || { priceDeltaNet: 0, addLineItems: [] }) as QuestionEffect;
+        const lineItems = effects.addLineItems || [];
+
+        return (
+            <div className="bg-white p-4 rounded-xl border space-y-4">
+                <div className="flex items-center gap-2 border-b pb-2">
+                    <Settings2 className="w-4 h-4 text-primary" />
+                    <Label className="font-bold text-xs uppercase tracking-wider">{title}</Label>
+                </div>
+
+                <div className="space-y-2">
+                    <Label className="text-xs font-bold uppercase tracking-wider text-gray-500">Price Delta (€)</Label>
+                    <Input
+                        type="number"
+                        step="1"
+                        value={effects.priceDeltaNet ?? 0}
+                        onChange={(e) => handleUpdateEffects(effectKey, { priceDeltaNet: parseFloat(e.target.value) || 0 })}
+                    />
+                    <p className="text-[11px] text-gray-500">Valori negativi = sconti</p>
+                </div>
+
+                <div className="space-y-3">
+                    {lineItems.map((item, iIdx) => (
+                        <div key={item.id} className="p-3 border rounded-lg bg-gray-50/50 space-y-2 relative group/item">
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover/item:opacity-100 transition-opacity"
+                                onClick={() => {
+                                    const newItems = lineItems.filter((_, i) => i !== iIdx);
+                                    handleUpdateEffects(effectKey, { addLineItems: newItems });
+                                }}
+                            >
+                                <Trash2 className="w-3 h-3 text-destructive" />
+                            </Button>
+                            <div className="flex justify-between items-center gap-2">
+                                <div className="flex-1">
+                                    <LocalizedInput
+                                        value={item.label}
+                                        onChange={(val) => {
+                                            const newItems = [...lineItems];
+                                            newItems[iIdx] = { ...newItems[iIdx], label: val };
+                                            handleUpdateEffects(effectKey, { addLineItems: newItems });
+                                        }}
+                                    />
+                                </div>
+                                <div className="flex items-center gap-1 w-24">
+                                    <Input
+                                        type="number"
+                                        className="h-8 text-xs px-1"
+                                        value={item.priceNet}
+                                        onChange={e => {
+                                            const newItems = [...lineItems];
+                                            newItems[iIdx] = { ...newItems[iIdx], priceNet: parseFloat(e.target.value) || 0 };
+                                            handleUpdateEffects(effectKey, { addLineItems: newItems });
+                                        }}
+                                    />
+                                    <span className="text-xs text-gray-500 font-bold">€</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full text-xs dashed border-2 border-dashed h-10"
+                        onClick={() => {
+                            const newItem = { id: `item_${Date.now()}`, label: { it: "Nuova voce", en: "New item" }, priceNet: 0 };
+                            handleUpdateEffects(effectKey, { addLineItems: [...lineItems, newItem] });
+                        }}
+                    >
+                        <PlusCircle className="w-3 h-3 mr-2 text-primary" />
+                        Add Price Effect
+                    </Button>
+                </div>
+
+                {showNotesToggle && (
+                    <div className="pt-2 flex items-center gap-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                checked={!!question.effectsYes?.notes?.triggersAdditionalRequestsBox}
+                                onChange={(e) => {
+                                    const currentNotes = question.effectsYes?.notes || {};
+                                    handleUpdateEffects("effectsYes", {
+                                        notes: { ...currentNotes, triggersAdditionalRequestsBox: e.target.checked }
+                                    });
+                                }}
+                                className="rounded border-gray-300 text-primary focus:ring-primary w-4 h-4"
+                            />
+                            <span className="text-xs font-semibold text-gray-600 uppercase tracking-tighter">Triggers additional requests box</span>
+                        </label>
+                    </div>
+                )}
+            </div>
+        );
     };
 
     return (
@@ -185,89 +286,12 @@ function SortableQuestionItem({
                             </div>
 
                             <div className="space-y-4">
-                                <div className="bg-white p-4 rounded-xl border space-y-4">
-                                    <div className="flex items-center gap-2 border-b pb-2">
-                                        <Settings2 className="w-4 h-4 text-primary" />
-                                        <Label className="font-bold text-xs uppercase tracking-wider">Pricing Effects (If {question.type === 'text' ? 'Filled' : 'Yes'})</Label>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        {question.effectsYes?.addLineItems?.map((item, iIdx) => (
-                                            <div key={item.id} className="p-3 border rounded-lg bg-gray-50/50 space-y-2 relative group/item">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover/item:opacity-100 transition-opacity"
-                                                    onClick={() => {
-                                                        const items = question.effectsYes?.addLineItems || [];
-                                                        const newItems = items.filter((_, i) => i !== iIdx);
-                                                        handleUpdateEffects({ addLineItems: newItems });
-                                                    }}
-                                                >
-                                                    <Trash2 className="w-3 h-3 text-destructive" />
-                                                </Button>
-                                                <div className="flex justify-between items-center gap-2">
-                                                    <div className="flex-1">
-                                                        <LocalizedInput
-                                                            value={item.label}
-                                                            onChange={(val) => {
-                                                                const items = question.effectsYes?.addLineItems || [];
-                                                                const newItems = [...items];
-                                                                newItems[iIdx] = { ...newItems[iIdx], label: val };
-                                                                handleUpdateEffects({ addLineItems: newItems });
-                                                            }}
-                                                        />
-                                                    </div>
-                                                    <div className="flex items-center gap-1 w-24">
-                                                        <Input
-                                                            type="number"
-                                                            className="h-8 text-xs px-1"
-                                                            value={item.priceNet}
-                                                            onChange={e => {
-                                                                const items = question.effectsYes?.addLineItems || [];
-                                                                const newItems = [...items];
-                                                                newItems[iIdx] = { ...newItems[iIdx], priceNet: parseFloat(e.target.value) || 0 };
-                                                                handleUpdateEffects({ addLineItems: newItems });
-                                                            }}
-                                                        />
-                                                        <span className="text-xs text-gray-500 font-bold">€</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="w-full text-xs dashed border-2 border-dashed h-10"
-                                            onClick={() => {
-                                                const newItem = { id: `item_${Date.now()}`, label: { it: "Nuova voce", en: "New item" }, priceNet: 0 };
-                                                const effects = question.effectsYes || { priceDeltaNet: 0, addLineItems: [] };
-                                                const items = effects.addLineItems || [];
-                                                handleUpdateEffects({ addLineItems: [...items, newItem] });
-                                            }}
-                                        >
-                                            <PlusCircle className="w-3 h-3 mr-2 text-primary" />
-                                            Add Price Effect
-                                        </Button>
-                                    </div>
-
-                                    <div className="pt-2 flex items-center gap-4">
-                                        <label className="flex items-center gap-2 cursor-pointer">
-                                            <input
-                                                type="checkbox"
-                                                checked={!!question.effectsYes?.notes?.triggersAdditionalRequestsBox}
-                                                onChange={(e) => {
-                                                    const currentNotes = question.effectsYes?.notes || {};
-                                                    handleUpdateEffects({
-                                                        notes: { ...currentNotes, triggersAdditionalRequestsBox: e.target.checked }
-                                                    });
-                                                }}
-                                                className="rounded border-gray-300 text-primary focus:ring-primary w-4 h-4"
-                                            />
-                                            <span className="text-xs font-semibold text-gray-600 uppercase tracking-tighter">Triggers additional requests box</span>
-                                        </label>
-                                    </div>
-                                </div>
+                                {renderPricingEffectsCard(
+                                    "effectsYes",
+                                    `Pricing Effects (If ${question.type === 'text' ? 'Filled' : 'Yes'})`,
+                                    true
+                                )}
+                                {question.type === "yes_no" && renderPricingEffectsCard("effectsNo", "Pricing Effects (If No)")}
                             </div>
                         </div>
                     </div>

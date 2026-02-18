@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildQuoteDocumentUrls, resolveQuoteDocumentActionUrl } from "../src/lib/quote-document-url";
+import { parseCustomParams } from "../src/lib/url-params";
 
 describe("quote action router", () => {
     it("routes download action to the PDF endpoint", () => {
@@ -22,6 +23,10 @@ describe("quote action router", () => {
             isCustom: true,
             answers: { q_video: true, q_notes: "Richiesta drone" },
             additionalRequests: "Cerimonia in montagna",
+            additionalAdjustments: [
+                { id: "adj_1", title: "Album extra", description: "28x28", priceDeltaNet: 120 },
+                { id: "adj_2", title: "Sconto promo", description: "Codice FEB", priceDeltaNet: -50 },
+            ],
             lead: {
                 firstName: "Giulia",
                 lastName: "Verdi",
@@ -39,5 +44,9 @@ describe("quote action router", () => {
         const pdfQuery = urls.pdfUrl.split("?")[1];
         const printQuery = printUrl.split("?")[1];
         expect(printQuery).toBe(pdfQuery);
+
+        const parsed = parseCustomParams(new URL(urls.pdfUrl, "https://example.test").searchParams);
+        expect(parsed.additionalAdjustments).toHaveLength(2);
+        expect(parsed.additionalAdjustments[1].priceDeltaNet).toBe(-50);
     });
 });

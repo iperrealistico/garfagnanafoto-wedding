@@ -9,7 +9,6 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const packageId = searchParams.get("packageId");
     const isCustom = searchParams.get("custom") === "true";
-    const requests = searchParams.get("requests") || "";
     const lang = "it";
     const leadPayload = readLeadPayloadFromSearchParams(searchParams);
     const firstName = leadPayload.firstName || "";
@@ -45,8 +44,21 @@ export async function GET(request: Request) {
                 pkgDescription = getLocalized(pkg.description, lang) || "";
             }
         } else if (isCustom) {
-            const { answers } = parseCustomParams(searchParams);
-            pricing = calculateCustomQuote(config, answers);
+            let customParams;
+            try {
+                customParams = parseCustomParams(searchParams);
+            } catch {
+                return new NextResponse(
+                    "Invalid custom adjustments payload. Please go back and regenerate the quote.",
+                    { status: 400 }
+                );
+            }
+
+            const { answers, additionalRequests, additionalAdjustments } = customParams;
+            pricing = calculateCustomQuote(config, answers, { additionalAdjustments });
+            pkgDescription = additionalRequests
+                ? "Configurazione su misura basata sulle tue scelte e richieste aggiuntive."
+                : pkgDescription;
         }
 
         if (!pricing) {
@@ -66,7 +78,7 @@ export async function GET(request: Request) {
                 date={date}
                 generatedAt={generatedAt}
                 leadData={leadPayload}
-                additionalRequests={requests}
+                additionalRequests={searchParams.get("requests") || ""}
             />
         );
 

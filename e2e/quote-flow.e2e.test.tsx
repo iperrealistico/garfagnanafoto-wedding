@@ -1,6 +1,8 @@
 /* @vitest-environment jsdom */
 
 import React from "react";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { LeadGate } from "../src/components/public/lead-gate";
@@ -234,5 +236,19 @@ describe("quote generation e2e flow", () => {
         expect(printSpy).toHaveBeenCalledTimes(1);
 
         vi.useRealTimers();
+    });
+
+    it("renders 'Su Misura' as a full-width CTA outside the package cards grid", async () => {
+        const source = readFileSync(join(process.cwd(), "src/app/[lang]/page.tsx"), "utf-8");
+        const gridIndex = source.indexOf('data-testid="packages-grid"');
+        const ctaIndex = source.indexOf('data-testid="su-misura-cta"');
+
+        expect(gridIndex).toBeGreaterThan(-1);
+        expect(ctaIndex).toBeGreaterThan(gridIndex);
+        expect(source).toContain('className="w-full mt-8" data-testid="su-misura-cta"');
+
+        const gridBlock = source.slice(gridIndex, ctaIndex);
+        expect(gridBlock).not.toContain("Su Misura");
+        expect(source).toContain('<Link href="/custom">Personalizza</Link>');
     });
 });
