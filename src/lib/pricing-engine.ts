@@ -80,10 +80,12 @@ export function calculateCustomQuote(
 
         const activeEffects = hasPositiveAnswer ? q.effectsYes : q.effectsNo;
         if (activeEffects) {
-            if (activeEffects.addLineItems) {
-                activeEffects.addLineItems.forEach((item: LineItem) => lineItemsMap.set(item.id, item));
-            }
-            if (activeEffects.priceDeltaNet) {
+            const activeLineItems = activeEffects.addLineItems || [];
+            const hasLineItems = activeLineItems.length > 0;
+
+            if (hasLineItems) {
+                activeLineItems.forEach((item: LineItem) => lineItemsMap.set(item.id, item));
+            } else if (activeEffects.priceDeltaNet) {
                 questionAdjustments.push({
                     id: `${q.id}_${hasPositiveAnswer ? "yes" : "no"}`,
                     questionId: q.id,

@@ -94,6 +94,33 @@ describe('Pricing Engine', () => {
             expect(result.totalNet).toBe(1050);
         });
 
+        it('uses only one pricing mode per effect: line items take precedence over price delta', () => {
+            const mixedEffectConfig = AppConfigSchema.parse({
+                ...DEFAULT_CONFIG,
+                customFlow: {
+                    ...DEFAULT_CONFIG.customFlow,
+                    questions: DEFAULT_CONFIG.customFlow.questions.map((question) =>
+                        question.id === "q_video"
+                            ? {
+                                ...question,
+                                effectsYes: {
+                                    ...(question.effectsYes || {}),
+                                    priceDeltaNet: 9999,
+                                },
+                            }
+                            : question
+                    ),
+                },
+            });
+
+            const result = calculateCustomQuote(mixedEffectConfig, { q_video: true });
+
+            // Existing line item (+1200) is applied; conflicting delta is ignored.
+            expect(result.subtotalNet).toBe(2300);
+            expect(result.questionAdjustments).toHaveLength(0);
+            expect(result.totalNet).toBe(2300);
+        });
+
         it('applies multiple additional adjustments including negative values', () => {
             const additionalAdjustments: AdditionalAdjustment[] = [
                 { id: "adj_1", title: "Drone extra", description: "Riprese extra", priceDeltaNet: 180 },

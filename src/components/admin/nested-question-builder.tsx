@@ -88,6 +88,8 @@ function SortableQuestionItem({
     const renderPricingEffectsCard = (effectKey: EffectKey, title: string, showNotesToggle = false) => {
         const effects = (question[effectKey] || { priceDeltaNet: 0, addLineItems: [] }) as QuestionEffect;
         const lineItems = effects.addLineItems || [];
+        const hasLineItems = lineItems.length > 0;
+        const hasPriceDelta = (effects.priceDeltaNet ?? 0) !== 0;
 
         return (
             <div className="bg-white p-4 rounded-xl border space-y-4">
@@ -102,12 +104,19 @@ function SortableQuestionItem({
                         type="number"
                         step="1"
                         value={effects.priceDeltaNet ?? 0}
-                        onChange={(e) => handleUpdateEffects(effectKey, { priceDeltaNet: parseFloat(e.target.value) || 0 })}
+                        onChange={(e) => {
+                            const nextDelta = parseFloat(e.target.value) || 0;
+                            handleUpdateEffects(effectKey, {
+                                priceDeltaNet: nextDelta,
+                                addLineItems: nextDelta !== 0 ? [] : lineItems
+                            });
+                        }}
                     />
                     <p className="text-[11px] text-gray-500">Valori negativi = sconti</p>
+                    <p className="text-[11px] text-gray-500">Usa solo una modalità: Delta oppure voci di prezzo.</p>
                 </div>
 
-                <div className="space-y-3">
+                <div className={cn("space-y-3", hasPriceDelta && "opacity-60 pointer-events-none")}>
                     {lineItems.map((item, iIdx) => (
                         <div key={item.id} className="p-3 border rounded-lg bg-gray-50/50 space-y-2 relative group/item">
                             <Button
@@ -128,7 +137,7 @@ function SortableQuestionItem({
                                         onChange={(val) => {
                                             const newItems = [...lineItems];
                                             newItems[iIdx] = { ...newItems[iIdx], label: val };
-                                            handleUpdateEffects(effectKey, { addLineItems: newItems });
+                                            handleUpdateEffects(effectKey, { addLineItems: newItems, priceDeltaNet: 0 });
                                         }}
                                     />
                                 </div>
@@ -140,7 +149,7 @@ function SortableQuestionItem({
                                         onChange={e => {
                                             const newItems = [...lineItems];
                                             newItems[iIdx] = { ...newItems[iIdx], priceNet: parseFloat(e.target.value) || 0 };
-                                            handleUpdateEffects(effectKey, { addLineItems: newItems });
+                                            handleUpdateEffects(effectKey, { addLineItems: newItems, priceDeltaNet: 0 });
                                         }}
                                     />
                                     <span className="text-xs text-gray-500 font-bold">€</span>
@@ -152,15 +161,19 @@ function SortableQuestionItem({
                         variant="outline"
                         size="sm"
                         className="w-full text-xs dashed border-2 border-dashed h-10"
+                        disabled={hasPriceDelta}
                         onClick={() => {
                             const newItem = { id: `item_${Date.now()}`, label: { it: "Nuova voce", en: "New item" }, priceNet: 0 };
-                            handleUpdateEffects(effectKey, { addLineItems: [...lineItems, newItem] });
+                            handleUpdateEffects(effectKey, { addLineItems: [...lineItems, newItem], priceDeltaNet: 0 });
                         }}
                     >
                         <PlusCircle className="w-3 h-3 mr-2 text-primary" />
-                        Add Price Effect
+                        Add Line Item Effect
                     </Button>
                 </div>
+                {hasLineItems && (
+                    <p className="text-[11px] text-gray-500">Le voci di prezzo disattivano automaticamente il Price Delta.</p>
+                )}
 
                 {showNotesToggle && (
                     <div className="pt-2 flex items-center gap-4">
