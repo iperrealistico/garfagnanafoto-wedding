@@ -56,7 +56,7 @@
 - [x] `pnpm test:e2e` (or `npm run test:e2e` if `pnpm` unavailable)
 
 ## 10) Delivery
-- [ ] Summarize changes by requested categories.
-- [ ] List exact local verification commands.
-- [ ] List DB migrations and file paths.
-- [ ] Commit with clear message.
+- [x] Summarize changes by requested categories.
+- [x] List exact local verification commands.
+- [x] List DB migrations and file paths.
+- [x] Commit with clear message.
