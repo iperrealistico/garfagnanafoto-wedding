@@ -133,8 +133,8 @@ export const AppConfigSchema = z.object({
     }).optional(),
     advancedSettings: z.object({
         gdprNotice: LocalizedStringSchema.default({
-            it: "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta. Non verranno utilizzati per marketing né ceduti a terzi.",
-            en: "Your data will be used exclusively to contact you regarding this request. It will not be used for marketing or shared with third parties."
+            it: "I dati inseriti vengono usati solo per personalizzare il preventivo e il PDF nel tuo browser. Non vengono salvati su database o inviati automaticamente.",
+            en: "The details you enter are only used to personalize the quote and PDF in your browser. They are not stored in a database or sent automatically."
         }),
         footerText: LocalizedStringSchema.default({
             it: "© 2026 — Garfagnanafoto.it",
@@ -193,22 +193,3 @@ export const LeadPayloadSchema = z.object({
 });
 
 export type LeadPayload = z.infer<typeof LeadPayloadSchema>;
-
-export const LeadSchema = z.object({
-    id: z.string().uuid().optional(),
-    created_at: z.string().optional(),
-    first_name: z.string().min(1, "Il nome è obbligatorio"),
-    last_name: z.string().min(1, "Il cognome è obbligatorio"),
-    email: z.string().email("Email non valida"),
-    phone: z.string().min(5, "Telefono non valido"),
-    wedding_location: z.string().optional(),
-    locale: z.string().default("it"),
-    package_id: z.string().optional(),
-    is_custom: z.boolean().default(false),
-    quote_id: z.string().optional(),
-    quote_snapshot: z.any().optional(),
-    additional_requests: z.string().optional(),
-    gdpr_accepted_at: z.string().optional(),
-});
-
-export type Lead = z.infer<typeof LeadSchema>;

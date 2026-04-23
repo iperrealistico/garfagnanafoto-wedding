@@ -5,6 +5,7 @@ import "@fortawesome/fontawesome-svg-core/styles.css";
 config.autoAddCss = false;
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://wedding.garfagnanafoto.it"),
   title: "Garfagnanafoto Wedding | Fotografia e Video Matrimoniale d'Eccellenza",
   description: "Servizi di alta qualità per il tuo giorno speciale in Garfagnana e Toscana. Preventivi immediati e pacchetti personalizzati.",
 };

@@ -1,4 +1,4 @@
-import { Lead, LeadPayload, LeadPayloadSchema, LeadSchema } from "./config-schema";
+import { LeadPayload, LeadPayloadSchema } from "./config-schema";
 
 type SearchParamsLike = Pick<URLSearchParams, "get">;
 
@@ -7,35 +7,10 @@ const toOptional = (value?: string | null) => {
     return trimmed ? trimmed : undefined;
 };
 
-export function toLeadPayload(data?: Partial<Lead> | Partial<LeadPayload>): Partial<LeadPayload> {
-    if (!data) return {};
-
-    const input = data as Partial<Lead> & Partial<LeadPayload>;
-
-    return {
-        firstName: input.firstName ?? input.first_name,
-        lastName: input.lastName ?? input.last_name,
-        email: input.email,
-        phone: input.phone,
-        weddingLocation: input.weddingLocation ?? input.wedding_location,
-    };
-}
-
 export function parseLeadPayload(payload: Partial<LeadPayload>): LeadPayload {
     return LeadPayloadSchema.parse({
         ...payload,
         weddingLocation: payload.weddingLocation ?? "",
-    });
-}
-
-export function toLeadRecord(payload: LeadPayload, meta?: Partial<Lead>): Lead {
-    return LeadSchema.parse({
-        ...meta,
-        first_name: payload.firstName,
-        last_name: payload.lastName,
-        email: payload.email,
-        phone: payload.phone,
-        wedding_location: payload.weddingLocation || "",
     });
 }
 

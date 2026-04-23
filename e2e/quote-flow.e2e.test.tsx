@@ -90,7 +90,6 @@ function ActionHarness({ action }: { action: DocumentAction }) {
             quoteSnapshot={{ packageId: "pkg_photo_only", totalNet: 1100 }}
             gdprNotice="GDPR"
             lang="it"
-            initialLeadData={{ package_id: "pkg_photo_only" }}
         >
             {({ handleAction }) => (
                 <button

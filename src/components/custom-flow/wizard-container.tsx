@@ -6,15 +6,9 @@ import { calculateCustomQuote, CustomAnswers } from "@/lib/pricing-engine";
 import { StepQuestion } from "./step-question";
 import { StepSummary } from "./step-summary";
 import { StepAdditionalRequests } from "./step-additional-requests";
-import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLock } from "@fortawesome/free-solid-svg-icons";
 import { getLocalized } from "@/lib/i18n-utils";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { LeadGate } from "../public/lead-gate";
 
 type FlowStep = 'questions' | 'requests' | 'summary';
@@ -24,65 +18,7 @@ interface WizardContainerProps {
     lang?: string;
 }
 
-function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
-    const [password, setPassword] = useState("");
-    const [error, setError] = useState(false);
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        // Use the same admin login action
-        const res = await fetch("/api/admin/custom-auth", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password }),
-        });
-        if (res.ok) {
-            onUnlock();
-        } else {
-            setError(true);
-        }
-    };
-
-    return (
-        <Card className="border-0 shadow-xl bg-white/95 backdrop-blur-sm overflow-hidden max-w-md mx-auto">
-            <CardContent className="p-8 md:p-10 space-y-6">
-                <div className="text-center space-y-3">
-                    <div className="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto">
-                        <FontAwesomeIcon icon={faLock} className="text-2xl" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Area Riservata</h2>
-                    <p className="text-sm text-gray-500 leading-relaxed">
-                        Il configuratore personalizzato è riservato al fotografo.<br />
-                        Inserisci la password admin per procedere.
-                    </p>
-                </div>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="custom-pw">Password</Label>
-                        <Input
-                            id="custom-pw"
-                            type="password"
-                            value={password}
-                            onChange={(e) => { setPassword(e.target.value); setError(false); }}
-                            placeholder="Password admin"
-                            autoFocus
-                        />
-                        {error && <p className="text-xs text-red-500">Password errata. Riprova.</p>}
-                    </div>
-                    <Button type="submit" className="w-full h-12">
-                        Accedi al configuratore
-                    </Button>
-                </form>
-                <p className="text-xs text-center text-gray-400">
-                    Se non conosci la password, scegli uno dei <Link href="/" className="text-[#719436] underline">pacchetti standard</Link>.
-                </p>
-            </CardContent>
-        </Card>
-    );
-}
-
 export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
-    const [isUnlocked, setIsUnlocked] = useState(false);
     const [flowStep, setFlowStep] = useState<FlowStep>('questions');
     const [currentStepIndex, setCurrentStepIndex] = useState(0);
     const [answers, setAnswers] = useState<CustomAnswers>({});
@@ -186,46 +122,19 @@ export function WizardContainer({ config, lang = 'it' }: WizardContainerProps) {
         pricing,
     }), [answers, additionalRequests, additionalAdjustments, pricing]);
 
-    const leadAdditionalRequests = useMemo(() => {
-        const adjustmentsLines = additionalAdjustments.map((item) => {
-            const signedAmount = `${item.priceDeltaNet < 0 ? "-" : "+"}€${Math.abs(item.priceDeltaNet)}`;
-            return `${item.title} (${signedAmount})${item.description ? ` - ${item.description}` : ""}`;
-        });
-
-        return [additionalRequests.trim(), ...adjustmentsLines]
-            .filter(Boolean)
-            .join("\n")
-            .trim();
-    }, [additionalRequests, additionalAdjustments]);
-
     const additionalAdjustmentsSettings = config.advancedSettings?.additionalAdjustments;
     const additionalAdjustmentsEnabled = additionalAdjustmentsSettings?.enabled ?? true;
 
     const gdprNotice = getLocalized(config.advancedSettings?.gdprNotice, lang) ||
         (lang === 'it'
-            ? "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta."
-            : "Your data will be used exclusively to contact you regarding this request.");
-
-    // Password gate
-    if (!isUnlocked) {
-        return (
-            <div className="max-w-2xl mx-auto">
-                <div className="mb-8 flex items-center justify-between px-4">
-                    <Link href="/" className="text-sm font-medium text-gray-400 hover:text-gray-900 transition-colors uppercase tracking-widest">
-                        &larr; {lang === 'it' ? 'Torna alla Home' : 'Back to Home'}
-                    </Link>
-                </div>
-                <PasswordGate onUnlock={() => setIsUnlocked(true)} />
-            </div>
-        );
-    }
+            ? "I dati inseriti vengono usati solo per personalizzare il preventivo nel tuo browser."
+            : "The details you enter are only used to personalize the quote in your browser.");
 
     return (
         <LeadGate
             quoteSnapshot={quoteSnapshot}
             gdprNotice={gdprNotice}
             lang={lang}
-            initialLeadData={{ is_custom: true, additional_requests: leadAdditionalRequests }}
         >
             {({ handleAction, leadData }) => {
                 const renderStep = () => {

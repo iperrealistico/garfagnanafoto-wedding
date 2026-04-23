@@ -1,4 +1,4 @@
-export function hashQuote(data: any): string {
+export function hashQuote(data: unknown): string {
     const s = JSON.stringify(data);
     let hash = 0;
     for (let i = 0; i < s.length; i++) {

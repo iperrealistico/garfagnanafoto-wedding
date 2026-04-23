@@ -156,8 +156,8 @@ export const DEFAULT_CONFIG: AppConfigInput = {
     },
     advancedSettings: {
         gdprNotice: {
-            it: "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta. Non verranno utilizzati per marketing né ceduti a terzi.",
-            en: "Your data will be used exclusively to contact you regarding this request. It will not be used for marketing or shared with third parties."
+            it: "I dati inseriti vengono usati solo per personalizzare il preventivo e il PDF nel tuo browser. Non vengono salvati su database o inviati automaticamente.",
+            en: "The details you enter are only used to personalize the quote and PDF in your browser. They are not stored in a database or sent automatically."
         },
         footerText: {
             it: "© 2026 — Garfagnanafoto.it",

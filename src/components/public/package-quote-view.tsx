@@ -21,8 +21,8 @@ interface PackageQuoteViewProps {
 export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQuoteViewProps) {
     const gdprNotice = getLocalized(config.advancedSettings?.gdprNotice, lang) ||
         (lang === 'it'
-            ? "I tuoi dati verranno utilizzati esclusivamente per ricontattarti in merito a questa richiesta."
-            : "Your data will be used exclusively to contact you regarding this request.");
+            ? "I dati inseriti vengono usati solo per personalizzare il preventivo nel tuo browser."
+            : "The details you enter are only used to personalize the quote in your browser.");
 
     const openQuoteAction = (action: "download" | "print", lead: LeadPayload) => {
         const href = resolveQuoteDocumentActionUrl(action, {
@@ -45,7 +45,6 @@ export function PackageQuoteView({ pkg, pricing, config, lang = "it" }: PackageQ
             quoteSnapshot={pricing}
             gdprNotice={gdprNotice}
             lang={lang}
-            initialLeadData={{ package_id: pkg.id }}
         >
             {({ handleAction, leadData }) => (
                 <>

@@ -1,17 +1,19 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getAppConfig } from "@/lib/config-server";
+import { getAppConfig } from "@/lib/app-config";
 import { PackageCard } from "@/components/public/package-card";
 import { Button } from "@/components/ui/button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faWandMagicSparkles, faCamera, faHeart, faStar } from "@fortawesome/free-solid-svg-icons";
+import { faWandMagicSparkles, faHeart, faStar } from "@fortawesome/free-solid-svg-icons";
 import { getLocalized } from "@/lib/i18n-utils";
 import { Gallery } from "@/components/public/gallery";
 import { ShareButton } from "@/components/public/share-button";
 
 import { Metadata } from "next";
 
-export const revalidate = 0;
+export function generateStaticParams() {
+  return [{ lang: "it" }, { lang: "en" }];
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ lang: string }> }): Promise<Metadata> {
   const { lang } = await params;

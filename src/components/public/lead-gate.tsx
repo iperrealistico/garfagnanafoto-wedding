@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { Lead, LeadPayload } from "../../lib/config-schema";
+import { LeadPayload } from "../../lib/config-schema";
 import { LeadModal } from "./lead-modal";
 import { hashQuote } from "../../lib/hash-utils";
 import { readLeadFromSession, writeLeadToSession } from "../../lib/lead-cache";
-import { toLeadPayload } from "../../lib/lead-payload";
 import { toast } from "sonner";
 
 interface LeadGateProps {
@@ -17,15 +16,13 @@ interface LeadGateProps {
     quoteSnapshot: unknown;
     gdprNotice: string;
     lang: string;
-    initialLeadData?: Partial<Lead>;
 }
 
 export function LeadGate({
     children,
     quoteSnapshot,
     gdprNotice,
-    lang,
-    initialLeadData
+    lang
 }: LeadGateProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [pendingCallback, setPendingCallback] = useState<((lead: LeadPayload) => void) | null>(null);
@@ -94,12 +91,7 @@ export function LeadGate({
                 onSuccess={handleSuccess}
                 gdprNotice={gdprNotice}
                 lang={lang}
-                leadMeta={{
-                    ...initialLeadData,
-                    quote_id: quoteId,
-                    quote_snapshot: quoteSnapshot
-                }}
-                initialPayload={toLeadPayload(leadState.data)}
+                initialPayload={leadState.data}
             />
         </>
     );

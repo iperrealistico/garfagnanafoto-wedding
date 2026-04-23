@@ -1,4 +1,4 @@
-import { AppConfig, AdditionalAdjustment, LineItem, LocalizedString } from "./config-schema";
+import { AppConfig, AdditionalAdjustment, LineItem, LocalizedString, Question } from "./config-schema";
 
 export type CustomAnswers = Record<string, boolean | string>;
 
@@ -62,7 +62,7 @@ export function calculateCustomQuote(
     const textAnswers: Record<string, string> = {};
     const processedQuestionIds = new Set<string>();
 
-    const processQuestion = (q: any) => {
+    const processQuestion = (q: Question) => {
         if (!q.enabled || processedQuestionIds.has(q.id)) return;
         processedQuestionIds.add(q.id);
 

@@ -1,4 +1,4 @@
-import { getAppConfig } from "@/lib/config-server";
+import { getAppConfig } from "@/lib/app-config";
 import { calculateFixedPackageQuote } from "@/lib/pricing-engine";
 import { PackageQuoteView } from "@/components/public/package-quote-view";
 import Link from "next/link";
@@ -52,4 +52,3 @@ export default async function QuotePage({
         </div>
     );
 }
-

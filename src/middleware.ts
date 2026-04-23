@@ -14,12 +14,7 @@ export function middleware(request: NextRequest) {
 
     if (pathnameHasLocale) return;
 
-    // Additional check: exclude API routes, static files, admin routes, quote routes (which might be shared or handled differently, but for now let's keep them out of locale prefix if they are special, OR include them if we want localized quotes)
-    // Actually, standard practice is everything localized.
-    // BUT: /admin, /quote/pdf, /api/og should probably be excluded or handled carefully.
-    // /quote/pdf is an API route effectively.
-    // /admin is internal.
-    // Let's exclude specific paths from locale redirect.
+    // Keep utility routes unlocalized.
     if (
         pathname.startsWith("/admin") ||
         pathname.startsWith("/api") ||
@@ -41,18 +36,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
-        // Skip all internal paths (_next)
-        // "/((?!_next).*)",
-        // Optional: only run on root and specific pages? No, usually exclude static.
-        /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - admin
-         * - quote/pdf
-         */
         "/((?!api|_next/static|_next/image|favicon.ico|admin|quote|custom).*)",
     ],
 };

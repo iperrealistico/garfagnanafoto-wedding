@@ -1,4 +1,4 @@
-import { getAppConfig } from "@/lib/config-server";
+import { getAppConfig } from "@/lib/app-config";
 import { WizardContainer } from "@/components/custom-flow/wizard-container";
 
 export default async function CustomPage() {

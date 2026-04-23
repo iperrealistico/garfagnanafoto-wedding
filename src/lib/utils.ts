@@ -4,7 +4,7 @@ import { twMerge } from "tailwind-merge"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-export function formatError(error: any): string {
+export function formatError(error: unknown): string {
   if (!error) return "An unknown error occurred";
 
   // If it's a string, check for HTML
@@ -16,11 +16,15 @@ export function formatError(error: any): string {
   }
 
   // If it's an object with a message
-  if (error.message) {
-    if (typeof error.message === 'string' && (error.message.includes("<!DOCTYPE html>") || error.message.includes("<html"))) {
+  if (typeof error === "object" && error !== null && "message" in error) {
+    const message = error.message;
+
+    if (typeof message === 'string' && (message.includes("<!DOCTYPE html>") || message.includes("<html"))) {
       return "Server responded with an HTML page instead of data. Check server logs.";
     }
-    return error.message;
+    if (typeof message === "string") {
+      return message;
+    }
   }
 
   return "An unexpected error occurred";

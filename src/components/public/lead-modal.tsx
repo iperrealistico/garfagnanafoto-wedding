@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { LeadForm } from "./lead-form";
-import { Lead, LeadPayload } from "../../lib/config-schema";
+import { LeadPayload } from "../../lib/config-schema";
 import { Button } from "../ui/button";
 import { X } from "lucide-react";
 
@@ -13,12 +13,11 @@ interface LeadModalProps {
     onSuccess: (data: LeadPayload) => void;
     gdprNotice: string;
     lang: string;
-    leadMeta?: Partial<Lead>;
     initialPayload?: Partial<LeadPayload>;
     title?: string;
 }
 
-export function LeadModal({ isOpen, onClose, onSuccess, gdprNotice, lang, leadMeta, initialPayload, title }: LeadModalProps) {
+export function LeadModal({ isOpen, onClose, onSuccess, gdprNotice, lang, initialPayload, title }: LeadModalProps) {
     useEffect(() => {
         if (!isOpen) return;
 
@@ -74,7 +73,6 @@ export function LeadModal({ isOpen, onClose, onSuccess, gdprNotice, lang, leadMe
                                 onSubmitSuccess={onSuccess}
                                 gdprNotice={gdprNotice}
                                 lang={lang}
-                                leadMeta={leadMeta}
                                 initialPayload={initialPayload}
                                 submitLabel={lang === 'it' ? 'Conferma e Genera' : 'Confirm and Generate'}
                             />

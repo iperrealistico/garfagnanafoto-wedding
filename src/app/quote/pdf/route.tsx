@@ -1,4 +1,4 @@
-import { getAppConfig } from "@/lib/config-server";
+import { getAppConfig } from "@/lib/app-config";
 import { calculateFixedPackageQuote, calculateCustomQuote } from "@/lib/pricing-engine";
 import { NextResponse } from "next/server";
 import { parseCustomParams } from "@/lib/url-params";
