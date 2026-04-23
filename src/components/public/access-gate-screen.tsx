@@ -132,11 +132,8 @@ export function AccessGateScreen({
                                         <h1 className="text-2xl font-semibold text-white sm:text-3xl">
                                             {brandTitle}
                                         </h1>
-                                        <h2 className="mx-auto max-w-xl text-3xl font-semibold leading-[1.04] text-white sm:text-4xl">
-                                            Sblocca il listino wedding con una password privata.
-                                        </h2>
                                         <p className="mx-auto max-w-xl text-base leading-7 text-white/68">
-                                            Un accesso semplice, discreto e riservato: chi riceve il link dal fotografo puo vedere prezzi e preventivi in un ambiente dedicato.
+                                            Sblocca il listino wedding con una password privata.
                                         </p>
                                     </div>
                                 </div>
