@@ -39,18 +39,18 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
                     <PriceDisplay priceNet={totalNet} vatRate={vatRate} large />
                 </div>
             </CardHeader>
-            <CardContent className="flex-1">
-                <p className="text-sm text-gray-600 mb-4 h-12">{getLocalized(pkg.description, lang)}</p>
-                <ul className="space-y-2">
+            <CardContent className="flex flex-1 flex-col gap-6">
+                <p className="text-sm leading-relaxed text-gray-600">{getLocalized(pkg.description, lang)}</p>
+                <ul className="space-y-3">
                     {bulletLabels.map((item) => (
                         <li key={item.id} className="flex items-start text-sm text-gray-700">
-                            <FontAwesomeIcon icon={faCheck} className="text-green-600 mt-1 mr-2 w-4 h-4" />
+                            <FontAwesomeIcon icon={faCheck} className="text-green-600 mt-1 mr-2 h-4 w-4 shrink-0" />
                             <span>{getLocalized(item.label, lang)}</span>
                         </li>
                     ))}
                     {hasDiscount && (
                         <li className="flex items-start text-sm text-red-600 font-semibold">
-                            <FontAwesomeIcon icon={faCheck} className="text-red-500 mt-1 mr-2 w-4 h-4" />
+                            <FontAwesomeIcon icon={faCheck} className="text-red-500 mt-1 mr-2 h-4 w-4 shrink-0" />
                             <span>{lang === 'en' ? 'Package discount included' : 'Sconto sul pacchetto'}</span>
                         </li>
                     )}
