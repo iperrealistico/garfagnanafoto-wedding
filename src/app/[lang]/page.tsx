@@ -142,6 +142,12 @@ export default async function Home({
             />
           ))}
         </div>
+
+        <div className="mt-8 rounded-[1.75rem] border border-[#719436]/15 bg-[#f7f9f1] px-5 py-5 text-sm leading-6 text-gray-600 shadow-sm sm:px-6">
+          <p>
+            Richieste extra, personalizzazioni particolari o location distanti dalla nostra sede vengono valutate caso per caso e possono influenzare il preventivo finale. Eventuali riduzioni sono previste solo quando la copertura richiesta corrisponde realmente a una mezza giornata.
+          </p>
+        </div>
       </section>
 
       <footer className="bg-gray-50 border-t py-12 mt-20">

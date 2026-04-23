@@ -21,6 +21,7 @@ export const PackageSchema = z.object({
     name: LocalizedStringSchema,
     tagline: LocalizedStringSchema.optional(),
     description: LocalizedStringSchema.optional(),
+    highlights: z.array(LocalizedStringSchema).optional().default([]),
     lineItems: z.array(LineItemSchema),
     packageAdjustmentNet: z.number().default(0),
 });

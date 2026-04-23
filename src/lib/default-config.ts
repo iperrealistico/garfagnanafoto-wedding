@@ -31,6 +31,12 @@ export const DEFAULT_CONFIG: AppConfigInput = {
             name: { it: "Solo Video", en: "Video Only" },
             tagline: { it: "Il film del vostro giorno", en: "The film of your day" },
             description: { it: "Riprese video complete con montaggio cinematografico.", en: "Full wedding video coverage with cinematic editing." },
+            highlights: [
+                { it: "Videomaker", en: "Videomaker" },
+                { it: "Montaggio", en: "Editing" },
+                { it: "Durata circa 10 minuti", en: "Approx. 10 minute duration" },
+                { it: "Incluso drone da operatore abilitato", en: "Drone footage included by licensed operator" },
+            ],
             lineItems: [
                 { id: "video_full_day", label: { it: "Videomaker + montaggio", en: "Videomaker + editing" }, priceNet: 1200, icon: "video" },
             ],

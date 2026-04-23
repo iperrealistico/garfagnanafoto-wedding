@@ -21,6 +21,9 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
     const subtotal = pkg.lineItems.reduce((sum, item) => sum + item.priceNet, 0);
     const totalNet = Math.max(0, subtotal + pkg.packageAdjustmentNet);
     const hasDiscount = pkg.packageAdjustmentNet < 0;
+    const bulletLabels = pkg.highlights && pkg.highlights.length > 0
+        ? pkg.highlights.map((item, index) => ({ id: `${pkg.id}_highlight_${index}`, label: item }))
+        : pkg.lineItems.map((item) => ({ id: item.id, label: item.label }));
 
     return (
         <Card className={cn("flex flex-col h-full relative overflow-visible", isPopular && "border-black shadow-lg")}>
@@ -39,7 +42,7 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
             <CardContent className="flex-1">
                 <p className="text-sm text-gray-600 mb-4 h-12">{getLocalized(pkg.description, lang)}</p>
                 <ul className="space-y-2">
-                    {pkg.lineItems.map((item) => (
+                    {bulletLabels.map((item) => (
                         <li key={item.id} className="flex items-start text-sm text-gray-700">
                             <FontAwesomeIcon icon={faCheck} className="text-green-600 mt-1 mr-2 w-4 h-4" />
                             <span>{getLocalized(item.label, lang)}</span>

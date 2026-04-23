@@ -99,84 +99,46 @@ export function AccessGateScreen({
                 transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-4 py-8 sm:px-6 lg:px-8">
+            <div className="relative z-10 mx-auto flex min-h-screen max-w-4xl items-center justify-center px-4 py-8 sm:px-6 lg:px-8">
                 <motion.div
                     initial={{ opacity: 0, y: 24, scale: 0.98 }}
                     animate={isUnlocked ? { opacity: 0.84, y: -8, scale: 0.985 } : { opacity: 1, y: 0, scale: 1 }}
                     transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] shadow-[0_28px_110px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
+                    className="w-full max-w-2xl overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.035] shadow-[0_28px_110px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
                 >
-                    <div className="grid gap-10 px-6 py-6 sm:px-8 sm:py-8 lg:grid-cols-[1.1fr_0.82fr] lg:gap-8">
-                        <div className="flex flex-col justify-between gap-10">
-                            <div className="space-y-8">
-                                <div className="flex items-center gap-4">
-                                    <div className="relative h-14 w-14 overflow-hidden rounded-2xl border border-white/10 bg-white/95 p-2 shadow-sm">
-                                        <Image src={logoSrc} alt={brandTitle} fill className="object-contain p-2" />
-                                    </div>
-                                    <div>
-                                        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/58">
-                                            Area privata
-                                        </p>
-                                        <h1 className="text-xl font-semibold text-white sm:text-2xl">
-                                            {brandTitle}
-                                        </h1>
-                                    </div>
+                    <div className="px-6 py-6 sm:px-8 sm:py-8">
+                        <motion.div
+                            initial={{ opacity: 0, y: 18 }}
+                            animate={isUnlocked ? { opacity: 0.78, y: -4, scale: 0.985 } : { opacity: 1, y: 0, scale: 1 }}
+                            transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
+                            className="rounded-[1.8rem] border border-white/10 bg-[#07111d]/88 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-7"
+                        >
+                            <div className="flex flex-col items-center text-center">
+                                <div className="relative mb-5 h-16 w-16 overflow-hidden rounded-2xl border border-white/10 bg-white/95 p-2 shadow-sm">
+                                    <Image src={logoSrc} alt={brandTitle} fill className="object-contain p-2" />
                                 </div>
-
-                                <div className="space-y-4">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#9bc35a]/20 bg-[#9bc35a]/12 text-[#b7dd78]">
+                                    <ShieldCheck className="h-5 w-5" />
+                                </div>
+                                <div className="mt-5 space-y-4">
                                     <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/80">
                                         <Sparkles className="h-3.5 w-3.5 text-[#9bc35a]" />
                                         Accesso riservato ai clienti
                                     </div>
-                                    <div className="space-y-4">
-                                        <h2 className="max-w-xl text-4xl font-semibold leading-[1.02] text-white sm:text-5xl">
+                                    <div className="space-y-3">
+                                        <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-white/58">
+                                            Area privata
+                                        </p>
+                                        <h1 className="text-2xl font-semibold text-white sm:text-3xl">
+                                            {brandTitle}
+                                        </h1>
+                                        <h2 className="mx-auto max-w-xl text-3xl font-semibold leading-[1.04] text-white sm:text-4xl">
                                             Sblocca il listino wedding con una password privata.
                                         </h2>
-                                        <p className="max-w-lg text-base leading-7 text-white/68">
-                                            Un accesso semplice, discreto e riservato: chi riceve il link dal
-                                            fotografo puo vedere prezzi e preventivi in un ambiente dedicato.
+                                        <p className="mx-auto max-w-xl text-base leading-7 text-white/68">
+                                            Un accesso semplice, discreto e riservato: chi riceve il link dal fotografo puo vedere prezzi e preventivi in un ambiente dedicato.
                                         </p>
                                     </div>
-                                </div>
-                            </div>
-
-                            <div className="grid gap-3 sm:grid-cols-2">
-                                <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.035] p-4">
-                                    <p className="text-[11px] uppercase tracking-[0.24em] text-white/45">
-                                        Esperienza
-                                    </p>
-                                    <p className="mt-3 text-sm leading-6 text-white/76">
-                                        Interfaccia privata e minimal, pensata per mostrare solo cio che serve.
-                                    </p>
-                                </div>
-                                <div className="rounded-[1.4rem] border border-white/10 bg-white/[0.035] p-4">
-                                    <p className="text-[11px] uppercase tracking-[0.24em] text-white/45">
-                                        Accesso
-                                    </p>
-                                    <p className="mt-3 text-sm leading-6 text-white/76">
-                                        Nessun database, nessuna area pubblica aperta, solo un gate rapido lato server.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <motion.div
-                            initial={{ opacity: 0, x: 18 }}
-                            animate={isUnlocked ? { opacity: 0.78, x: 0, scale: 0.985 } : { opacity: 1, x: 0, scale: 1 }}
-                            transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
-                            className="rounded-[1.8rem] border border-white/10 bg-[#07111d]/88 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] sm:p-6"
-                        >
-                            <div className="flex items-center gap-3">
-                                <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-[#9bc35a]/20 bg-[#9bc35a]/12 text-[#b7dd78]">
-                                    <ShieldCheck className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="text-[11px] font-semibold uppercase tracking-[0.26em] text-white/42">
-                                        Private gate
-                                    </p>
-                                    <p className="mt-1 text-sm text-white/72">
-                                        Inserisci la password ricevuta per continuare.
-                                    </p>
                                 </div>
                             </div>
 
@@ -184,7 +146,7 @@ export function AccessGateScreen({
                                 onSubmit={handleSubmit}
                                 animate={errorMessage ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
                                 transition={{ duration: 0.28 }}
-                                className="mt-8 space-y-5"
+                                className="mx-auto mt-8 max-w-xl space-y-5"
                             >
                                 <label className="block space-y-2.5">
                                     <span className="text-sm font-medium tracking-[0.02em] text-white">
@@ -232,11 +194,6 @@ export function AccessGateScreen({
                                     <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                                 </Button>
                             </motion.form>
-
-                            <div className="mt-8 flex items-center justify-between gap-4 border-t border-white/10 pt-4 text-[11px] uppercase tracking-[0.22em] text-white/44">
-                                <span>wedding.garfagnanafoto.it</span>
-                                <span>Solo su invito</span>
-                            </div>
                         </motion.div>
                     </div>
                 </motion.div>
