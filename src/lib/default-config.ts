@@ -7,10 +7,20 @@ export const DEFAULT_CONFIG: AppConfigInput = {
             id: "pkg_photo_only",
             name: { it: "One", en: "One" },
             tagline: { it: "L'essenziale per il tuo matrimonio", en: "The essentials for your wedding" },
-            description: { it: "Servizio fotografico completo con fotolibro.", en: "Full photographic service including photobook." },
+            description: {
+                it: "Reportage fotografico completo per l'intera giornata, con due fotografi, selezione accurata degli scatti, editing professionale finale e fotolibro incluso.",
+                en: "Complete full-day wedding photography coverage with two photographers, curated image selection, professional final editing, and a photobook included."
+            },
+            highlights: [
+                { it: "Due fotografi", en: "Two photographers" },
+                { it: "Copertura intera 11:00 - 24:00", en: "Full-day coverage 11:00am - 12:00am" },
+                { it: "Selezione delle foto", en: "Photo selection" },
+                { it: "Editing professionale", en: "Professional editing" },
+                { it: "Fotolibro incluso", en: "Photobook included" },
+            ],
             lineItems: [
-                { id: "photo_full_day", label: { it: "Fotografo giornata intera (11:00 - 24:00)", en: "Full day photographer (11am - 12pm)" }, priceNet: 900, icon: "camera" },
-                { id: "photo_edit", label: { it: "Selezione ed elaborazione foto", en: "Photo selection and editing" }, priceNet: 200, icon: "sliders" },
+                { id: "photo_full_day", label: { it: "Due fotografi giornata intera (11:00 - 24:00)", en: "Two photographers full day (11:00am - 12:00am)" }, priceNet: 900, icon: "camera" },
+                { id: "photo_edit", label: { it: "Selezione delle foto ed editing professionale", en: "Photo selection and professional editing" }, priceNet: 200, icon: "sliders" },
             ],
             packageAdjustmentNet: 0,
         },
@@ -18,11 +28,21 @@ export const DEFAULT_CONFIG: AppConfigInput = {
             id: "pkg_photo_video",
             name: { it: "Duo", en: "Duo" },
             tagline: { it: "La copertura completa", en: "Complete coverage" },
-            description: { it: "Foto e Video per non perdere nessun momento.", en: "Photo and Video to capture every moment." },
+            description: {
+                it: "Copertura completa foto e video dell'intera giornata, con due fotografi, videomaker, selezione ed editing professionale delle immagini e fotolibro con stampa Professional Line di una selezione di foto.",
+                en: "Complete full-day photo and video coverage with two photographers, a videomaker, professional image selection and editing, plus a photobook with Professional Line print of selected images."
+            },
+            highlights: [
+                { it: "Due fotografi", en: "Two photographers" },
+                { it: "Copertura intera 11:00 - 24:00", en: "Full-day coverage 11:00am - 12:00am" },
+                { it: "Selezione delle foto ed editing professionale", en: "Photo selection and professional editing" },
+                { it: "Videomaker + montaggio", en: "Videomaker + editing" },
+                { it: "Fotolibro con stampa Professional Line di una selezione di foto", en: "Photobook with Professional Line print of selected images" },
+            ],
             lineItems: [
-                { id: "photo_full_day", label: { it: "Fotografo giornata intera (11:00 - 24:00)", en: "Full day photographer (11am - 12pm)" }, priceNet: 900, icon: "camera" },
-                { id: "photo_edit", label: { it: "Selezione ed elaborazione foto", en: "Photo selection and editing" }, priceNet: 200, icon: "sliders" },
-                { id: "video_full_day", label: { it: "Videomaker + montaggio", en: "Videomaker + editing" }, priceNet: 1200, icon: "video" },
+                { id: "photo_full_day", label: { it: "Due fotografi giornata intera (11:00 - 24:00)", en: "Two photographers full day (11:00am - 12:00am)" }, priceNet: 900, icon: "camera" },
+                { id: "photo_edit", label: { it: "Selezione delle foto ed editing professionale", en: "Photo selection and professional editing" }, priceNet: 200, icon: "sliders" },
+                { id: "video_full_day", label: { it: "Videomaker giornata intera (11:00 - 24:00) + montaggio", en: "Full-day videomaker (11:00am - 12:00am) + editing" }, priceNet: 1200, icon: "video" },
             ],
             packageAdjustmentNet: -100,
         },
@@ -30,15 +50,19 @@ export const DEFAULT_CONFIG: AppConfigInput = {
             id: "pkg_video_only",
             name: { it: "Solo Video", en: "Video Only" },
             tagline: { it: "Il film del vostro giorno", en: "The film of your day" },
-            description: { it: "Riprese video complete con montaggio cinematografico.", en: "Full wedding video coverage with cinematic editing." },
+            description: {
+                it: "Servizio video completo per l'intera giornata, con videomaker dedicato, montaggio cinematografico, film finale di circa 10 minuti e riprese drone incluse con operatore abilitato.",
+                en: "Complete full-day wedding video coverage with a dedicated videomaker, cinematic editing, an approximately 10-minute final film, and drone footage by a licensed operator."
+            },
             highlights: [
                 { it: "Videomaker", en: "Videomaker" },
                 { it: "Montaggio", en: "Editing" },
+                { it: "Copertura intera 11:00 - 24:00", en: "Full-day coverage 11:00am - 12:00am" },
                 { it: "Durata circa 10 minuti", en: "Approx. 10 minute duration" },
                 { it: "Incluso drone da operatore abilitato", en: "Drone footage included by licensed operator" },
             ],
             lineItems: [
-                { id: "video_full_day", label: { it: "Videomaker + montaggio", en: "Videomaker + editing" }, priceNet: 1200, icon: "video" },
+                { id: "video_full_day", label: { it: "Videomaker giornata intera (11:00 - 24:00) + montaggio", en: "Full-day videomaker (11:00am - 12:00am) + editing" }, priceNet: 1200, icon: "video" },
             ],
             packageAdjustmentNet: 0,
         },

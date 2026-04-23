@@ -85,6 +85,37 @@ const styles = StyleSheet.create({
         marginBottom: 20,
         lineHeight: 1.5,
     },
+    highlightsBox: {
+        backgroundColor: "#f8faf7",
+        borderWidth: 1,
+        borderColor: "#e4ebd7",
+        borderRadius: 8,
+        padding: 12,
+        marginBottom: 18,
+    },
+    highlightsTitle: {
+        fontSize: 8,
+        color: "#7b8a60",
+        textTransform: "uppercase",
+        fontWeight: "bold",
+        marginBottom: 8,
+    },
+    highlightRow: {
+        flexDirection: "row",
+        alignItems: "flex-start",
+        marginBottom: 5,
+    },
+    highlightBullet: {
+        width: 10,
+        color: "#719436",
+        fontWeight: "bold",
+    },
+    highlightText: {
+        flex: 1,
+        fontSize: 9,
+        color: "#374151",
+        lineHeight: 1.45,
+    },
     tableHeader: {
         flexDirection: "row",
         borderBottomWidth: 1,
@@ -153,6 +184,7 @@ interface QuoteDocumentProps {
     pricing: PricingResult;
     pkgName: string;
     pkgDescription?: string;
+    pkgHighlights?: string[];
     date: string;
     generatedAt: string;
     leadData?: Partial<LeadPayload>;
@@ -164,6 +196,7 @@ export const QuoteDocument = ({
     pricing,
     pkgName,
     pkgDescription,
+    pkgHighlights = [],
     date,
     generatedAt,
     leadData,
@@ -177,6 +210,7 @@ export const QuoteDocument = ({
     const adjustmentLabel = lang === "it" ? "Sconto/Adeguamento" : "Discount/Adjustment";
     const packageDiscountLabel = lang === "it" ? "Sconto sul pacchetto" : "Package discount";
     const includedLabel = lang === "it" ? "Incluso" : "Included";
+    const highlightsLabel = lang === "it" ? "Cosa include" : "What's included";
     const hasHiddenPackageDiscount = pricing.packageAdjustmentNet < 0;
 
     return (
@@ -221,6 +255,17 @@ export const QuoteDocument = ({
                 {/* Package Info */}
                 <Text style={styles.sectionTitle}>{pkgName}</Text>
                 {pkgDescription && <Text style={styles.pkgDesc}>{pkgDescription}</Text>}
+                {pkgHighlights.length > 0 && (
+                    <View style={styles.highlightsBox}>
+                        <Text style={styles.highlightsTitle}>{highlightsLabel}</Text>
+                        {pkgHighlights.map((item, index) => (
+                            <View key={`${item}_${index}`} style={styles.highlightRow}>
+                                <Text style={styles.highlightBullet}>•</Text>
+                                <Text style={styles.highlightText}>{item}</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
 
                 {/* Line Items */}
                 <View style={styles.tableHeader}>

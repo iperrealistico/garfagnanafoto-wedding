@@ -34,6 +34,7 @@ export async function GET(request: Request) {
         const pkg = config.packages.find((item) => item.id === packageId);
         const pkgName = pkg ? getLocalized(pkg.name, lang) : "Preventivo";
         const pkgDescription = pkg ? getLocalized(pkg.description, lang) || "" : "";
+        const pkgHighlights = pkg?.highlights?.map((item) => getLocalized(item, lang)).filter(Boolean) || [];
 
         if (!pricing) {
             return new NextResponse("Quote not found (missing packageId)", { status: 404 });
@@ -49,6 +50,7 @@ export async function GET(request: Request) {
                 pricing={pricing}
                 pkgName={pkgName}
                 pkgDescription={pkgDescription}
+                pkgHighlights={pkgHighlights}
                 date={date}
                 generatedAt={generatedAt}
                 leadData={leadPayload}
