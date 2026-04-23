@@ -21,7 +21,6 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
     const subtotal = pkg.lineItems.reduce((sum, item) => sum + item.priceNet, 0);
     const totalNet = Math.max(0, subtotal + pkg.packageAdjustmentNet);
     const hasDiscount = pkg.packageAdjustmentNet < 0;
-    const discountAmount = Math.abs(pkg.packageAdjustmentNet);
 
     return (
         <Card className={cn("flex flex-col h-full relative overflow-visible", isPopular && "border-black shadow-lg")}>
@@ -49,7 +48,7 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
                     {hasDiscount && (
                         <li className="flex items-start text-sm text-red-600 font-semibold">
                             <FontAwesomeIcon icon={faCheck} className="text-red-500 mt-1 mr-2 w-4 h-4" />
-                            <span>{lang === 'en' ? 'Package discount' : 'Sconto pacchetto'} -{discountAmount}€</span>
+                            <span>{lang === 'en' ? 'Package discount included' : 'Sconto sul pacchetto'}</span>
                         </li>
                     )}
                 </ul>
@@ -62,4 +61,3 @@ export function PackageCard({ pkg, vatRate, href, isPopular, lang = "it" }: Pack
         </Card>
     );
 }
-

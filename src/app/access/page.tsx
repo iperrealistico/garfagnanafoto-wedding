@@ -17,7 +17,6 @@ export default async function AccessPage({
             protectionEnabled={isAccessProtectionEnabled()}
             brandTitle={getLocalized(config.header?.title, "it") || "Garfagnanafoto.it"}
             logoSrc={config.header?.logo?.src || "/images/logo.png"}
-            heroImage={config.images?.hero || "/images/garfagnana-foto-wedding-11.jpg"}
         />
     );
 }

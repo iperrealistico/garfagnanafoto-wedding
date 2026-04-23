@@ -174,6 +174,10 @@ export const QuoteDocument = ({
     const formatSignedCurrency = (value: number) =>
         `${value < 0 ? "-" : "+"}${formatCurrency(value)}`;
     const discountLabel = lang === "it" ? "Sconto" : "Discount";
+    const adjustmentLabel = lang === "it" ? "Sconto/Adeguamento" : "Discount/Adjustment";
+    const packageDiscountLabel = lang === "it" ? "Sconto sul pacchetto" : "Package discount";
+    const includedLabel = lang === "it" ? "Incluso" : "Included";
+    const hasHiddenPackageDiscount = pricing.packageAdjustmentNet < 0;
 
     return (
         <Document>
@@ -249,9 +253,11 @@ export const QuoteDocument = ({
 
                     {pricing.packageAdjustmentNet !== 0 && (
                         <View style={styles.summaryRow}>
-                            <Text style={{ color: "#719436", fontStyle: "italic" }}>Sconto/Adeguamento</Text>
-                            <Text style={{ color: pricing.packageAdjustmentNet < 0 ? "#b91c1c" : "#719436" }}>
-                                {formatSignedCurrency(pricing.packageAdjustmentNet)}
+                            <Text style={{ color: hasHiddenPackageDiscount ? "#719436" : "#b91c1c", fontStyle: "italic" }}>
+                                {hasHiddenPackageDiscount ? packageDiscountLabel : adjustmentLabel}
+                            </Text>
+                            <Text style={{ color: hasHiddenPackageDiscount ? "#719436" : "#b91c1c" }}>
+                                {hasHiddenPackageDiscount ? includedLabel : formatSignedCurrency(pricing.packageAdjustmentNet)}
                             </Text>
                         </View>
                     )}

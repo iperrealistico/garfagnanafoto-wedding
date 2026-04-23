@@ -19,10 +19,13 @@ export function QuoteSummary({
     const formatCurrency = (value: number) => `€${Math.abs(value).toLocaleString("it-IT")}`;
     const formatSignedCurrency = (value: number) => `${value < 0 ? "-" : "+"}${formatCurrency(value)}`;
     const isDiscount = (value: number) => value < 0;
+    const hasHiddenPackageDiscount = pricing.packageAdjustmentNet < 0;
 
     const labels = {
         subtotal: lang === 'it' ? 'Imponibile' : 'Subtotal',
         adjustment: lang === 'it' ? 'Sconto/Adeguamento' : 'Discount/Adjustment',
+        packageDiscount: lang === 'it' ? 'Sconto sul pacchetto' : 'Package discount',
+        included: lang === 'it' ? 'Incluso' : 'Included',
         discount: lang === 'it' ? 'Sconto' : 'Discount',
         totalNet: lang === 'it' ? 'Totale Netto' : 'Total Net',
         vat: lang === 'it' ? 'IVA' : 'VAT',
@@ -79,9 +82,9 @@ export function QuoteSummary({
                         <span>{formatCurrency(pricing.subtotalNet)}</span>
                     </div>
                     {pricing.packageAdjustmentNet !== 0 && (
-                        <div className="flex justify-between text-sm text-red-600 font-medium italic">
-                            <span>{labels.adjustment}</span>
-                            <span>{formatSignedCurrency(pricing.packageAdjustmentNet)}</span>
+                        <div className={`flex justify-between text-sm font-medium italic ${hasHiddenPackageDiscount ? "text-[#719436]" : "text-red-600"}`}>
+                            <span>{hasHiddenPackageDiscount ? labels.packageDiscount : labels.adjustment}</span>
+                            <span>{hasHiddenPackageDiscount ? labels.included : formatSignedCurrency(pricing.packageAdjustmentNet)}</span>
                         </div>
                     )}
                 </div>
