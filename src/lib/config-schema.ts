@@ -16,13 +16,6 @@ export const LineItemSchema = z.object({
     priceNet: z.number(),
 });
 
-export const AdditionalAdjustmentSchema = z.object({
-    id: z.string(),
-    title: z.string().trim().min(1, "Titolo obbligatorio"),
-    description: z.string().optional(),
-    priceDeltaNet: z.number(),
-});
-
 export const PackageSchema = z.object({
     id: z.string(),
     name: LocalizedStringSchema,
@@ -30,40 +23,6 @@ export const PackageSchema = z.object({
     description: LocalizedStringSchema.optional(),
     lineItems: z.array(LineItemSchema),
     packageAdjustmentNet: z.number().default(0),
-});
-
-export const QuestionEffectSchema = z.object({
-    addLineItems: z.array(LineItemSchema).optional(),
-    priceDeltaNet: z.number().default(0),
-    notes: z.object({
-        triggersAdditionalRequestsBox: z.boolean().optional(),
-    }).optional(),
-});
-
-export const QuestionTypeSchema = z.enum(["yes_no", "text"]);
-
-export const QuestionSchema = z.object({
-    id: z.string(),
-    enabled: z.boolean().default(true),
-    order: z.number().default(0),
-    parentId: z.string().optional(),
-    showWhen: z.enum(["always", "yes", "no"]).default("always"),
-    type: QuestionTypeSchema.default("yes_no"),
-    questionText: LocalizedStringSchema,
-    yesLabel: LocalizedStringSchema.default({ it: "Sì", en: "Yes" }),
-    noLabel: LocalizedStringSchema.default({ it: "No", en: "No" }),
-    required: z.boolean().default(false),
-    placeholder: LocalizedStringSchema.optional(),
-    requiredConditions: z.object({
-        requiresVideo: z.boolean().optional(),
-    }).optional(),
-    effectsYes: QuestionEffectSchema.optional(),
-    effectsNo: QuestionEffectSchema.optional(),
-});
-
-export const CustomFlowSchema = z.object({
-    baseLineItems: z.array(LineItemSchema),
-    questions: z.array(QuestionSchema),
 });
 
 export const GalleryImageSchema = z.object({
@@ -103,7 +62,6 @@ export const GlobalCopySchema = z.object({
 export const AppConfigSchema = z.object({
     vatRate: z.number().default(0.22),
     packages: z.array(PackageSchema),
-    customFlow: CustomFlowSchema,
     legalCopy: z.object({
         deliveryTime: LocalizedStringSchema,
         paymentTerms: LocalizedStringSchema,
@@ -140,45 +98,12 @@ export const AppConfigSchema = z.object({
             it: "© 2026 — Garfagnanafoto.it",
             en: "© 2026 — Garfagnanafoto.it"
         }),
-        additionalAdjustments: z.object({
-            enabled: z.boolean().default(true),
-            sectionTitle: LocalizedStringSchema.default({
-                it: "Voci aggiuntive",
-                en: "Additional items",
-            }),
-            addButtonLabel: LocalizedStringSchema.default({
-                it: "Aggiungi voce",
-                en: "Add item",
-            }),
-            amountLabel: LocalizedStringSchema.default({
-                it: "Importo (IVA esclusa)",
-                en: "Amount (VAT excluded)",
-            }),
-            amountHint: LocalizedStringSchema.default({
-                it: "Usa un valore negativo per uno sconto.",
-                en: "Use a negative value for a discount.",
-            }),
-            legacyNotesLabel: LocalizedStringSchema.default({
-                it: "Note legacy (opzionale)",
-                en: "Legacy notes (optional)",
-            }),
-        }).default({
-            enabled: true,
-            sectionTitle: { it: "Voci aggiuntive", en: "Additional items" },
-            addButtonLabel: { it: "Aggiungi voce", en: "Add item" },
-            amountLabel: { it: "Importo (IVA esclusa)", en: "Amount (VAT excluded)" },
-            amountHint: { it: "Usa un valore negativo per uno sconto.", en: "Use a negative value for a discount." },
-            legacyNotesLabel: { it: "Note legacy (opzionale)", en: "Legacy notes (optional)" },
-        }),
     }).optional(),
 });
 
 
 export type LineItem = z.infer<typeof LineItemSchema>;
-export type AdditionalAdjustment = z.infer<typeof AdditionalAdjustmentSchema>;
 export type Package = z.infer<typeof PackageSchema>;
-export type QuestionEffect = z.infer<typeof QuestionEffectSchema>;
-export type Question = z.infer<typeof QuestionSchema>;
 export type GalleryImage = z.infer<typeof GalleryImageSchema>;
 export type AppConfig = z.infer<typeof AppConfigSchema>;
 

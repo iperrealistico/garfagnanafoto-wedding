@@ -237,17 +237,10 @@ describe("quote generation e2e flow", () => {
         vi.useRealTimers();
     });
 
-    it("renders 'Su Misura' as a full-width CTA outside the package cards grid", async () => {
+    it("does not expose custom quote links in the homepage source", async () => {
         const source = readFileSync(join(process.cwd(), "src/app/[lang]/page.tsx"), "utf-8");
-        const gridIndex = source.indexOf('data-testid="packages-grid"');
-        const ctaIndex = source.indexOf('data-testid="su-misura-cta"');
-
-        expect(gridIndex).toBeGreaterThan(-1);
-        expect(ctaIndex).toBeGreaterThan(gridIndex);
-        expect(source).toContain('className="w-full mt-8" data-testid="su-misura-cta"');
-
-        const gridBlock = source.slice(gridIndex, ctaIndex);
-        expect(gridBlock).not.toContain("Su Misura");
-        expect(source).toContain('<Link href="/custom">Personalizza</Link>');
+        expect(source).not.toContain("/custom");
+        expect(source).not.toContain("Preventivo Custom");
+        expect(source).not.toContain("Su Misura");
     });
 });

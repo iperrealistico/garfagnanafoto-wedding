@@ -156,7 +156,6 @@ interface QuoteDocumentProps {
     date: string;
     generatedAt: string;
     leadData?: Partial<LeadPayload>;
-    additionalRequests?: string;
     lang?: string;
 }
 
@@ -168,7 +167,6 @@ export const QuoteDocument = ({
     date,
     generatedAt,
     leadData,
-    additionalRequests,
     lang = "it"
 }: QuoteDocumentProps) => {
     const formatCurrency = (value: number) =>
@@ -241,39 +239,6 @@ export const QuoteDocument = ({
                         </View>
                     </View>
                 ))}
-                {pricing.questionAdjustments.map((adjustment) => (
-                    <View key={adjustment.id} style={styles.tableRow}>
-                        <View style={styles.colDesc}>
-                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
-                                {adjustment.priceDeltaNet < 0 ? `${discountLabel}: ` : ""}
-                                {getLocalized(adjustment.questionText, lang)}
-                            </Text>
-                        </View>
-                        <View style={styles.colPrice}>
-                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
-                                {formatSignedCurrency(adjustment.priceDeltaNet)}
-                            </Text>
-                        </View>
-                    </View>
-                ))}
-                {pricing.additionalAdjustments.map((adjustment) => (
-                    <View key={adjustment.id} style={styles.tableRow}>
-                        <View style={styles.colDesc}>
-                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
-                                {adjustment.priceDeltaNet < 0 ? `${discountLabel}: ` : ""}
-                                {adjustment.title}
-                            </Text>
-                            {adjustment.description && (
-                                <Text style={{ fontSize: 8, color: "#6b7280", marginTop: 2 }}>{adjustment.description}</Text>
-                            )}
-                        </View>
-                        <View style={styles.colPrice}>
-                            <Text style={{ color: adjustment.priceDeltaNet < 0 ? "#b91c1c" : "#166534" }}>
-                                {formatSignedCurrency(adjustment.priceDeltaNet)}
-                            </Text>
-                        </View>
-                    </View>
-                ))}
 
                 {/* Totals */}
                 <View style={styles.summarySection}>
@@ -305,28 +270,6 @@ export const QuoteDocument = ({
                         </Text>
                     </View>
                 </View>
-
-                {/* Additional Requests & Text Answers */}
-                {(additionalRequests || (pricing.textAnswers && Object.keys(pricing.textAnswers).length > 0)) && (
-                    <View style={styles.notesSection}>
-                        {pricing.textAnswers && Object.entries(pricing.textAnswers).map(([qId, val]) => {
-                            const q = config.customFlow.questions.find(q => q.id === qId);
-                            if (!q) return null;
-                            return (
-                                <View key={qId} style={{ marginBottom: 8 }}>
-                                    <Text style={styles.infoLabel}>{getLocalized(q.questionText, lang)}</Text>
-                                    <Text style={{ marginTop: 2 }}>{val}</Text>
-                                </View>
-                            );
-                        })}
-                        {additionalRequests && (
-                            <View>
-                                <Text style={styles.infoLabel}>Note Aggiuntive</Text>
-                                <Text style={{ fontStyle: "italic", marginTop: 5, lineHeight: 1.4 }}>{additionalRequests}</Text>
-                            </View>
-                        )}
-                    </View>
-                )}
 
                 {/* Footer */}
                 <View style={styles.footer}>

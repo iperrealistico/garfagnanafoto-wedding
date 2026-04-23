@@ -1,14 +1,12 @@
 import { getAppConfig } from "@/lib/app-config";
-import { calculateFixedPackageQuote, calculateCustomQuote } from "@/lib/pricing-engine";
+import { calculateFixedPackageQuote } from "@/lib/pricing-engine";
 import { NextResponse } from "next/server";
-import { parseCustomParams } from "@/lib/url-params";
 import { getLocalized } from "@/lib/i18n-utils";
 import { readLeadPayloadFromSearchParams } from "@/lib/lead-payload";
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const packageId = searchParams.get("packageId");
-    const isCustom = searchParams.get("custom") === "true";
     const lang = "it";
     const leadPayload = readLeadPayloadFromSearchParams(searchParams);
     const firstName = leadPayload.firstName || "";
@@ -32,37 +30,13 @@ export async function GET(request: Request) {
 
     try {
         const config = await getAppConfig();
-        let pricing;
-        let pkgName = "Preventivo Personalizzato";
-        let pkgDescription = "Configurazione su misura basata sulle tue scelte.";
-
-        if (packageId) {
-            pricing = calculateFixedPackageQuote(config, packageId);
-            const pkg = config.packages.find((p) => p.id === packageId);
-            if (pkg) {
-                pkgName = getLocalized(pkg.name, lang);
-                pkgDescription = getLocalized(pkg.description, lang) || "";
-            }
-        } else if (isCustom) {
-            let customParams;
-            try {
-                customParams = parseCustomParams(searchParams);
-            } catch {
-                return new NextResponse(
-                    "Invalid custom adjustments payload. Please go back and regenerate the quote.",
-                    { status: 400 }
-                );
-            }
-
-            const { answers, additionalRequests, additionalAdjustments } = customParams;
-            pricing = calculateCustomQuote(config, answers, { additionalAdjustments });
-            pkgDescription = additionalRequests
-                ? "Configurazione su misura basata sulle tue scelte e richieste aggiuntive."
-                : pkgDescription;
-        }
+        const pricing = packageId ? calculateFixedPackageQuote(config, packageId) : null;
+        const pkg = config.packages.find((item) => item.id === packageId);
+        const pkgName = pkg ? getLocalized(pkg.name, lang) : "Preventivo";
+        const pkgDescription = pkg ? getLocalized(pkg.description, lang) || "" : "";
 
         if (!pricing) {
-            return new NextResponse("Quote not found (missing packageId or custom params)", { status: 404 });
+            return new NextResponse("Quote not found (missing packageId)", { status: 404 });
         }
 
         // Dynamic import to avoid issues with react-pdf SSR bundling
@@ -78,7 +52,6 @@ export async function GET(request: Request) {
                 date={date}
                 generatedAt={generatedAt}
                 leadData={leadPayload}
-                additionalRequests={searchParams.get("requests") || ""}
             />
         );
 

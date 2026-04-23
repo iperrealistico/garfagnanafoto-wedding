@@ -1,13 +1,11 @@
 import { PricingResult } from "@/lib/pricing-engine";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLocalized } from "@/lib/i18n-utils";
-import { LeadPayload, AppConfig } from "@/lib/config-schema";
+import { LeadPayload } from "@/lib/config-schema";
 
 interface QuoteSummaryProps {
     pricing: PricingResult;
     title: string;
-    config?: AppConfig;
-    additionalRequests?: string;
     leadData?: Partial<LeadPayload>;
     lang?: string;
 }
@@ -15,8 +13,6 @@ interface QuoteSummaryProps {
 export function QuoteSummary({
     pricing,
     title,
-    config,
-    additionalRequests,
     leadData,
     lang = "it"
 }: QuoteSummaryProps) {
@@ -27,13 +23,10 @@ export function QuoteSummary({
     const labels = {
         subtotal: lang === 'it' ? 'Imponibile' : 'Subtotal',
         adjustment: lang === 'it' ? 'Sconto/Adeguamento' : 'Discount/Adjustment',
-        questionAdjustments: lang === 'it' ? 'Adeguamenti risposte' : 'Answer adjustments',
-        additionalAdjustments: lang === 'it' ? 'Voci aggiuntive' : 'Additional items',
         discount: lang === 'it' ? 'Sconto' : 'Discount',
         totalNet: lang === 'it' ? 'Totale Netto' : 'Total Net',
         vat: lang === 'it' ? 'IVA' : 'VAT',
         total: lang === 'it' ? 'Totale' : 'Total',
-        notes: lang === 'it' ? 'Note aggiuntive' : 'Additional notes',
         client: lang === 'it' ? 'Cliente' : 'Client',
         location: lang === 'it' ? 'Luogo' : 'Location'
     };
@@ -80,45 +73,6 @@ export function QuoteSummary({
                     ))}
                 </div>
 
-                {pricing.questionAdjustments.length > 0 && (
-                    <div className="space-y-3 pt-4 border-t border-gray-100">
-                        <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.questionAdjustments}</span>
-                        {pricing.questionAdjustments.map((adjustment) => (
-                            <div key={adjustment.id} className="flex justify-between text-sm items-start">
-                                <span className="text-gray-700 flex-1">
-                                    {isDiscount(adjustment.priceDeltaNet) ? `${labels.discount}: ` : ""}
-                                    {getLocalized(adjustment.questionText, lang)}
-                                </span>
-                                <span className={`font-medium ml-4 ${isDiscount(adjustment.priceDeltaNet) ? "text-red-600" : "text-emerald-700"}`}>
-                                    {formatSignedCurrency(adjustment.priceDeltaNet)}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {pricing.additionalAdjustments.length > 0 && (
-                    <div className="space-y-3 pt-4 border-t border-gray-100">
-                        <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider">{labels.additionalAdjustments}</span>
-                        {pricing.additionalAdjustments.map((adjustment) => (
-                            <div key={adjustment.id} className="space-y-1">
-                                <div className="flex justify-between text-sm items-start">
-                                    <span className="text-gray-700 flex-1">
-                                        {isDiscount(adjustment.priceDeltaNet) ? `${labels.discount}: ` : ""}
-                                        {adjustment.title}
-                                    </span>
-                                    <span className={`font-medium ml-4 ${isDiscount(adjustment.priceDeltaNet) ? "text-red-600" : "text-emerald-700"}`}>
-                                        {formatSignedCurrency(adjustment.priceDeltaNet)}
-                                    </span>
-                                </div>
-                                {adjustment.description && (
-                                    <p className="text-xs text-gray-500 italic">{adjustment.description}</p>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                )}
-
                 <div className="pt-4 border-t border-gray-100 space-y-2">
                     <div className="flex justify-between text-sm text-gray-600">
                         <span>{labels.subtotal}</span>
@@ -141,34 +95,6 @@ export function QuoteSummary({
                         + {labels.vat} {pricing.vatRate * 100}% ({formatCurrency(pricing.vatAmount)}) = {labels.total} {formatCurrency(pricing.totalGross)}
                     </div>
                 </div>
-
-                {((pricing.textAnswers && Object.keys(pricing.textAnswers).length > 0) || additionalRequests) && (
-                    <div className="mt-6 pt-6 border-t border-dashed border-gray-200 space-y-4">
-                        {pricing.textAnswers && Object.entries(pricing.textAnswers).map(([qId, val]) => {
-                            const q = config?.customFlow.questions.find(q => q.id === qId);
-                            if (!q) return null;
-                            return (
-                                <div key={qId}>
-                                    <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider mb-1">
-                                        {getLocalized(q.questionText, lang)}
-                                    </span>
-                                    <p className="text-sm text-gray-900 border-l-2 border-[#719436] pl-3 py-0.5">
-                                        {val}
-                                    </p>
-                                </div>
-                            );
-                        })}
-
-                        {additionalRequests && (
-                            <div>
-                                <span className="text-gray-500 block text-xs uppercase font-bold tracking-wider mb-1">{labels.notes}</span>
-                                <p className="text-sm text-gray-700 bg-amber-50/50 p-3 rounded italic border border-amber-100/50">
-                                    {additionalRequests}
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                )}
             </CardContent>
         </Card>
     );

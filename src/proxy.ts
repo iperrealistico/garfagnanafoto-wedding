@@ -1,41 +1,81 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import {
+    ACCESS_COOKIE_NAME,
+    hasValidAccessSession,
+    isAccessProtectionEnabled,
+    sanitizeAccessRedirectTarget,
+} from "@/lib/access-control";
 
 const locales = ["it", "en"];
 const defaultLocale = "it";
 
-export function proxy(request: NextRequest) {
-    const { pathname } = request.nextUrl;
-
-    // Check if there is any supported locale in the pathname
-    const pathnameHasLocale = locales.some(
+function hasLocale(pathname: string) {
+    return locales.some(
         (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
     );
+}
 
-    if (pathnameHasLocale) return;
-
-    // Keep utility routes unlocalized.
-    if (
-        pathname.startsWith("/admin") ||
-        pathname.startsWith("/api") ||
-        pathname.startsWith("/quote") ||
-        pathname.startsWith("/custom") ||
+function isStaticAsset(pathname: string) {
+    return (
         pathname.startsWith("/_next") ||
-        pathname.includes(".") // files
-    ) {
+        pathname === "/favicon.ico" ||
+        pathname.includes(".")
+    );
+}
+
+function isUnlocalizedUtilityRoute(pathname: string) {
+    return (
+        pathname === "/access" ||
+        pathname.startsWith("/api") ||
+        pathname.startsWith("/quote")
+    );
+}
+
+export async function proxy(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+
+    if (isStaticAsset(pathname)) return;
+
+    const pathnameHasLocale = hasLocale(pathname);
+
+    if (!pathnameHasLocale && !isUnlocalizedUtilityRoute(pathname)) {
+        request.nextUrl.pathname = `/${defaultLocale}${pathname}`;
+        return NextResponse.redirect(request.nextUrl);
+    }
+
+    if (!isAccessProtectionEnabled()) {
         return;
     }
 
-    // Redirect if no locale
-    const locale = defaultLocale;
-    request.nextUrl.pathname = `/${locale}${pathname}`;
-    // e.g. incoming request is /products
-    // The new URL is now /en-US/products
-    return NextResponse.redirect(request.nextUrl);
+    if (pathname.startsWith("/api/access")) return;
+
+    const hasSession = await hasValidAccessSession(
+        request.cookies.get(ACCESS_COOKIE_NAME)?.value
+    );
+
+    if (pathname === "/access") {
+        if (!hasSession) return;
+
+        const redirectUrl = new URL(
+            sanitizeAccessRedirectTarget(request.nextUrl.searchParams.get("next")),
+            request.url
+        );
+        return NextResponse.redirect(redirectUrl);
+    }
+
+    if (hasSession) return;
+
+    const redirectUrl = new URL("/access", request.url);
+    redirectUrl.searchParams.set(
+        "next",
+        `${pathname}${request.nextUrl.search || ""}`
+    );
+    return NextResponse.redirect(redirectUrl);
 }
 
 export const config = {
     matcher: [
-        "/((?!api|_next/static|_next/image|favicon.ico|admin|quote|custom).*)",
+        "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)",
     ],
 };
