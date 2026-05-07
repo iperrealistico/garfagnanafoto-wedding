@@ -11,11 +11,11 @@ describe('Pricing Engine', () => {
         it('calculates "One" (Photo only) correctly', () => {
             const result = calculateFixedPackageQuote(config, 'pkg_photo_only');
             expect(result).toBeDefined();
-            // 900 + 200 = 1100
-            expect(result?.subtotalNet).toBe(1100);
-            expect(result?.totalNet).toBe(1100);
-            expect(result?.vatAmount).toBeCloseTo(1100 * 0.22);
-            expect(result?.totalGross).toBeCloseTo(1100 * 1.22);
+            // 1100 + 200 = 1300
+            expect(result?.subtotalNet).toBe(1300);
+            expect(result?.totalNet).toBe(1300);
+            expect(result?.vatAmount).toBeCloseTo(1300 * 0.22);
+            expect(result?.totalGross).toBeCloseTo(1300 * 1.22);
         });
 
         it('calculates "Duo" (Photo + Video) correctly with discount', () => {

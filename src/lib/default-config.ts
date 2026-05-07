@@ -19,7 +19,7 @@ export const DEFAULT_CONFIG: AppConfigInput = {
                 { it: "Fotolibro incluso", en: "Photobook included" },
             ],
             lineItems: [
-                { id: "photo_full_day", label: { it: "Due fotografi giornata intera (11:00 - 24:00)", en: "Two photographers full day (11:00am - 12:00am)" }, priceNet: 900, icon: "camera" },
+                { id: "photo_full_day", label: { it: "Due fotografi giornata intera (11:00 - 24:00)", en: "Two photographers full day (11:00am - 12:00am)" }, priceNet: 1100, icon: "camera" },
                 { id: "photo_edit", label: { it: "Selezione delle foto ed editing professionale", en: "Photo selection and professional editing" }, priceNet: 200, icon: "sliders" },
             ],
             packageAdjustmentNet: 0,

@@ -87,7 +87,7 @@ type DocumentAction = "download" | "print";
 function ActionHarness({ action }: { action: DocumentAction }) {
     return (
         <LeadGate
-            quoteSnapshot={{ packageId: "pkg_photo_only", totalNet: 1100 }}
+            quoteSnapshot={{ packageId: "pkg_photo_only", totalNet: 1300 }}
             gdprNotice="GDPR"
             lang="it"
         >
